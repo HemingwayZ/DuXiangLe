@@ -15,6 +15,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.zxing.client.android.CaptureActivity;
+import com.google.zxing.client.android.Intents;
+import com.google.zxing.client.android.camera.CameraConfigurationUtils;
 import com.lidroid.xutils.ViewUtils;
 import com.lidroid.xutils.view.annotation.ContentView;
 
@@ -90,8 +93,11 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_camara) {
             // Handle the camera action
+            callCapture(null);
         } else if (id == R.id.nav_gallery) {
-
+            Intent intent = new Intent();
+            intent.setClass(MainActivity.this, BookDetailActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_slideshow) {
 
         } else if (id == R.id.nav_manage) {
@@ -107,20 +113,31 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode != RESULT_OK || null == data) {
+            return;
+        }
+        //扫描结果 data带有扫描结果集
+        data.setClass(MainActivity.this, BookDetailActivity.class);
+        startActivity(data);
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
     /**
      * 使用zxing进行扫描
      *
      * @param characterSet 扫描格式
      */
     private void callCapture(String characterSet) {
-//        Intent intent = new Intent();
-//        intent.setAction(Intents.Scan.ACTION);
-//        // intent.putExtra(Intents.Scan.MODE, Intents.Scan.QR_CODE_MODE);
-//        intent.putExtra(Intents.Scan.CHARACTER_SET, characterSet);
-//        intent.putExtra(Intents.Scan.WIDTH, 800);
-//        intent.putExtra(Intents.Scan.HEIGHT, 600);
-//        intent.putExtra(Intents.Scan.PROMPT_MESSAGE, "请于框内扫描条形码");
-//        intent.setClass(this, CaptureActivity.class);
-//        startActivityForResult(intent, REQUEST_CODE);
+        Intent intent = new Intent();
+        intent.setAction(Intents.Scan.ACTION);
+        // intent.putExtra(Intents.Scan.MODE, Intents.Scan.QR_CODE_MODE);
+        intent.putExtra(Intents.Scan.CHARACTER_SET, characterSet);
+        intent.putExtra(Intents.Scan.WIDTH, 800);
+        intent.putExtra(Intents.Scan.HEIGHT, 600);
+        intent.putExtra(Intents.Scan.PROMPT_MESSAGE, "请于框内扫描条形码");
+        intent.setClass(this, CaptureActivity.class);
+        startActivityForResult(intent, REQUEST_CODE);
     }
 }

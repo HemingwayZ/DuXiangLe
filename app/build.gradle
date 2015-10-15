@@ -3,7 +3,8 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.1"
-
+// Apache Http    android6.0sdk已经将httpClient给过时了，使用6.0编译的时候会报错
+    useLibrary 'org.apache.http.legacy'
     defaultConfig {
         applicationId "com.zhm.duxiangle"
         minSdkVersion 15
@@ -25,5 +26,6 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.0.1'
     compile 'com.android.support:design:23.0.1'
     compile 'com.jiechic.library:xUtils:2.6.14'
-    compile 'com.google.zxing:zxing-parent:3.2.1'
+    compile project(':libs:zxing_lib')
+    compile 'com.google.code.gson:gson:2.4'
 }
