@@ -1,5 +1,6 @@
 package com.zhm.duxiangle;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.design.widget.FloatingActionButton;
@@ -20,6 +21,8 @@ import com.lidroid.xutils.view.annotation.ContentView;
 @ContentView(R.layout.activity_main)
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    private int REQUEST_CODE = 200;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,5 +105,22 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    /**
+     * 使用zxing进行扫描
+     *
+     * @param characterSet 扫描格式
+     */
+    private void callCapture(String characterSet) {
+//        Intent intent = new Intent();
+//        intent.setAction(Intents.Scan.ACTION);
+//        // intent.putExtra(Intents.Scan.MODE, Intents.Scan.QR_CODE_MODE);
+//        intent.putExtra(Intents.Scan.CHARACTER_SET, characterSet);
+//        intent.putExtra(Intents.Scan.WIDTH, 800);
+//        intent.putExtra(Intents.Scan.HEIGHT, 600);
+//        intent.putExtra(Intents.Scan.PROMPT_MESSAGE, "请于框内扫描条形码");
+//        intent.setClass(this, CaptureActivity.class);
+//        startActivityForResult(intent, REQUEST_CODE);
     }
 }
