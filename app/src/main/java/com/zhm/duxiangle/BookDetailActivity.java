@@ -1,6 +1,7 @@
 package com.zhm.duxiangle;
 
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -27,7 +28,7 @@ import com.zhm.duxiangle.utils.DXLGsonUtils;
 import com.zhm.duxiangle.utils.ToastUtils;
 
 @ContentView(R.layout.activity_book_detail)
-public class BookDetailActivity extends AppCompatActivity {
+public class BookDetailActivity extends HmSlidingBackActivity {
 
     private String isbn;
     @ViewInject(R.id.toolbar_layout)
@@ -38,13 +39,13 @@ public class BookDetailActivity extends AppCompatActivity {
     private TextView tvContent;
     @ViewInject(R.id.book_cover)
     private ImageView bookCover;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().setBackgroundDrawable(new ColorDrawable(0));
         ViewUtils.inject(this);
-        setSupportActionBar(toolbar);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fabShare);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -54,6 +55,7 @@ public class BookDetailActivity extends AppCompatActivity {
             }
         });
     }
+
     /**
      * 根据扫描的isbn获取书籍信息
      */
@@ -70,6 +72,7 @@ public class BookDetailActivity extends AppCompatActivity {
             }
         });
     }
+
     private void getDataFromNet() {
         HttpUtils http = new HttpUtils();
         http.send(HttpRequest.HttpMethod.POST, DouBanApi.getBookByIsbn(isbn), new RequestCallBack<String>() {

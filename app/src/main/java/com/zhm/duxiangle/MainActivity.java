@@ -2,7 +2,6 @@ package com.zhm.duxiangle;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.LayoutRes;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.view.View;
@@ -17,29 +16,31 @@ import android.view.MenuItem;
 
 import com.google.zxing.client.android.CaptureActivity;
 import com.google.zxing.client.android.Intents;
-import com.google.zxing.client.android.camera.CameraConfigurationUtils;
 import com.lidroid.xutils.ViewUtils;
 import com.lidroid.xutils.view.annotation.ContentView;
+import com.lidroid.xutils.view.annotation.ViewInject;
 
 @ContentView(R.layout.activity_main)
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private int REQUEST_CODE = 200;
+    @ViewInject(R.id.toolbar)
+    private Toolbar toolbar;
+    @ViewInject(R.id.fabScan)
+    private FloatingActionButton fabScan;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ViewUtils.inject(this);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        fabScan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                Snackbar.make(view, "扫描二维码", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+                callScanning("UTF-8");
             }
         });
 
@@ -61,6 +62,12 @@ public class MainActivity extends AppCompatActivity
         } else {
             super.onBackPressed();
         }
+    }
+
+    @Override
+    protected void onStart() {
+        overridePendingTransition(R.anim.hm_base_slide_right_in, 0);
+        super.onStart();
     }
 
     @Override
@@ -93,11 +100,13 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_camara) {
             // Handle the camera action
-            callCapture(null);
+
         } else if (id == R.id.nav_gallery) {
             Intent intent = new Intent();
             intent.setClass(MainActivity.this, BookDetailActivity.class);
             startActivity(intent);
+            overridePendingTransition(R.anim.hm_base_slide_right_in,
+                    0);
         } else if (id == R.id.nav_slideshow) {
 
         } else if (id == R.id.nav_manage) {
@@ -129,7 +138,7 @@ public class MainActivity extends AppCompatActivity
      *
      * @param characterSet 扫描格式
      */
-    private void callCapture(String characterSet) {
+    private void callScanning(String characterSet) {
         Intent intent = new Intent();
         intent.setAction(Intents.Scan.ACTION);
         // intent.putExtra(Intents.Scan.MODE, Intents.Scan.QR_CODE_MODE);
