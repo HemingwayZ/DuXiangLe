@@ -47,6 +47,7 @@ public class MainActivity extends AppCompatActivity
     private TabLayout tabLayout;
     @ViewInject(R.id.viewpager)
     private ViewPager viewPager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,8 +72,12 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
         initTab();
     }
+
     String[] mData;
-    /**初始化tab菜单*/
+
+    /**
+     * 初始化tab菜单
+     */
     private void initTab() {
         TabLayout.Tab tab1 = tabLayout.newTab().setText("首页");
         tabLayout.addTab(tab1);
@@ -84,7 +89,7 @@ public class MainActivity extends AppCompatActivity
 
         fragmentArrayList.add(homeFragment);
         fragmentArrayList.add(findFragment);
-        mData = new String[]{"aaa","bbb"};
+        mData = new String[]{"aaa", "bbb"};
         viewPager.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
             public CharSequence getPageTitle(int position) {
@@ -136,6 +141,8 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
+            startActivity(intent);
             return true;
         }
 
@@ -157,6 +164,7 @@ public class MainActivity extends AppCompatActivity
             startActivity(intent);
             overridePendingTransition(R.anim.hm_base_slide_right_in,
                     0);
+            return false;
         } else if (id == R.id.nav_slideshow) {
 
         } else if (id == R.id.nav_manage) {
