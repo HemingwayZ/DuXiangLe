@@ -10,6 +10,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
+import android.support.v7.widget.Toolbar;
 import android.widget.ImageView;
 
 import com.lidroid.xutils.BitmapUtils;
@@ -79,7 +80,7 @@ public class DXLBitmapUtils {
      * @param url
      * @return
      */
-    public Bitmap setBookAvatar(ImageView container, String url) {
+    public Bitmap setBookAvatar(ImageView container, String url, final Toolbar toolbar) {
         if (null == bitmapUtils) {
             bitmapUtils = new BitmapUtils(mContext);
         }
@@ -88,6 +89,7 @@ public class DXLBitmapUtils {
             @Override
             public void onLoadCompleted(ImageView container, String uri, Bitmap bitmap, BitmapDisplayConfig config, BitmapLoadFrom from) {
                 container.setImageBitmap(createReflectedImage(bitmap));
+//                toolbar.setLogo(container.getDrawable());
             }
 
             @Override

@@ -1,16 +1,14 @@
-package com.zhm.duxiangle;
+package com.zhm.duxiangle.view;
 
 import java.util.LinkedList;
 import java.util.List;
 
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.AttributeSet;
@@ -21,17 +19,15 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.Scroller;
-import android.widget.Toast;
 
 import com.zhm.duxiangle.R;
-import com.zhm.duxiangle.utils.ToastUtils;
 
 /**
  * @author zhm
  * @version 2015-10-18
  */
-public class HmSlidingBackLayout extends FrameLayout {
-    private static final String TAG = HmSlidingBackLayout.class.getSimpleName();
+public class SlidingBackLayout extends FrameLayout {
+    private static final String TAG = SlidingBackLayout.class.getSimpleName();
     private View mContentView;
     private int mTouchSlop;
     private int downX;
@@ -45,11 +41,11 @@ public class HmSlidingBackLayout extends FrameLayout {
     private AppCompatActivity mActivity;
     private List<ViewPager> mViewPagers = new LinkedList<ViewPager>();
 
-    public HmSlidingBackLayout(Context context, AttributeSet attrs) {
+    public SlidingBackLayout(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public HmSlidingBackLayout(Context context, AttributeSet attrs, int defStyle) {
+    public SlidingBackLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         // 设置触摸滑动的举例
         mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();

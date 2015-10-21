@@ -1,9 +1,15 @@
 package com.zhm.duxiangle;
 
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -13,12 +19,18 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.google.zxing.client.android.CaptureActivity;
 import com.google.zxing.client.android.Intents;
 import com.lidroid.xutils.ViewUtils;
 import com.lidroid.xutils.view.annotation.ContentView;
 import com.lidroid.xutils.view.annotation.ViewInject;
+import com.zhm.duxiangle.fragment.FindFragment;
+import com.zhm.duxiangle.fragment.HomeFragment;
+
+import java.util.ArrayList;
 
 @ContentView(R.layout.activity_main)
 public class MainActivity extends AppCompatActivity
@@ -30,6 +42,11 @@ public class MainActivity extends AppCompatActivity
     @ViewInject(R.id.fabScan)
     private FloatingActionButton fabScan;
 
+    //
+    @ViewInject(R.id.tabLayout)
+    private TabLayout tabLayout;
+    @ViewInject(R.id.viewpager)
+    private ViewPager viewPager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,6 +69,39 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        initTab();
+    }
+    String[] mData;
+    /**初始化tab菜单*/
+    private void initTab() {
+        TabLayout.Tab tab1 = tabLayout.newTab().setText("首页");
+        tabLayout.addTab(tab1);
+        TabLayout.Tab tab2 = tabLayout.newTab().setText("发现");
+        tabLayout.addTab(tab2);
+        FindFragment findFragment = new FindFragment();
+        HomeFragment homeFragment = new HomeFragment();
+        final ArrayList<Fragment> fragmentArrayList = new ArrayList<>();
+
+        fragmentArrayList.add(homeFragment);
+        fragmentArrayList.add(findFragment);
+        mData = new String[]{"aaa","bbb"};
+        viewPager.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
+            @Override
+            public CharSequence getPageTitle(int position) {
+                return mData[position];
+            }
+
+            @Override
+            public Fragment getItem(int position) {
+                return fragmentArrayList.get(position);
+            }
+
+            @Override
+            public int getCount() {
+                return fragmentArrayList.size();
+            }
+        });
+        tabLayout.setupWithViewPager(viewPager);
     }
 
     @Override
