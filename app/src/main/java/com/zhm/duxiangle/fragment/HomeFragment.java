@@ -2,12 +2,26 @@ package com.zhm.duxiangle.fragment;
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.TextView;
 
+import com.lidroid.xutils.ViewUtils;
+import com.lidroid.xutils.view.annotation.ViewInject;
 import com.zhm.duxiangle.R;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -17,7 +31,7 @@ import com.zhm.duxiangle.R;
  * Use the {@link HomeFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class HomeFragment extends Fragment {
+public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -28,6 +42,7 @@ public class HomeFragment extends Fragment {
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+    private int lastVisibleItem;
 
     /**
      * Use this factory method to create a new instance of
@@ -60,11 +75,114 @@ public class HomeFragment extends Fragment {
         }
     }
 
+    private final int REFRESH_COMPLETE = 100;
+    private Handler mHandler = new Handler() {
+        public void handleMessage(android.os.Message msg) {
+            switch (msg.what) {
+                case REFRESH_COMPLETE:
+                    mDatas.addAll(Arrays.asList("Lucene", "Canvas", "Bitmap"));
+//                    mAdapter.notifyDataSetChanged();
+                    mSwipeLayout.setRefreshing(false);
+                    break;
+                case 101:
+                    mDatas.addAll(Arrays.asList("1111", "2222", "33323"));
+                    mSwipeLayout.setRefreshing(false);
+                    break;
+
+            }
+        }
+
+        ;
+    };
+    View view;
+    @ViewInject(R.id.swipeRefreshLayout)
+    private SwipeRefreshLayout mSwipeLayout;
+    @ViewInject(R.id.recycler)
+    private RecyclerView recyclerView;
+    private ArrayAdapter<String> mAdapter;
+    private LinearLayoutManager layoutManager;
+    private HomeAdapter homeAdapter;
+    private List<String> mDatas = new ArrayList<String>(Arrays.asList("Java", "Javascript", "C++", "Ruby", "Json",
+            "HTML"));
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_home, container, false);
+        view = inflater.inflate(R.layout.fragment_home, container, false);
+        ViewUtils.inject(this, view);
+        mSwipeLayout.setOnRefreshListener(this);
+        mSwipeLayout.setColorSchemeResources(android.R.color.holo_blue_light, android.R.color.holo_red_light, android.R.color.holo_orange_light, android.R.color.holo_green_light);
+        // 这句话是为了，第一次进入页面的时候显示加载进度条
+        mSwipeLayout.setProgressViewOffset(false, 0, (int) TypedValue
+                .applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24, getResources()
+                        .getDisplayMetrics()));
+        //需要设置布局管理器，否则会报错
+        layoutManager = new LinearLayoutManager(getActivity());
+        recyclerView.setLayoutManager(layoutManager);
+        homeAdapter = new HomeAdapter();
+        recyclerView.setAdapter(homeAdapter);
+        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                lastVisibleItem = layoutManager.findLastVisibleItemPosition();
+                super.onScrolled(recyclerView, dx, dy);
+            }
+
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if (newState == RecyclerView.SCROLL_STATE_IDLE
+                        && lastVisibleItem + 1 == homeAdapter.getItemCount()) {
+                    mSwipeLayout.setRefreshing(true);
+                    // 此处在现实项目中，请换成网络请求数据代码，sendRequest .....
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                Thread.sleep(2000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            Message message = new Message();
+                            message.what = 101;
+                            mHandler.sendMessage(message);
+                        }
+                    }).start();
+                }
+            }
+        });
+        return view;
+    }
+    class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.MyViewHolder> {
+
+        @Override
+        public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            MyViewHolder holder = new MyViewHolder(LayoutInflater.from(
+                    getActivity()).inflate(R.layout.fragment_home_item, parent,
+                    false));
+            return holder;
+        }
+
+        @Override
+        public void onBindViewHolder(MyViewHolder holder, int position) {
+            holder.tv.setText(mDatas.get(position));
+        }
+
+        @Override
+        public int getItemCount() {
+            return mDatas.size();
+        }
+
+        class MyViewHolder extends RecyclerView.ViewHolder {
+
+            TextView tv;
+
+            public MyViewHolder(View view) {
+                super(view);
+                tv = (TextView) view.findViewById(R.id.id_num);
+            }
+        }
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -78,6 +196,21 @@ public class HomeFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onRefresh() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+        mHandler.sendEmptyMessageDelayed(REFRESH_COMPLETE, 2000);
     }
 
     /**
