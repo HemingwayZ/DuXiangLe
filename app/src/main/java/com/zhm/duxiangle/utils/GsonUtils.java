@@ -5,16 +5,16 @@ import com.google.gson.Gson;
 /**
  * Created by zhuanghm(183340093@qq.com) on 2015/10/9.
  */
-public class DXLGsonUtils {
-    private static DXLGsonUtils skHttpUtils;
+public class GsonUtils {
+    private static GsonUtils skHttpUtils;
     private Gson gson;
 
-    private DXLGsonUtils() {
+    private GsonUtils() {
     }
 
-    public static DXLGsonUtils getInstance() {
+    public static GsonUtils getInstance() {
         if (null == skHttpUtils) {
-            skHttpUtils = new DXLGsonUtils();
+            skHttpUtils = new GsonUtils();
         }
         return skHttpUtils;
     }

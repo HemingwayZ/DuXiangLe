@@ -7,11 +7,13 @@ import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
-import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.flaviofaria.kenburnsview.KenBurnsView;
 import com.google.zxing.client.android.Intents;
 import com.lidroid.xutils.HttpUtils;
 import com.lidroid.xutils.ViewUtils;
@@ -23,8 +25,8 @@ import com.lidroid.xutils.view.annotation.ContentView;
 import com.lidroid.xutils.view.annotation.ViewInject;
 import com.zhm.duxiangle.api.DouBanApi;
 import com.zhm.duxiangle.bean.Book;
-import com.zhm.duxiangle.utils.DXLBitmapUtils;
-import com.zhm.duxiangle.utils.DXLGsonUtils;
+import com.zhm.duxiangle.utils.BitmapUtils;
+import com.zhm.duxiangle.utils.GsonUtils;
 import com.zhm.duxiangle.utils.LogUtils;
 import com.zhm.duxiangle.utils.ToastUtils;
 
@@ -32,8 +34,8 @@ import com.zhm.duxiangle.utils.ToastUtils;
 public class BookDetailActivity extends SlidingBackActivity {
 
     private String isbn;
-    @ViewInject(R.id.toolbar_layout)
-    private CollapsingToolbarLayout toolbarLayout;
+    @ViewInject(R.id.collapsingToolbarLayout)
+    private CollapsingToolbarLayout collapsingToolbarLayout;
     @ViewInject(R.id.app_bar)
     private AppBarLayout appBarLayout;
     @ViewInject(R.id.toolbar)
@@ -43,7 +45,17 @@ public class BookDetailActivity extends SlidingBackActivity {
     @ViewInject(R.id.tvContent)
     private TextView tvContent;
     @ViewInject(R.id.book_cover)
-    private ImageView bookCover;
+    private KenBurnsView bookCover;
+    //滚动条
+    @ViewInject(R.id.nestedScrollView)
+    private NestedScrollView nestedScrollView;
+    // 进度条
+    @ViewInject(R.id.progressBar_bookDetail)
+    private ProgressBar progressBar;
+    //悬浮按钮2
+    @ViewInject(R.id.fabShare2)
+    private FloatingActionButton fabShare2;
+    private Book book;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,17 +70,31 @@ public class BookDetailActivity extends SlidingBackActivity {
                 getBookInfoByScan();
             }
         });
+
         appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
             @Override
             public void onOffsetChanged(AppBarLayout appBarLayout, int i) {
-                LogUtils.i(BookDetailActivity.this, "i:" + i);
-                LogUtils.i(BookDetailActivity.this, "" + appBarLayout.getTotalScrollRange());
+                LogUtils.i(BookDetailActivity.this, "--i:" + i);
+                LogUtils.i(BookDetailActivity.this, "--getTotalScrollRange:" + appBarLayout.getTotalScrollRange());
+
                 if (i == -appBarLayout.getTotalScrollRange()) {
-                    ToastUtils.showToast(getApplicationContext(), "i:" + i);
+                    //这段代码修改是隐藏头部的操作
+                    fabShare2.setVisibility(View.VISIBLE);
                     toolbar.setLogo(bookCover.getDrawable());
+                } else {
+                    if (book != null) {
+                        toolbar.setLogo(null);
+                    }
+                }
+                if (i > -132) {
+                    fabShare2.setVisibility(View.GONE);
+                    toolbar.setLogo(null);
                 }
             }
         });
+
+        getBookInfoByScan();
+        getDataFromNet();
     }
 
     /**
@@ -89,19 +115,22 @@ public class BookDetailActivity extends SlidingBackActivity {
         });
     }
 
+    /**
+     * 获取书籍基本信息
+     */
     private void getDataFromNet() {
         HttpUtils http = new HttpUtils();
         http.send(HttpRequest.HttpMethod.POST, DouBanApi.getBookByIsbn(isbn), new RequestCallBack<String>() {
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
                 String json = responseInfo.result;
-                Book book = DXLGsonUtils.getInstance().json2Bean(json, Book.class);
+                book = GsonUtils.getInstance().json2Bean(json, Book.class);
                 tvContent.setText(book.toString());
-                toolbarLayout.setTitle(book.getTitle());
-                DXLBitmapUtils.getInstance(getApplicationContext()).setBookAvatar(bookCover, book.getImages().getLarge(), toolbar);
-//                toolbar.setLogo(R.drawable.launcher_icon);
-//                toolbar.setLogo(bookCover.getDrawable());
-//                bitmapUtils.display(bookAvatar, book.getImages().getLarge());
+//                collapsingToolbarLayout.setTitle(book.getTitle());
+//                collapsingToolbarLayout.setCollapsedTitleGravity(Gravity.BOTTOM | Gravity.RIGHT);
+                BitmapUtils.getInstance(getApplicationContext()).setBookAvatar(bookCover, book.getImages().getLarge(), toolbar);
+                progressBar.setVisibility(View.GONE);
+
             }
 
             @Override

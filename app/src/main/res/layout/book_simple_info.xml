@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <!--书籍简单信息-->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="10dp">
+
+        <com.flaviofaria.kenburnsview.KenBurnsView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/book_cover_default"></com.flaviofaria.kenburnsview.KenBurnsView>
+
+
+        <!--
+
+                <TextView
+                    android:id="@+id/book_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Title"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:layout_marginLeft="35dp"
+                    android:layout_marginStart="35dp"
+                    android:layout_alignTop="@+id/book_cover"
+                    android:layout_toRightOf="@+id/book_cover"
+                    android:layout_toEndOf="@+id/book_cover" />
+
+                <TextView
+                    android:id="@+id/book_author"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignLeft="@+id/book_title"
+                    android:layout_alignStart="@+id/book_title"
+                    android:layout_below="@+id/book_title"
+                    android:layout_marginTop="29dp"
+                    android:text="Author"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <TextView
+                    android:id="@+id/book_isbn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignLeft="@+id/book_author"
+                    android:layout_alignStart="@+id/book_author"
+                    android:layout_below="@+id/book_author"
+                    android:layout_marginTop="33dp"
+                    android:text="ISBN"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+        -->
+
+    </RelativeLayout>
+</LinearLayout>

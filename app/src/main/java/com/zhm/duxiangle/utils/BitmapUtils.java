@@ -13,7 +13,6 @@ import android.graphics.drawable.Drawable;
 import android.support.v7.widget.Toolbar;
 import android.widget.ImageView;
 
-import com.lidroid.xutils.BitmapUtils;
 import com.lidroid.xutils.bitmap.BitmapDisplayConfig;
 import com.lidroid.xutils.bitmap.callback.BitmapLoadCallBack;
 import com.lidroid.xutils.bitmap.callback.BitmapLoadFrom;
@@ -21,21 +20,21 @@ import com.lidroid.xutils.bitmap.callback.BitmapLoadFrom;
 /**
  * Created by zhuanghm(183340093@qq.com) on 2015/10/9.
  */
-public class DXLBitmapUtils {
+public class BitmapUtils {
 
-    static DXLBitmapUtils skBitmapUtils;
+    static BitmapUtils skBitmapUtils;
     private static Context mContext;
-    private BitmapUtils bitmapUtils;
+    private com.lidroid.xutils.BitmapUtils bitmapUtils;
 
-    private DXLBitmapUtils() {
+    private BitmapUtils() {
     }
 
-    public static DXLBitmapUtils getInstance(Context context) {
+    public static BitmapUtils getInstance(Context context) {
         if (null == context) {
             return null;
         }
         if (null == skBitmapUtils) {
-            skBitmapUtils = new DXLBitmapUtils();
+            skBitmapUtils = new BitmapUtils();
         }
         mContext = context;
         return skBitmapUtils;
@@ -82,7 +81,7 @@ public class DXLBitmapUtils {
      */
     public Bitmap setBookAvatar(ImageView container, String url, final Toolbar toolbar) {
         if (null == bitmapUtils) {
-            bitmapUtils = new BitmapUtils(mContext);
+            bitmapUtils = new com.lidroid.xutils.BitmapUtils(mContext);
         }
 
         bitmapUtils.display(container, url, new BitmapLoadCallBack<ImageView>() {

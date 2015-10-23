@@ -12,12 +12,13 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.lidroid.xutils.ViewUtils;
 import com.lidroid.xutils.view.annotation.ViewInject;
 import com.zhm.duxiangle.R;
+import com.zhm.duxiangle.adapter.HomeRecycleViewAdapter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -99,9 +100,12 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     private SwipeRefreshLayout mSwipeLayout;
     @ViewInject(R.id.recycler)
     private RecyclerView recyclerView;
-    private ArrayAdapter<String> mAdapter;
+    @ViewInject(R.id.book_cover)
+    private ImageView ivBookCover;
+
+
     private LinearLayoutManager layoutManager;
-    private HomeAdapter homeAdapter;
+    private HomeRecycleViewAdapter homeAdapter;
     private List<String> mDatas = new ArrayList<String>(Arrays.asList("Java", "Javascript", "C++", "Ruby", "Json",
             "HTML"));
 
@@ -120,7 +124,7 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         //需要设置布局管理器，否则会报错
         layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(layoutManager);
-        homeAdapter = new HomeAdapter();
+        homeAdapter = new HomeRecycleViewAdapter(mDatas, getActivity());
         recyclerView.setAdapter(homeAdapter);
         recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -154,36 +158,7 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         });
         return view;
     }
-    class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.MyViewHolder> {
 
-        @Override
-        public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            MyViewHolder holder = new MyViewHolder(LayoutInflater.from(
-                    getActivity()).inflate(R.layout.fragment_home_item, parent,
-                    false));
-            return holder;
-        }
-
-        @Override
-        public void onBindViewHolder(MyViewHolder holder, int position) {
-            holder.tv.setText(mDatas.get(position));
-        }
-
-        @Override
-        public int getItemCount() {
-            return mDatas.size();
-        }
-
-        class MyViewHolder extends RecyclerView.ViewHolder {
-
-            TextView tv;
-
-            public MyViewHolder(View view) {
-                super(view);
-                tv = (TextView) view.findViewById(R.id.id_num);
-            }
-        }
-    }
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {

@@ -20,6 +20,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.zxing.client.android.CaptureActivity;
@@ -34,7 +35,7 @@ import java.util.ArrayList;
 
 @ContentView(R.layout.activity_main)
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
     private int REQUEST_CODE = 200;
     @ViewInject(R.id.toolbar)
@@ -48,6 +49,9 @@ public class MainActivity extends AppCompatActivity
     @ViewInject(R.id.viewpager)
     private ViewPager viewPager;
 
+    //抽屉头部部分
+    @ViewInject(R.id.ivUser)
+    private ImageView ivUser;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,6 +74,7 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        ivUser.setOnClickListener(this);
         initTab();
     }
 
@@ -206,5 +211,19 @@ public class MainActivity extends AppCompatActivity
         intent.putExtra(Intents.Scan.PROMPT_MESSAGE, "请于框内扫描条形码");
         intent.setClass(this, CaptureActivity.class);
         startActivityForResult(intent, REQUEST_CODE);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.ivUser:
+                Intent intent = new Intent();
+                intent.setClass(MainActivity.this,LoginActivity.class);
+                startActivity(intent);
+                break;
+
+            default:
+
+        }
     }
 }
