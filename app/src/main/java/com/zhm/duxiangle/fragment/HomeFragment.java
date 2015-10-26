@@ -15,10 +15,16 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.lidroid.xutils.DbUtils;
 import com.lidroid.xutils.ViewUtils;
+import com.lidroid.xutils.db.sqlite.Selector;
+import com.lidroid.xutils.exception.DbException;
 import com.lidroid.xutils.view.annotation.ViewInject;
 import com.zhm.duxiangle.R;
 import com.zhm.duxiangle.adapter.HomeRecycleViewAdapter;
+import com.zhm.duxiangle.bean.Book;
+import com.zhm.duxiangle.bean.Images;
+import com.zhm.duxiangle.utils.DXLDbUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -81,13 +87,16 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         public void handleMessage(android.os.Message msg) {
             switch (msg.what) {
                 case REFRESH_COMPLETE:
-                    mDatas.addAll(Arrays.asList("Lucene", "Canvas", "Bitmap"));
+                    if (bookList != null && bookList.size() > 0)
 //                    mAdapter.notifyDataSetChanged();
+                        getDataFromLocalDb();
+                    if (homeAdapter != null)
+                        homeAdapter.notifyDataSetChanged();
                     mSwipeLayout.setRefreshing(false);
                     break;
                 case 101:
-                    mDatas.addAll(Arrays.asList("1111", "2222", "33323"));
-                    mSwipeLayout.setRefreshing(false);
+                    if (bookList != null && bookList.size() > 0)
+                        mSwipeLayout.setRefreshing(false);
                     break;
 
             }
@@ -106,26 +115,75 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
 
     private LinearLayoutManager layoutManager;
     private HomeRecycleViewAdapter homeAdapter;
-    private List<String> mDatas = new ArrayList<String>(Arrays.asList("Java", "Javascript", "C++", "Ruby", "Json",
-            "HTML"));
+    List<Book> bookList;
+
+    @Override
+    public void onStart() {
+        super.onStart();
+//        getDataFromLocalDb();
+    }
+
+    /**
+     * 从本地数据库获取书籍详情
+     */
+    private void getDataFromLocalDb() {
+        DbUtils dbUtils = DXLDbUtils.getInstance(getActivity()).getDbByName(DXLDbUtils.DB_BOOK);
+        if (dbUtils != null) {
+            try {
+                dbUtils.createTableIfNotExist(Book.class);
+
+                bookList = new ArrayList<Book>();
+                bookList = dbUtils.findAll(Book.class);
+
+                //获取图片信息
+                dbUtils.createTableIfNotExist(Images.class);
+
+                if (bookList != null && bookList.size() > 0) {
+                    for (int i = 0; i < bookList.size(); i++) {
+                        //从头数据库获取图片对象
+                        Images images = dbUtils.findFirst(Selector.from(Images.class).where("id", "=", bookList.get(i).getId()));
+                        bookList.get(i).setImages(images);
+
+                        //处理作者信息
+                        String[] author = bookList.get(i).getStrAuthor().split(String.valueOf('+'));
+                        List<String> authorList = new ArrayList<>();
+                        for (String str : author) {
+                            authorList.add(str);
+                        }
+                        bookList.get(i).setAuthor(authorList);
+                    }
+
+
+                }
+
+            } catch (DbException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        getDataFromLocalDb();
         view = inflater.inflate(R.layout.fragment_home, container, false);
         ViewUtils.inject(this, view);
+        //三设置下拉刷新监听事件和进度条
         mSwipeLayout.setOnRefreshListener(this);
         mSwipeLayout.setColorSchemeResources(android.R.color.holo_blue_light, android.R.color.holo_red_light, android.R.color.holo_orange_light, android.R.color.holo_green_light);
         // 这句话是为了，第一次进入页面的时候显示加载进度条
         mSwipeLayout.setProgressViewOffset(false, 0, (int) TypedValue
                 .applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24, getResources()
                         .getDisplayMetrics()));
-        //需要设置布局管理器，否则会报错
+        //设置recycleView和相应的适配器需要设置布局管理器，否则会报错
         layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(layoutManager);
-        homeAdapter = new HomeRecycleViewAdapter(mDatas, getActivity());
-        recyclerView.setAdapter(homeAdapter);
+        if (bookList != null && bookList.size() > 0) {
+            homeAdapter = new HomeRecycleViewAdapter(bookList, getActivity());
+            recyclerView.setAdapter(homeAdapter);
+        }
+        //设置recycleView上拉加载更多的方法
         recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -156,6 +214,7 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                 }
             }
         });
+
         return view;
     }
 
@@ -185,6 +244,7 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                 }
             }
         }).start();
+
         mHandler.sendEmptyMessageDelayed(REFRESH_COMPLETE, 2000);
     }
 

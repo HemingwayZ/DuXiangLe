@@ -8,10 +8,19 @@ package com.zhm.duxiangle.bean;
  *         2015��10��7��
  */
 public class Rating {
+    private String id;
     private int max;//
     private int numRaters;//������������
     private String average;//
     private int min;//�
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public int getMax() {
         return max;

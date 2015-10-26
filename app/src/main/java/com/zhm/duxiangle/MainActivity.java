@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity
     //抽屉头部部分
     @ViewInject(R.id.ivUser)
     private ImageView ivUser;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,7 +95,7 @@ public class MainActivity extends AppCompatActivity
 
         fragmentArrayList.add(homeFragment);
         fragmentArrayList.add(findFragment);
-        mData = new String[]{"aaa", "bbb"};
+        mData = new String[]{"我的书库", "我的最爱"};
         viewPager.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
             public CharSequence getPageTitle(int position) {
@@ -215,10 +216,10 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.ivUser:
                 Intent intent = new Intent();
-                intent.setClass(MainActivity.this,LoginActivity.class);
+                intent.setClass(MainActivity.this, LoginActivity.class);
                 startActivity(intent);
                 break;
 

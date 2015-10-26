@@ -230,7 +230,22 @@ public class KenBurnsView extends ImageView {
 
         startNewTransition();
     }
+    /**
+     * Creates a new transition and starts over.
+     */
+    public void restart(int x,int y) {
+        int width = getWidth()-x;
+        int height = getHeight()-y;
 
+        if (width == 0 || height == 0) {
+            return; // Can't call restart() when view area is zero.
+        }
+
+        updateViewport(width, height);
+        updateDrawableBounds();
+
+        startNewTransition();
+    }
 
     /**
      * Checks whether this view has bounds.

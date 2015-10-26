@@ -15,8 +15,8 @@ public class Book implements Serializable {
     private String id;//
     private String title;
     private String subtitle;
-    private List<String> author;
-    private List<String> translator;// ������
+    private List<String> author;//作者
+    private List<String> translator;//翻译 ������
     private String price;
     private String publisher;//
     private String catalog;//
@@ -31,6 +31,35 @@ public class Book implements Serializable {
     private Images images;//
     private Series series;//
     private String pages;//
+    private String image;
+
+    //作者信息
+    private String strAuthor;
+    private String strTranslator;
+
+    public String getStrTranslator() {
+        return strTranslator;
+    }
+
+    public void setStrTranslator(String strTranslator) {
+        this.strTranslator = strTranslator;
+    }
+
+    public String getStrAuthor() {
+        return strAuthor;
+    }
+
+    public void setStrAuthor(String strAuthor) {
+        this.strAuthor = strAuthor;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
 
     public static long getSerialversionuid() {
         return serialVersionUID;
