@@ -1,6 +1,7 @@
 package com.zhm.duxiangle.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 
 import com.lidroid.xutils.ViewUtils;
 import com.lidroid.xutils.view.annotation.ViewInject;
+import com.zhm.duxiangle.BookDetailActivity;
 import com.zhm.duxiangle.R;
 import com.zhm.duxiangle.bean.Book;
 import com.zhm.duxiangle.utils.BitmapUtils;
@@ -37,11 +39,20 @@ public class HomeRecycleViewAdapter extends RecyclerView.Adapter<HomeRecycleView
     }
 
     @Override
-    public void onBindViewHolder(HomeRecycleViewAdapter.MyViewHolder holder, int position) {
+    public void onBindViewHolder(HomeRecycleViewAdapter.MyViewHolder holder, final int position) {
         BitmapUtils.getInstance(mContext).setBookAvatar(holder.ivBookCover, mData.get(position).getImage(), null);
         holder.tvTitle.setText("书名:" + mData.get(position).getTitle());
         holder.tvAuthor.setText("作者:" + mData.get(position).getStrAuthor());
         holder.tvIsbn.setText("ISBN:" + mData.get(position).getIsbn13());
+        holder.ivBookCover.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.setClass(mContext, BookDetailActivity.class);
+                intent.putExtra("book", mData.get(position));
+                mContext.startActivity(intent);
+            }
+        });
     }
 
 

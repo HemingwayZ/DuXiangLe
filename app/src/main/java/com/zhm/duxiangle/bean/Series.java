@@ -1,5 +1,7 @@
 package com.zhm.duxiangle.bean;
 
+import java.io.Serializable;
+
 /**
  * 系列
  *
@@ -7,7 +9,7 @@ package com.zhm.duxiangle.bean;
  *         <p/>
  *         2015��10��7��
  */
-public class Series {
+public class Series implements Serializable {
     private String id;
     private String title;
 

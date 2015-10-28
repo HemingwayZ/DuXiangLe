@@ -176,9 +176,26 @@ public class BookDetailActivity extends SlidingBackActivity {
                 }
             }
         });
-
-        getBookInfoByScan();
-        getDataFromNet();
+        book = (Book) getIntent().getSerializableExtra("book");
+        if (null == book) {
+            getBookInfoByScan();
+            getDataFromNet();
+        }else{
+            tvTitle.setText("书名:" + book.getTitle());
+            StringBuffer buffer = new StringBuffer();
+            for (int i = 0; i < book.getAuthor().size(); i++) {
+                buffer.append(book.getAuthor().get(i));
+            }
+            tvAuthor.setText("作者:" + buffer.toString());
+            tvIsbn.setText("ISBN:" + book.getIsbn13());
+            collapsingToolbarLayout.setTitle(book.getTitle());
+            collapsingToolbarLayout.setCollapsedTitleTextColor(Color.WHITE);
+            //拓展过后的标题颜色
+            collapsingToolbarLayout.setExpandedTitleColor(Color.BLUE);
+            collapsingToolbarLayout.setCollapsedTitleGravity(Gravity.BOTTOM | Gravity.RIGHT);
+            BitmapUtils.getInstance(getApplicationContext()).setBookAvatar(bookCover, book.getImages().getLarge(), toolbar);
+            progressBar.setVisibility(View.GONE);
+        }
     }
 
     /**

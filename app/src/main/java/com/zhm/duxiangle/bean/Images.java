@@ -1,5 +1,7 @@
 package com.zhm.duxiangle.bean;
 
+import java.io.Serializable;
+
 /**
  * �
  *
@@ -7,7 +9,7 @@ package com.zhm.duxiangle.bean;
  *         <p/>
  *         2015��10��7��
  */
-public class Images {
+public class Images implements Serializable{
     private String id;
     private String small;//
     private String large;//��

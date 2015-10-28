@@ -1,5 +1,7 @@
 package com.zhm.duxiangle.bean;
 
+import java.io.Serializable;
+
 /**
  * ���鱾������
  *
@@ -7,7 +9,7 @@ package com.zhm.duxiangle.bean;
  *         <p/>
  *         2015��10��7��
  */
-public class Rating {
+public class Rating implements Serializable {
     private String id;
     private int max;//
     private int numRaters;//������������

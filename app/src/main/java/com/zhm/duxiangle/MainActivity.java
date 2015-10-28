@@ -10,6 +10,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.text.TextUtils;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -28,8 +29,11 @@ import com.google.zxing.client.android.Intents;
 import com.lidroid.xutils.ViewUtils;
 import com.lidroid.xutils.view.annotation.ContentView;
 import com.lidroid.xutils.view.annotation.ViewInject;
+import com.zhm.duxiangle.bean.User;
 import com.zhm.duxiangle.fragment.FindFragment;
 import com.zhm.duxiangle.fragment.HomeFragment;
+import com.zhm.duxiangle.utils.GsonUtils;
+import com.zhm.duxiangle.utils.SpUtil;
 
 import java.util.ArrayList;
 
@@ -52,11 +56,26 @@ public class MainActivity extends AppCompatActivity
     //抽屉头部部分
     @ViewInject(R.id.ivUser)
     private ImageView ivUser;
+    @ViewInject(R.id.tvUserName)
+    private TextView tvUsername;
+    @ViewInject(R.id.tvDesc)
+    private TextView tvDesc;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        overridePendingTransition(R.anim.hm_base_slide_right_in, 0);
         ViewUtils.inject(this);
+        //获取用户信息
+        String json = SpUtil.getSharePerference(getApplicationContext()).getString("user", "");
+        if (!TextUtils.isEmpty(json)) {
+            User user = GsonUtils.getInstance().json2Bean(json, User.class);
+            if (user != null) {
+                tvUsername.setText(user.getUsername());
+                tvDesc.setText(user.getPassword());
+            }
+        }
+
         setSupportActionBar(toolbar);
         fabScan.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,6 +95,7 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         ivUser.setOnClickListener(this);
+        //初始化recycleView和相应标题
         initTab();
     }
 
@@ -126,16 +146,28 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onStart() {
-        overridePendingTransition(R.anim.hm_base_slide_right_in, 0);
-        super.onStart();
+    protected void onRestart() {
+        Intent intent = getIntent();
+        User user = (User) intent.getSerializableExtra("user");
+        if (user != null) {
+            tvUsername.setText(user.getUsername());
+            tvDesc.setText(user.getPassword());
+        }
+        super.onRestart();
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
     }
 
     @Override

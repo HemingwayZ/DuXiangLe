@@ -5,7 +5,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
 public class SpUtil {
-	private static final String NAME="QQ";
+	private static final String NAME="DuXiangLeConfig";
 	private static SpUtil instance;
 	static{
 		instance=new SpUtil();

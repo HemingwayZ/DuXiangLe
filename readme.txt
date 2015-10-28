@@ -131,3 +131,7 @@
 科文商科教材
 
 2./设置作者的字符串--数据库只能存储一维数据，若是二维数据需要用外键的方式或者使用字符串的方式
+
+3.使用intent传递的对象必须实现Serializable接口
+
+4.android:launchMode="singleTask"使activity单例话

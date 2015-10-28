@@ -10,6 +10,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -145,12 +146,15 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                         bookList.get(i).setImages(images);
 
                         //处理作者信息
-                        String[] author = bookList.get(i).getStrAuthor().split(String.valueOf('+'));
-                        List<String> authorList = new ArrayList<>();
-                        for (String str : author) {
-                            authorList.add(str);
+                        if (bookList.get(i).getStrAuthor() != null) {
+                            String[] author = bookList.get(i).getStrAuthor().split("\\+");
+                            List<String> authorList = new ArrayList<>();
+                            for (String str : author) {
+                                authorList.add(str);
+                            }
+                            bookList.get(i).setAuthor(authorList);
                         }
-                        bookList.get(i).setAuthor(authorList);
+
                     }
 
 

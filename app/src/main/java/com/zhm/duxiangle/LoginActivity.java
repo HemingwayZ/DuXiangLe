@@ -3,6 +3,7 @@ package com.zhm.duxiangle;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -29,6 +30,22 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.lidroid.xutils.HttpUtils;
+import com.lidroid.xutils.ViewUtils;
+import com.lidroid.xutils.exception.HttpException;
+import com.lidroid.xutils.http.RequestParams;
+import com.lidroid.xutils.http.ResponseInfo;
+import com.lidroid.xutils.http.callback.RequestCallBack;
+import com.lidroid.xutils.http.client.HttpRequest;
+import com.lidroid.xutils.view.annotation.ContentView;
+import com.lidroid.xutils.view.annotation.ViewInject;
+import com.zhm.duxiangle.api.DXLApi;
+import com.zhm.duxiangle.bean.User;
+import com.zhm.duxiangle.utils.GsonUtils;
+import com.zhm.duxiangle.utils.LogUtils;
+import com.zhm.duxiangle.utils.SpUtil;
+import com.zhm.duxiangle.utils.ToastUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +54,8 @@ import static android.Manifest.permission.READ_CONTACTS;
 /**
  * A login screen that offers login via email/password.
  */
-public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
+@ContentView(R.layout.activity_login)
+public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor>, OnClickListener {
 
     /**
      * Id to identity READ_CONTACTS permission request.
@@ -54,23 +72,29 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
-    private UserLoginTask mAuthTask = null;
 
     // UI references.
+    @ViewInject(R.id.email)
     private AutoCompleteTextView mEmailView;
+    @ViewInject(R.id.password)
     private EditText mPasswordView;
+    @ViewInject(R.id.login_progress)
     private View mProgressView;
+    @ViewInject(R.id.login_form)
     private View mLoginFormView;
-
+    @ViewInject(R.id.email_sign_in_button)
+    private Button mEmailSignInButton;
+    @ViewInject(R.id.btnSetIp)
+    private Button btnSetIp;
+    @ViewInject(R.id.etIp)
+    private EditText etIp;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        ViewUtils.inject(this);
         // Set up the login form.
-        mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
-
-        mPasswordView = (EditText) findViewById(R.id.password);
+        btnSetIp.setOnClickListener(this);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
@@ -81,17 +105,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 return false;
             }
         });
-
-        Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
-        mEmailSignInButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                attemptLogin();
-            }
-        });
-
-        mLoginFormView = findViewById(R.id.login_form);
-        mProgressView = findViewById(R.id.login_progress);
+        mEmailSignInButton.setOnClickListener(this);
     }
 
     private void populateAutoComplete() {
@@ -144,17 +158,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * errors are presented and no actual login attempt is made.
      */
     private void attemptLogin() {
-        if (mAuthTask != null) {
-            return;
-        }
-
         // Reset errors.
         mEmailView.setError(null);
         mPasswordView.setError(null);
 
         // Store values at the time of the login attempt.
-        String email = mEmailView.getText().toString();
-        String password = mPasswordView.getText().toString();
+        String email = mEmailView.getText().toString().trim();
+        String password = mPasswordView.getText().toString().trim();
 
         boolean cancel = false;
         View focusView = null;
@@ -185,8 +195,59 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
-            mAuthTask.execute((Void) null);
+//            mAuthTask = new UserLoginTask(email, password);
+//            mAuthTask.execute((Void) null);
+            HttpUtils utils = new HttpUtils();
+            utils.configTimeout(1000 * 3);
+            RequestParams params = new RequestParams();
+            params.addBodyParameter("username", email);
+            params.addBodyParameter("password", password);
+            utils.send(HttpRequest.HttpMethod.POST, DXLApi.getLoginApi(), params, new RequestCallBack<String>() {
+                @Override
+                public void onSuccess(ResponseInfo<String> responseInfo) {
+                    String result = responseInfo.result;
+                    if ("username is null".equals(result)) {
+                        showProgress(false);
+                        mEmailView.setError(result);
+                        mEmailView.requestFocus();
+                        return;
+                    }
+                    if ("password is null".equals(result)) {
+                        showProgress(false);
+                        mPasswordView.setError(result);
+                        mPasswordView.requestFocus();
+                        return;
+                    }
+                    if ("no found".equals(result)) {
+                        showProgress(false);
+                        mEmailView.setError(result);
+                        mEmailView.requestFocus();
+                        return;
+                    }
+                    if ("error password".equals(result)) {
+
+                        showProgress(false);
+                        mPasswordView.setError(result);
+                        mPasswordView.requestFocus();
+                        return;
+                    }
+                    //存储到本地
+                    SpUtil.setStringSharedPerference(SpUtil.getSharePerference(getApplicationContext()), "user", result);
+                    User user = GsonUtils.getInstance().json2Bean(result, User.class);
+
+                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                    intent.putExtra("user", user);
+                    startActivity(intent);
+                }
+
+                @Override
+                public void onFailure(HttpException error, String msg) {
+                    showProgress(false);
+                    ToastUtils.cancelToast();
+                    //网络链接超时
+                    ToastUtils.showToast(getApplication(), msg.substring(msg.lastIndexOf(".") + 1));
+                }
+            });
         }
     }
 
@@ -270,6 +331,22 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     }
 
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.email_sign_in_button:
+                attemptLogin();
+                break;
+            case R.id.btnSetIp:
+                String strIp = etIp.getText().toString().trim();
+                if(!TextUtils.isEmpty(strIp)){
+                    DXLApi.HOST = strIp;
+                    btnSetIp.setText(DXLApi.HOST);
+                }
+                break;
+        }
+    }
+
     private interface ProfileQuery {
         String[] PROJECTION = {
                 ContactsContract.CommonDataKinds.Email.ADDRESS,
@@ -290,61 +367,5 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mEmailView.setAdapter(adapter);
     }
 
-    /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
-     */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
-
-        private final String mEmail;
-        private final String mPassword;
-
-        UserLoginTask(String email, String password) {
-            mEmail = email;
-            mPassword = password;
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
-
-            try {
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                return false;
-            }
-
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
-                }
-            }
-
-            // TODO: register the new account here.
-            return true;
-        }
-
-        @Override
-        protected void onPostExecute(final Boolean success) {
-            mAuthTask = null;
-            showProgress(false);
-
-            if (success) {
-                finish();
-            } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
-            }
-        }
-
-        @Override
-        protected void onCancelled() {
-            mAuthTask = null;
-            showProgress(false);
-        }
-    }
 }
 
