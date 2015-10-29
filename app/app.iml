@@ -94,6 +94,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="design-23.0.1" level="project" />
     <orderEntry type="library" exported="" name="appcompat-v7-23.0.1" level="project" />
+    <orderEntry type="library" exported="" name="faceppsdk" level="project" />
     <orderEntry type="library" exported="" name="faceppofflinesdk" level="project" />
     <orderEntry type="library" exported="" name="xUtils-2.6.14" level="project" />
     <orderEntry type="library" exported="" name="support-v4-23.0.1" level="project" />

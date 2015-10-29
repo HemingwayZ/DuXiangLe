@@ -45,6 +45,7 @@ import com.zhm.duxiangle.bean.User;
 import com.zhm.duxiangle.utils.GsonUtils;
 import com.zhm.duxiangle.utils.SpUtil;
 import com.zhm.duxiangle.utils.ToastUtils;
+import com.zhm.duxiangle.view.CircleImageView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -92,7 +93,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     //注册按钮
     @ViewInject(R.id.tvRegister)
     private TextView tvRegister;
-
+    //用户头像
+    @ViewInject(R.id.ivUser)
+    private CircleImageView ivUser;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -100,6 +103,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         // Set up the login form.
         populateAutoComplete();
         btnSetIp.setOnClickListener(this);
+        ivUser.setOnClickListener(this);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
@@ -365,6 +369,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     DXLApi.HOST = strIp;
                     btnSetIp.setText(DXLApi.HOST);
                 }
+                break;
+            case R.id.ivUser:
+                Intent intent = new Intent(LoginActivity.this,FaceCameraActivity.class);
+                startActivity(intent);
                 break;
         }
     }

@@ -31,4 +31,5 @@ dependencies {
     compile 'com.android.support:support-v4:23.0.1'
     compile project(':libs:kenburnsview_lib')
     compile files('D:/AsWorkSpace/DuXiangLe/libs/faceppofflinesdk.jar')
+    compile files('D:/AsWorkSpace/DuXiangLe/libs/faceppsdk.jar')
 }
