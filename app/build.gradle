@@ -32,4 +32,5 @@ dependencies {
     compile project(':libs:kenburnsview_lib')
     compile files('D:/AsWorkSpace/DuXiangLe/libs/faceppofflinesdk.jar')
     compile files('D:/AsWorkSpace/DuXiangLe/libs/faceppsdk.jar')
+    compile files('D:/AsWorkSpace/DuXiangLe/libs/wximg.jar')
 }

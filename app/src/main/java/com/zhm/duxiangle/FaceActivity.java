@@ -24,6 +24,9 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+/**
+ * face++从相册获取图片进行人脸识别
+ */
 public class FaceActivity extends Activity {
 
 	private Bitmap curBitmap;

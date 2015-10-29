@@ -135,3 +135,8 @@
 3.使用intent传递的对象必须实现Serializable接口
 
 4.android:launchMode="singleTask"使activity单例话
+
+人脸识别：
+http://www.faceplusplus.com.cn/uc/app/home?app_id=36984
+API Key	51e0b4e64e96496e525588a9b6ea5495
+API Secret	E6IP10rG7tBm9wAz_26Go64xUAD6mT7i
