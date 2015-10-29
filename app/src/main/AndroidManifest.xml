@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.zhm.duxiangle">
+    package="com.zhm.duxiangle" >
 
     <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL" />
 
@@ -10,7 +10,7 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <!-- 网络权限 -->
     <uses-permission android:name="android.permission.INTERNET" />
-    <!--读取内存卡的权限-->
+    <!-- 读取内存卡的权限 -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <!-- To auto-complete the email text field in the login form with the user's emails -->
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
@@ -22,12 +22,12 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme" >
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
             android:launchMode="singleTask"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -43,8 +43,12 @@
             android:label="@string/title_activity_settings" />
         <activity
             android:name=".LoginActivity"
-            android:launchMode="singleTask"
-            android:label="@string/title_activity_login"></activity>
+            android:label="@string/title_activity_login"
+            android:launchMode="singleTask" />
+        <activity
+            android:name=".RegisterActivity"
+            android:label="@string/title_activity_register" >
+        </activity>
     </application>
 
 </manifest>

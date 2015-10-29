@@ -32,6 +32,7 @@ import com.lidroid.xutils.view.annotation.ViewInject;
 import com.zhm.duxiangle.bean.User;
 import com.zhm.duxiangle.fragment.FindFragment;
 import com.zhm.duxiangle.fragment.HomeFragment;
+import com.zhm.duxiangle.utils.BitmapUtils;
 import com.zhm.duxiangle.utils.GsonUtils;
 import com.zhm.duxiangle.utils.SpUtil;
 
@@ -66,15 +67,6 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         overridePendingTransition(R.anim.hm_base_slide_right_in, 0);
         ViewUtils.inject(this);
-        //获取用户信息
-        String json = SpUtil.getSharePerference(getApplicationContext()).getString("user", "");
-        if (!TextUtils.isEmpty(json)) {
-            User user = GsonUtils.getInstance().json2Bean(json, User.class);
-            if (user != null) {
-                tvUsername.setText(user.getUsername());
-                tvDesc.setText(user.getPassword());
-            }
-        }
 
         setSupportActionBar(toolbar);
         fabScan.setOnClickListener(new View.OnClickListener() {
@@ -100,6 +92,23 @@ public class MainActivity extends AppCompatActivity
     }
 
     String[] mData;
+
+    @Override
+    protected void onStart() {
+        //获取用户信息
+        String json = SpUtil.getSharePerference(getApplicationContext()).getString("user", "");
+        if (!TextUtils.isEmpty(json)) {
+            User user = GsonUtils.getInstance().json2Bean(json, User.class);
+            if (user != null) {
+                tvUsername.setText(user.getUsername());
+                tvDesc.setText(user.getPassword());
+            } else {
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                startActivity(intent);
+            }
+        }
+        super.onStart();
+    }
 
     /**
      * 初始化tab菜单
@@ -147,12 +156,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onRestart() {
-        Intent intent = getIntent();
-        User user = (User) intent.getSerializableExtra("user");
-        if (user != null) {
-            tvUsername.setText(user.getUsername());
-            tvDesc.setText(user.getPassword());
-        }
         super.onRestart();
     }
 
@@ -205,12 +208,14 @@ public class MainActivity extends AppCompatActivity
             return false;
         } else if (id == R.id.nav_slideshow) {
 
-        } else if (id == R.id.nav_manage) {
+        } /*else if (id == R.id.nav_manage) {
 
-        } else if (id == R.id.nav_share) {
+        }*/ else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_send) {
 
+        }else if (id == R.id.nav_clean) {
+            BitmapUtils.getInstance(getApplication()).cleanCache();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

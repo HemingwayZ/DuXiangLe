@@ -98,4 +98,9 @@ public class BitmapUtils {
         });
         return null;
     }
+
+    public boolean cleanCache(){
+        bitmapUtils.clearCache();
+        return true;
+    }
 }
