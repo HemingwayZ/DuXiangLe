@@ -198,7 +198,8 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_camara) {
             //定位操作
-
+//            Intent intent = new Intent(MainActivity.this,BaiduMapActivity.class);
+//            startActivity(intent);
         } else if (id == R.id.nav_gallery) {
             Intent intent = new Intent();
             intent.setClass(MainActivity.this, BookDetailActivity.class);
