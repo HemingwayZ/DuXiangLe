@@ -16,11 +16,10 @@ import android.os.Handler.Callback;
 import android.view.KeyEvent;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.app.Activity;
 import android.content.Intent;
 
 
-public class ResultActivity extends Activity {
+public class ResultActivity extends SlidingBackActivity {
 
 	//关于结果
 	private String mResUrl;

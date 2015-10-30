@@ -16,6 +16,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -34,7 +35,7 @@ import android.widget.Toast;
  *
  * @author Administrator
  */
-public class WeChatPicActivity extends Activity implements ImgListener {
+public class WeChatPicActivity extends SlidingBackActivity implements ImgListener {
 
     final static String TAG = "WeChatPicActivity";
 
@@ -68,7 +69,10 @@ public class WeChatPicActivity extends Activity implements ImgListener {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        getWindow().setBackgroundDrawable(new ColorDrawable(0));
+
         super.onCreate(savedInstanceState);
+
         if (null != savedInstanceState) {
             imgFileName = savedInstanceState.getString("imgFileName");
         }

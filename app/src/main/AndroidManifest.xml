@@ -27,7 +27,7 @@
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
 
-   <!-- <uses-permission android:name="android.permission.VIBRATE" />-->
+    <!-- <uses-permission android:name="android.permission.VIBRATE" />-->
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -61,7 +61,9 @@
             android:label="@string/title_activity_register"></activity>
         <activity android:name=".FaceActivity"></activity>
         <activity android:name=".FaceCameraActivity"></activity>
-        <activity android:name=".WeChatPicActivity"></activity>
+        <activity
+            android:name=".WeChatPicActivity"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity android:name=".ResultActivity"></activity>
     </application>
 

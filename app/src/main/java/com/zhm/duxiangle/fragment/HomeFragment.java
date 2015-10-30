@@ -198,7 +198,7 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                if (newState == RecyclerView.SCROLL_STATE_IDLE
+                if (homeAdapter!=null&&newState == RecyclerView.SCROLL_STATE_IDLE
                         && lastVisibleItem + 1 == homeAdapter.getItemCount()) {
                     mSwipeLayout.setRefreshing(true);
                     // 此处在现实项目中，请换成网络请求数据代码，sendRequest .....

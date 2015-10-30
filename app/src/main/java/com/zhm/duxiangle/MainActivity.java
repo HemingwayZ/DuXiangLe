@@ -197,7 +197,7 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_camara) {
-            // Handle the camera action
+            //定位操作
 
         } else if (id == R.id.nav_gallery) {
             Intent intent = new Intent();
