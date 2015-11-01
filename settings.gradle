@@ -1,4 +1,4 @@
-include ':app'
+include ':app', ':IMKit'
 include ':libs:xutils_lib'
 include ':libs:zxing_lib'
 include ':libs:kenburnsview_lib'
