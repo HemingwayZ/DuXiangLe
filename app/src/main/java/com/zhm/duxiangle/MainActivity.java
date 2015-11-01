@@ -207,8 +207,9 @@ public class MainActivity extends AppCompatActivity
             overridePendingTransition(R.anim.hm_base_slide_right_in,
                     0);
             return false;
-        } else if (id == R.id.nav_slideshow) {
-
+        } else if (id == R.id.nav_slideshow) {//消息
+            Intent intent = new Intent(MainActivity.this,MessageActivity.class);
+            startActivity(intent);
         } /*else if (id == R.id.nav_manage) {
 
         }*/ else if (id == R.id.nav_share) {
