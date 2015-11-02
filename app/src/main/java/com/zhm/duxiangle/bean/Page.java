@@ -18,7 +18,7 @@ public class Page {
     private int prepage; // 下一页
     private int nextpage; // 上一页
     private String sql;
-    private List<Object> list;// 页面内容属性
+    private List<UserInfo> list;// 页面内容属性
 
     public int getThispage() {
         return thispage;
@@ -84,13 +84,12 @@ public class Page {
         this.nextpage = nextpage;
     }
 
-    public List<Object> getList() {
+    public List<UserInfo> getList() {
         return list;
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> void setList(List<T> list) {
-        this.list = (List<Object>) list;
+    public void setList(List<UserInfo> list) {
+        this.list = list;
     }
 
     public String getSql() {

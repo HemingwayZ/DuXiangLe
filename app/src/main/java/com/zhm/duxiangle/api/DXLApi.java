@@ -6,8 +6,8 @@ package com.zhm.duxiangle.api;
 public class DXLApi {
     //login:http://localhost:8080/DuXiangLeServer/UserServlet?action=login
     //192.168.253.1
-//    public static String HOST = "192.168.23.1:8080";
-    public static String HOST = "120.25.201.60";
+    public static String HOST = "192.168.23.1:8080";
+//    public static String HOST = "120.25.201.60";
     public static final String PORT = "";
 
     /**
@@ -25,5 +25,6 @@ public class DXLApi {
     public static String getUserListByPage() {
         return "http://" + HOST + PORT + "/DuXiangLeServer/UserInfoServlet";
     }
+
 
 }

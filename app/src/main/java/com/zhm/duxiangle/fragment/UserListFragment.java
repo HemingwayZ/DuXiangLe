@@ -10,7 +10,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.lidroid.xutils.HttpUtils;
 import com.lidroid.xutils.ViewUtils;
@@ -21,12 +20,14 @@ import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
 import com.lidroid.xutils.view.annotation.ViewInject;
 import com.zhm.duxiangle.R;
+import com.zhm.duxiangle.adapter.UserListAdapter;
 import com.zhm.duxiangle.api.DXLApi;
 import com.zhm.duxiangle.bean.Page;
 import com.zhm.duxiangle.bean.UserInfo;
 import com.zhm.duxiangle.utils.GsonUtils;
 import com.zhm.duxiangle.utils.ToastUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -48,20 +49,19 @@ public class UserListFragment extends Fragment {
     private String mParam2;
     View view;
 
-    @ViewInject(R.id.swipeRefreshLayout)
+    @ViewInject(R.id.swipeRefreshLayout_userlist)
     SwipeRefreshLayout swipeRefreshLayout;
-    @ViewInject(R.id.recycler)
+    @ViewInject(R.id.recycler_userlist)
     private RecyclerView recyclerView;
-    @ViewInject(R.id.tvContent)
-    private TextView tvContent;
     private OnFragmentInteractionListener mListener;
-    private String rowperpage = "1";//每页的条数
+    private String rowperpage = "2";//每页的条数
     private String thispage = "0";//起始页
     private String action = "userinfopage";
 
     private Page page;
 
     UserListAdapter userListAdapter;
+    List<UserInfo> list;
 
     /**
      * Use this factory method to create a new instance of
@@ -92,12 +92,39 @@ public class UserListFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-
-
     }
 
+    /**
+     * 联网获取数据
+     */
     private void initData() {
+        HttpUtils http = new HttpUtils();
+        RequestParams params = new RequestParams();
+        params.addBodyParameter("action", action);
+        params.addBodyParameter("thispage", thispage);
+        params.addBodyParameter("rowperpage", rowperpage);
 
+        http.send(HttpRequest.HttpMethod.POST, DXLApi.getUserListByPage(), params, new RequestCallBack<String>() {
+            @Override
+            public void onSuccess(ResponseInfo<String> responseInfo) {
+                String result = responseInfo.result;
+
+                page = GsonUtils.getInstance().json2Bean(result, Page.class);
+
+//                tvContent.setText(page.toString());
+                if (page.getList() != null && page.getList().size() > 0) {
+                    list.addAll(page.getList());
+                    userListAdapter.notifyDataSetChanged();
+                }
+
+            }
+
+            @Override
+            public void onFailure(HttpException error, String msg) {
+                ToastUtils.cancelToast();
+                ToastUtils.showToast(getActivity(), "链接超时");
+            }
+        });
     }
 
     @Override
@@ -111,78 +138,13 @@ public class UserListFragment extends Fragment {
         // use a linear layout manager
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(mLayoutManager);
-        HttpUtils http = new HttpUtils();
-        RequestParams params = new RequestParams();
-        params.addBodyParameter("action", action);
-        params.addBodyParameter("thispage", thispage);
-        params.addBodyParameter("rowperpage", rowperpage);
-
-        http.send(HttpRequest.HttpMethod.POST, DXLApi.getUserListByPage(), params, new RequestCallBack<String>() {
-            @Override
-            public void onSuccess(ResponseInfo<String> responseInfo) {
-                String result = responseInfo.result;
-
-                page = GsonUtils.getInstance().json2Bean(result, Page.class);
-                if (page.getList().size() > 0) {
-                    userListAdapter = new UserListAdapter(getActivity(), page.getList());
-                    recyclerView.setAdapter(userListAdapter);
-                    userListAdapter.notifyDataSetChanged();
-                }
-                tvContent.setText(page.toString());
-            }
-
-            @Override
-            public void onFailure(HttpException error, String msg) {
-                ToastUtils.cancelToast();
-                ToastUtils.showToast(getActivity(), "链接超时");
-            }
-        });
+        list = new ArrayList<UserInfo>();
+        userListAdapter = new UserListAdapter(getActivity(), list);
+        recyclerView.setAdapter(userListAdapter);
         initData();
 
 //        recyclerView.setAdapter(new UserListAdapter());
         return view;
-    }
-
-    class UserListAdapter extends RecyclerView.Adapter {
-        private Context mContext;
-        private List<Object> userInfoList;
-
-        /**
-         * @param mContext     上下文
-         * @param userInfoList 用户列表信息
-         */
-        public UserListAdapter(Context mContext, List<Object> userInfoList) {
-            this.mContext = mContext;
-            this.userInfoList = userInfoList;
-        }
-
-        @Override
-        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(mContext).inflate(R.layout.fragment_user_list_item, null);
-            MyViewHolder holder = new MyViewHolder(view);
-            return holder;
-        }
-
-        @Override
-        public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-
-        }
-
-        @Override
-        public int getItemCount() {
-            return userInfoList.size();
-        }
-
-        class MyViewHolder extends RecyclerView.ViewHolder {
-            TextView tvNickName;
-
-            public MyViewHolder(View itemView) {
-                super(itemView);
-                tvNickName = (TextView) itemView.findViewById(R.id.nickname);
-
-            }
-
-        }
     }
 
     // TODO: Rename method, update argument and hook method into UI event
