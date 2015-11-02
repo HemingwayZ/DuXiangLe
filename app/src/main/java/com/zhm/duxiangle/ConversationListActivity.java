@@ -13,7 +13,6 @@ public class ConversationListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation_list);
-
     }
 
     /**
@@ -30,7 +29,6 @@ public class ConversationListActivity extends AppCompatActivity {
                 .appendQueryParameter(Conversation.ConversationType.DISCUSSION.getName(), "false")//设置讨论组会话非聚合显示
                 .appendQueryParameter(Conversation.ConversationType.SYSTEM.getName(), "false")//设置系统会话非聚合显示
                 .build();
-
         fragment.setUri(uri);
     }
 }

@@ -16,7 +16,13 @@ public class DXLApi {
      */
     public static String getUserApi() {
 
-        return "http://"+HOST + PORT + "/DuXiangLeServer/UserServlet";
+        return "http://" + HOST + PORT + "/DuXiangLeServer/UserServlet";
+    }
+
+    //获取用户列表
+    //http://localhost:8080/DuXiangLeServer/UserInfoServlet?action=userinfopage
+    public static String getUserListByPage() {
+        return "http://" + HOST + PORT + "/DuXiangLeServer/UserInfoServlet";
     }
 
 }

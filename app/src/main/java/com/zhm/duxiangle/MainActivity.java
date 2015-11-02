@@ -1,6 +1,5 @@
 package com.zhm.duxiangle;
 
-import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -8,7 +7,6 @@ import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.view.View;
@@ -20,7 +18,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -32,6 +29,7 @@ import com.lidroid.xutils.view.annotation.ViewInject;
 import com.zhm.duxiangle.bean.User;
 import com.zhm.duxiangle.fragment.FindFragment;
 import com.zhm.duxiangle.fragment.HomeFragment;
+import com.zhm.duxiangle.fragment.UserListFragment;
 import com.zhm.duxiangle.utils.BitmapUtils;
 import com.zhm.duxiangle.utils.GsonUtils;
 import com.zhm.duxiangle.utils.SpUtil;
@@ -120,11 +118,13 @@ public class MainActivity extends AppCompatActivity
         tabLayout.addTab(tab2);
         FindFragment findFragment = new FindFragment();
         HomeFragment homeFragment = new HomeFragment();
+        UserListFragment userListFragment = new UserListFragment();
         final ArrayList<Fragment> fragmentArrayList = new ArrayList<>();
 
         fragmentArrayList.add(homeFragment);
         fragmentArrayList.add(findFragment);
-        mData = new String[]{"我的书库", "我的最爱"};
+        fragmentArrayList.add(userListFragment);
+        mData = new String[]{"我的书库", "我的最爱", "用户列表"};
         viewPager.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
             public CharSequence getPageTitle(int position) {
@@ -198,7 +198,7 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_camara) {
             //定位操作
-            Intent intent = new Intent(MainActivity.this,BaiduMapActivity.class);
+            Intent intent = new Intent(MainActivity.this, BaiduMapActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_gallery) {
             Intent intent = new Intent();
@@ -208,16 +208,16 @@ public class MainActivity extends AppCompatActivity
                     0);
             return false;
         } else if (id == R.id.nav_slideshow) {//消息
-            Intent intent = new Intent(MainActivity.this,MessageActivity.class);
+            Intent intent = new Intent(MainActivity.this, MessageActivity.class);
             startActivity(intent);
         } /*else if (id == R.id.nav_manage) {
 
         }*/ else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_send) {
-            Intent intent = new Intent(MainActivity.this,WeChatPicActivity.class);
+            Intent intent = new Intent(MainActivity.this, WeChatPicActivity.class);
             startActivity(intent);
-        }else if (id == R.id.nav_clean) {
+        } else if (id == R.id.nav_clean) {
             BitmapUtils.getInstance(getApplication()).cleanCache();
         }
 
