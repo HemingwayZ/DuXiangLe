@@ -1,9 +1,11 @@
 package com.zhm.duxiangle.fragment;
 
+import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,7 +22,12 @@ import com.lidroid.xutils.http.client.HttpRequest;
 import com.lidroid.xutils.view.annotation.ViewInject;
 import com.zhm.duxiangle.R;
 import com.zhm.duxiangle.api.DXLApi;
+import com.zhm.duxiangle.bean.Page;
+import com.zhm.duxiangle.bean.UserInfo;
+import com.zhm.duxiangle.utils.GsonUtils;
 import com.zhm.duxiangle.utils.ToastUtils;
+
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -41,16 +48,20 @@ public class UserListFragment extends Fragment {
     private String mParam2;
     View view;
 
-    //    @ViewInject(R.id.swipeRefreshLayout)
-//    SwipeRefreshLayout swipeRefreshLayout;
-//    @ViewInject(R.id.recycler)
-//    private RecyclerView recyclerView;
+    @ViewInject(R.id.swipeRefreshLayout)
+    SwipeRefreshLayout swipeRefreshLayout;
+    @ViewInject(R.id.recycler)
+    private RecyclerView recyclerView;
     @ViewInject(R.id.tvContent)
     private TextView tvContent;
     private OnFragmentInteractionListener mListener;
-    private String rowperpage = "1";
-    private String thispage = "0";
+    private String rowperpage = "1";//每页的条数
+    private String thispage = "0";//起始页
     private String action = "userinfopage";
+
+    private Page page;
+
+    UserListAdapter userListAdapter;
 
     /**
      * Use this factory method to create a new instance of
@@ -86,6 +97,20 @@ public class UserListFragment extends Fragment {
     }
 
     private void initData() {
+
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+
+        view = inflater.inflate(R.layout.fragment_user_list, container, false);
+        ViewUtils.inject(this, view);
+
+        // use a linear layout manager
+        LinearLayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
+        recyclerView.setLayoutManager(mLayoutManager);
         HttpUtils http = new HttpUtils();
         RequestParams params = new RequestParams();
         params.addBodyParameter("action", action);
@@ -96,7 +121,14 @@ public class UserListFragment extends Fragment {
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
                 String result = responseInfo.result;
-                tvContent.setText(result);
+
+                page = GsonUtils.getInstance().json2Bean(result, Page.class);
+                if (page.getList().size() > 0) {
+                    userListAdapter = new UserListAdapter(getActivity(), page.getList());
+                    recyclerView.setAdapter(userListAdapter);
+                    userListAdapter.notifyDataSetChanged();
+                }
+                tvContent.setText(page.toString());
             }
 
             @Override
@@ -105,24 +137,30 @@ public class UserListFragment extends Fragment {
                 ToastUtils.showToast(getActivity(), "链接超时");
             }
         });
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-
-        view = inflater.inflate(R.layout.fragment_user_list, container, false);
-        ViewUtils.inject(this, view);
         initData();
+
 //        recyclerView.setAdapter(new UserListAdapter());
         return view;
     }
 
     class UserListAdapter extends RecyclerView.Adapter {
+        private Context mContext;
+        private List<Object> userInfoList;
+
+        /**
+         * @param mContext     上下文
+         * @param userInfoList 用户列表信息
+         */
+        public UserListAdapter(Context mContext, List<Object> userInfoList) {
+            this.mContext = mContext;
+            this.userInfoList = userInfoList;
+        }
+
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return null;
+            View view = LayoutInflater.from(mContext).inflate(R.layout.fragment_user_list_item, null);
+            MyViewHolder holder = new MyViewHolder(view);
+            return holder;
         }
 
         @Override
@@ -132,7 +170,18 @@ public class UserListFragment extends Fragment {
 
         @Override
         public int getItemCount() {
-            return 0;
+            return userInfoList.size();
+        }
+
+        class MyViewHolder extends RecyclerView.ViewHolder {
+            TextView tvNickName;
+
+            public MyViewHolder(View itemView) {
+                super(itemView);
+                tvNickName = (TextView) itemView.findViewById(R.id.nickname);
+
+            }
+
         }
     }
 
