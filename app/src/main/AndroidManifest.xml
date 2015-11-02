@@ -49,6 +49,8 @@
     <!-- <uses-permission android:name="android.permission.VIBRATE" /> -->
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
 
+    <!--融云权限-->
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL"></uses-permission>
     <application
         android:name=".DXLApplication"
         android:allowBackup="true"
@@ -96,8 +98,10 @@
         <activity
             android:name=".BaiduMapActivity"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".MessageActivity"></activity>
-        <!--聊天-->
+        <activity
+            android:name=".MessageActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <!-- 聊天 -->
         <activity android:name=".ConversationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -109,7 +113,23 @@
                     android:pathPrefix="/conversation/"
                     android:scheme="rong" />
             </intent-filter>
+        </activity>
+        <!--会话列表-->
+        <activity
+            android:name=".ConversationListActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden|adjustResize">
 
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data
+                    android:host="com.zhm.duxiangle"
+                    android:pathPrefix="/conversationlist"
+                    android:scheme="rong" />
+            </intent-filter>
         </activity>
     </application>
 
