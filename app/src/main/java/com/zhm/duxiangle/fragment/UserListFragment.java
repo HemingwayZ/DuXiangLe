@@ -1,17 +1,19 @@
 package com.zhm.duxiangle.fragment;
 
-import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.lidroid.xutils.HttpUtils;
 import com.lidroid.xutils.ViewUtils;
 import com.lidroid.xutils.exception.HttpException;
 import com.lidroid.xutils.http.RequestParams;
@@ -22,8 +24,10 @@ import com.lidroid.xutils.view.annotation.ViewInject;
 import com.zhm.duxiangle.R;
 import com.zhm.duxiangle.adapter.UserListAdapter;
 import com.zhm.duxiangle.api.DXLApi;
+import com.zhm.duxiangle.bean.Constant;
 import com.zhm.duxiangle.bean.Page;
 import com.zhm.duxiangle.bean.UserInfo;
+import com.zhm.duxiangle.utils.DXLHttpUtils;
 import com.zhm.duxiangle.utils.GsonUtils;
 import com.zhm.duxiangle.utils.ToastUtils;
 
@@ -38,7 +42,7 @@ import java.util.List;
  * Use the {@link UserListFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class UserListFragment extends Fragment {
+public class UserListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -50,18 +54,43 @@ public class UserListFragment extends Fragment {
     View view;
 
     @ViewInject(R.id.swipeRefreshLayout_userlist)
-    SwipeRefreshLayout swipeRefreshLayout;
+    SwipeRefreshLayout mSwipeLayout;
     @ViewInject(R.id.recycler_userlist)
     private RecyclerView recyclerView;
     private OnFragmentInteractionListener mListener;
-    private String rowperpage = "2";//每页的条数
-    private String thispage = "0";//起始页
+    private int rowperpage = 1;//每页的条数
+    private int thispage = 0;//起始页
+    private int countRow = 0;
     private String action = "userinfopage";
 
     private Page page;
 
     UserListAdapter userListAdapter;
     List<UserInfo> list;
+    //recycleView布局管理器
+    LinearLayoutManager layoutManager;
+    //消息处理
+    Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case Constant.REFRESH_DOWN://下拉刷新
+                    initData(0, countRow, Constant.REFRESH_DOWN);
+                    mSwipeLayout.setRefreshing(false);
+                    break;
+                case Constant.REFRESH_UP://上拉加载更多
+                    if (page != null && thispage <= page.getCountpage()) {
+                        initData(thispage, rowperpage, Constant.REFRESH_UP);
+                    } else {
+                        Snackbar.make(recyclerView, "已到尾页", Snackbar.LENGTH_SHORT).show();
+                    }
+                    mSwipeLayout.setRefreshing(false);
+                    break;
+            }
+        }
+    };
+    private int lastVisibleItem = 0;
 
     /**
      * Use this factory method to create a new instance of
@@ -97,26 +126,37 @@ public class UserListFragment extends Fragment {
     /**
      * 联网获取数据
      */
-    private void initData() {
-        HttpUtils http = new HttpUtils();
+    private void initData(int _thispage, int _rowperpage, final int type) {
         RequestParams params = new RequestParams();
         params.addBodyParameter("action", action);
-        params.addBodyParameter("thispage", thispage);
-        params.addBodyParameter("rowperpage", rowperpage);
-
-        http.send(HttpRequest.HttpMethod.POST, DXLApi.getUserListByPage(), params, new RequestCallBack<String>() {
+        params.addBodyParameter("thispage", String.valueOf(_thispage));
+        params.addBodyParameter("rowperpage", String.valueOf(_rowperpage));
+        DXLHttpUtils.getHttpUtils().send(HttpRequest.HttpMethod.POST, DXLApi.getUserListByPage(), params, new RequestCallBack<String>() {
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
+
                 String result = responseInfo.result;
 
                 page = GsonUtils.getInstance().json2Bean(result, Page.class);
-
 //                tvContent.setText(page.toString());
                 if (page.getList() != null && page.getList().size() > 0) {
-                    list.addAll(page.getList());
+                    //分页逻辑
+                    if (thispage <= page.getCountpage()) {
+                        switch (type) {
+                            case Constant.REFRESH_UP:
+                                thispage++;
+                                list.addAll(page.getList());
+                                countRow += list.size();
+                                break;
+                            case Constant.REFRESH_DOWN:
+                                list.removeAll(list);
+                                list.addAll(page.getList());
+                                countRow = list.size();
+                                break;
+                        }
+                    }
                     userListAdapter.notifyDataSetChanged();
                 }
-
             }
 
             @Override
@@ -131,19 +171,59 @@ public class UserListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-
+        //初始化参数
+        thispage = 0;
+        countRow = 0;
+        lastVisibleItem= 0;
+        ToastUtils.showToast(getActivity(),"onCreateView");
         view = inflater.inflate(R.layout.fragment_user_list, container, false);
         ViewUtils.inject(this, view);
-
+        //三设置下拉刷新监听事件和进度条
+        mSwipeLayout.setOnRefreshListener(this);
+        mSwipeLayout.setColorSchemeResources(android.R.color.holo_blue_light, android.R.color.holo_red_light, android.R.color.holo_orange_light, android.R.color.holo_green_light);
+        // 这句话是为了，第一次进入页面的时候显示加载进度条
+        mSwipeLayout.setProgressViewOffset(false, 0, (int) TypedValue
+                .applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24, getResources()
+                        .getDisplayMetrics()));
         // use a linear layout manager
-        LinearLayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
-        recyclerView.setLayoutManager(mLayoutManager);
+        layoutManager = new LinearLayoutManager(getActivity());
+        recyclerView.setLayoutManager(layoutManager);
         list = new ArrayList<UserInfo>();
         userListAdapter = new UserListAdapter(getActivity(), list);
         recyclerView.setAdapter(userListAdapter);
-        initData();
+        initData(thispage, rowperpage, Constant.REFRESH_UP);
 
-//        recyclerView.setAdapter(new UserListAdapter());
+        //设置recycleView上拉加载更多的方法
+        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                lastVisibleItem = layoutManager.findLastVisibleItemPosition();
+                super.onScrolled(recyclerView, dx, dy);
+            }
+
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if (userListAdapter != null && newState == RecyclerView.SCROLL_STATE_IDLE
+                        && lastVisibleItem + 1 == userListAdapter.getItemCount()) {
+                    mSwipeLayout.setRefreshing(true);
+                    // 此处在现实项目中，请换成网络请求数据代码，sendRequest .....
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                Thread.sleep(2000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            Message message = new Message();
+                            message.what = Constant.REFRESH_UP;
+                            handler.sendMessage(message);
+                        }
+                    }).start();
+                }
+            }
+        });
         return view;
     }
 
@@ -158,6 +238,24 @@ public class UserListFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onRefresh() {
+        Message msg = new Message();
+        msg.what = Constant.REFRESH_DOWN;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+        handler.sendMessage(msg);
     }
 
     /**

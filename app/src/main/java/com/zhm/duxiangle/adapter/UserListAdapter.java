@@ -1,22 +1,26 @@
 package com.zhm.duxiangle.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.lidroid.xutils.ViewUtils;
 import com.lidroid.xutils.view.annotation.ViewInject;
 import com.zhm.duxiangle.R;
+import com.zhm.duxiangle.UserInfoDetailActivity;
 import com.zhm.duxiangle.bean.UserInfo;
 import com.zhm.duxiangle.utils.BitmapUtils;
 import com.zhm.duxiangle.view.CircleImageView;
 
 import java.util.List;
 
-public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.MyViewHolder> {
+public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.MyViewHolder> implements View.OnClickListener {
     private Context mContext;
     private List<UserInfo> userInfoList;
 
@@ -32,15 +36,27 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.MyView
     @Override
     public UserListAdapter.MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(mContext).inflate(R.layout.fragment_user_list_item, null);
+        view.setOnClickListener(this);
         return new MyViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(UserListAdapter.MyViewHolder holder, int position) {
-        UserInfo userInfo = userInfoList.get(position);
-        BitmapUtils.getInstance(mContext).setBookAvatar(holder.ivUser, userInfo.getAvater(), null);
+        final UserInfo userInfo = userInfoList.get(position);
+        if (!TextUtils.isEmpty(userInfo.getAvatar())) {
+            BitmapUtils.getInstance(mContext).setBookAvatar(holder.ivUser, userInfo.getAvatar(), null);
+        }
         holder.tvNickname.setText(userInfo.getNickname());
-        holder.tvDesc.setText(userInfo.getDesc());
+        holder.tvDesc.setText(userInfo.getDescrib());
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.setClass(mContext, UserInfoDetailActivity.class);
+                intent.putExtra("userinfo", userInfo);
+                mContext.startActivity(intent);
+            }
+        });
     }
 
     @Override
@@ -48,9 +64,20 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.MyView
         return userInfoList.size();
     }
 
-    class MyViewHolder extends RecyclerView.ViewHolder {
+    @Override
+    public void onClick(View v) {
+//        switch (v.getId()) {
+//            case R.layout.fragment_user_list_item:
+        Intent intent = new Intent();
+        intent.setClass(mContext, UserInfoDetailActivity.class);
+        mContext.startActivity(intent);
+//                break;
+//        }
+    }
+
+    class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         @ViewInject(R.id.ivUser)
-        CircleImageView ivUser;
+        ImageView ivUser;
         @ViewInject(R.id.tvNickname)
         TextView tvNickname;
         @ViewInject(R.id.tvDesc)
@@ -59,7 +86,16 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.MyView
         public MyViewHolder(View itemView) {
             super(itemView);
             ViewUtils.inject(this, itemView);
+
         }
 
+        @Override
+        public void onClick(View v) {
+            switch (v.getId()) {
+                case R.layout.fragment_user_list_item:
+
+                    break;
+            }
+        }
     }
 }

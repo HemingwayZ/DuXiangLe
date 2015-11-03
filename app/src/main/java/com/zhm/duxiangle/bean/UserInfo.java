@@ -1,15 +1,17 @@
 package com.zhm.duxiangle.bean;
 
+import java.io.Serializable;
+
 /**
  * @author zhuanghm
  */
-public class UserInfo {
+public class UserInfo implements Serializable{
     private int userinfoId;
     private int userId;
     private String nickname;
-    private String avater;
+    private String avatar;
     private String created;
-    private String desc;
+    private String describ;
 
     public int getUserinfoId() {
         return userinfoId;
@@ -35,12 +37,12 @@ public class UserInfo {
         this.nickname = nickname;
     }
 
-    public String getAvater() {
-        return avater;
+    public String getAvatar() {
+        return avatar;
     }
 
-    public void setAvater(String avater) {
-        this.avater = avater;
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
 
     public String getCreated() {
@@ -51,12 +53,23 @@ public class UserInfo {
         this.created = created;
     }
 
-    public String getDesc() {
-        return desc;
+    public String getDescrib() {
+        return describ;
     }
 
-    public void setDesc(String desc) {
-        this.desc = desc;
+    public void setDescrib(String describ) {
+        this.describ = describ;
     }
 
+    @Override
+    public String toString() {
+        return "UserInfo{" +
+                "userinfoId=" + userinfoId +
+                ", userId=" + userId +
+                ", nickname='" + nickname + '\'' +
+                ", avatar='" + avatar + '\'' +
+                ", created='" + created + '\'' +
+                ", describ='" + describ + '\'' +
+                '}';
+    }
 }

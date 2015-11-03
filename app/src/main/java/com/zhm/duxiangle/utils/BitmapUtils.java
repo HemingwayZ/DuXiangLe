@@ -98,6 +98,25 @@ public class BitmapUtils {
         });
         return null;
     }
+    public Bitmap setBookAvatar(ImageView container, String url) {
+        if (null == bitmapUtils) {
+            bitmapUtils = new com.lidroid.xutils.BitmapUtils(mContext);
+        }
+
+        bitmapUtils.display(container, url, new BitmapLoadCallBack<ImageView>() {
+            @Override
+            public void onLoadCompleted(ImageView container, String uri, Bitmap bitmap, BitmapDisplayConfig config, BitmapLoadFrom from) {
+                container.setImageBitmap(createReflectedImage(bitmap));
+//                toolbar.setLogo(container.getDrawable());
+            }
+
+            @Override
+            public void onLoadFailed(ImageView container, String uri, Drawable drawable) {
+
+            }
+        });
+        return null;
+    }
 
     public boolean cleanCache(){
         bitmapUtils.clearCache();
