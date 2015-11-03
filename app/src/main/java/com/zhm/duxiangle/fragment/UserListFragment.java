@@ -60,7 +60,7 @@ public class UserListFragment extends Fragment implements SwipeRefreshLayout.OnR
     private OnFragmentInteractionListener mListener;
     private int rowperpage = 1;//每页的条数
     private int thispage = 0;//起始页
-    private int countRow = 0;
+    private int countRow = 1;
     private String action = "userinfopage";
 
     private Page page;
@@ -76,11 +76,15 @@ public class UserListFragment extends Fragment implements SwipeRefreshLayout.OnR
             super.handleMessage(msg);
             switch (msg.what) {
                 case Constant.REFRESH_DOWN://下拉刷新
+                    ToastUtils.cancelToast();
+                    ToastUtils.showToast(getActivity(), countRow + "  REFRESH_DOWN");
                     initData(0, countRow, Constant.REFRESH_DOWN);
                     mSwipeLayout.setRefreshing(false);
                     break;
                 case Constant.REFRESH_UP://上拉加载更多
-                    if (page != null && thispage <= page.getCountpage()) {
+                    ToastUtils.cancelToast();
+                    ToastUtils.showToast(getActivity(), thispage + "  REFRESH_UP");
+                    if (page != null && thispage <= page.getCountpage() - 1) {
                         initData(thispage, rowperpage, Constant.REFRESH_UP);
                     } else {
                         Snackbar.make(recyclerView, "已到尾页", Snackbar.LENGTH_SHORT).show();
@@ -90,6 +94,13 @@ public class UserListFragment extends Fragment implements SwipeRefreshLayout.OnR
             }
         }
     };
+
+    @Override
+    public void onDestroy() {
+        ToastUtils.cancelToast();
+        super.onDestroy();
+    }
+
     private int lastVisibleItem = 0;
 
     /**
@@ -141,20 +152,17 @@ public class UserListFragment extends Fragment implements SwipeRefreshLayout.OnR
 //                tvContent.setText(page.toString());
                 if (page.getList() != null && page.getList().size() > 0) {
                     //分页逻辑
-                    if (thispage <= page.getCountpage()) {
-                        switch (type) {
-                            case Constant.REFRESH_UP:
-                                thispage++;
-                                list.addAll(page.getList());
-                                countRow += list.size();
-                                break;
-                            case Constant.REFRESH_DOWN:
-                                list.removeAll(list);
-                                list.addAll(page.getList());
-                                countRow = list.size();
-                                break;
-                        }
+                    switch (type) {
+                        case Constant.REFRESH_UP:
+                            thispage++;
+                            list.addAll(page.getList());
+                            break;
+                        case Constant.REFRESH_DOWN:
+                            list.removeAll(list);
+                            list.addAll(page.getList());
+                            break;
                     }
+                    countRow = list.size();
                     userListAdapter.notifyDataSetChanged();
                 }
             }
@@ -173,9 +181,9 @@ public class UserListFragment extends Fragment implements SwipeRefreshLayout.OnR
         // Inflate the layout for this fragment
         //初始化参数
         thispage = 0;
-        countRow = 0;
-        lastVisibleItem= 0;
-        ToastUtils.showToast(getActivity(),"onCreateView");
+        countRow = 1;
+        lastVisibleItem = 0;
+        ToastUtils.showToast(getActivity(), "onCreateView");
         view = inflater.inflate(R.layout.fragment_user_list, container, false);
         ViewUtils.inject(this, view);
         //三设置下拉刷新监听事件和进度条
@@ -212,7 +220,7 @@ public class UserListFragment extends Fragment implements SwipeRefreshLayout.OnR
                         @Override
                         public void run() {
                             try {
-                                Thread.sleep(2000);
+                                Thread.sleep(1000);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
@@ -249,7 +257,7 @@ public class UserListFragment extends Fragment implements SwipeRefreshLayout.OnR
             public void run() {
                 try {
 
-                    Thread.sleep(2000);
+                    Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

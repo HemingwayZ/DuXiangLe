@@ -173,4 +173,5 @@
     </string>
     <string name="title_activity_register">注册</string>
     <string name="title_activity_user_info_detail">UserInfoDetailActivity</string>
+    <string name="title_activity_edit_user_info"></string>
 </resources>

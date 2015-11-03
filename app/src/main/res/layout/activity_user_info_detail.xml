@@ -22,6 +22,12 @@
             android:fitsSystemWindows="true"
             app:contentScrim="?attr/colorPrimary"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
+            <!--照片墙-->
+            <ImageView
+                android:id="@+id/ivWall"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/book_cover_default" />
 
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
@@ -52,6 +58,7 @@
         android:src="@android:drawable/ic_dialog_email"
         app:layout_anchor="@id/app_bar"
         app:layout_anchorGravity="bottom|end" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
