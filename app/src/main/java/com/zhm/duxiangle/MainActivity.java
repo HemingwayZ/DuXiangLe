@@ -215,45 +215,46 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_slideshow) {//消息
 //            Intent intent = new Intent(MainActivity.this, MessageActivity.class);
 //            startActivity(intent);
-            final String Token = "TgvtMFddoNkHDeWcaXtKWwB9ft/fZ3RIRK/GfxqI/3AS+vgXGRPNaiQ6XcHmxeendjCnD8jE8K6z8kfj1J8WUA==";//test userid=2
-
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    /**
-                     * IMKit SDK调用第二步
-                     *
-                     * 建立与服务器的连接
-                     *
-                     */
-                    RongIM.connect(Token, new RongIMClient.ConnectCallback() {
-                        @Override
-                        public void onTokenIncorrect() {
-                            //Connect Token 失效的状态处理，需要重新获取 Token
-                        }
-
-                        /**
-                         * 连接融云成功
-                         */
-                        @Override
-                        public void onSuccess(String userId) {
-                            Log.e("MainActivity", "——onSuccess— -" + userId);
-                            //回话列表
-                            startActivity(new Intent(MainActivity.this, ConversationListActivity.class));
-                        }
-
-                        @Override
-                        public void onError(RongIMClient.ErrorCode errorCode) {
-                            Log.e("MainActivity", "——onError— -" + errorCode);
-                        }
-                    });
-                }
-            }).start();
+//            final String Token = "TgvtMFddoNkHDeWcaXtKWwB9ft/fZ3RIRK/GfxqI/3AS+vgXGRPNaiQ6XcHmxeendjCnD8jE8K6z8kfj1J8WUA==";//test userid=2
+//            final String  Token = "8FQcKXFvWDqN2j3qZWDA5nM//2Y39LDCnuxr2xdDagUSew9ILDZp6n9+OUnzkJ/4/W8bX6Y2cB4VGTWNrvchrA==";//test userid=1
+//            new Thread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    /**
+//                     * IMKit SDK调用第二步
+//                     *
+//                     * 建立与服务器的连接
+//                     *
+//                     */
+//                    RongIM.connect(Token, new RongIMClient.ConnectCallback() {
+//                        @Override
+//                        public void onTokenIncorrect() {
+//                            //Connect Token 失效的状态处理，需要重新获取 Token
+//                        }
+//
+//                        /**
+//                         * 连接融云成功
+//                         */
+//                        @Override
+//                        public void onSuccess(String userId) {
+//                            Log.e("MainActivity", "——onSuccess— -" + userId);
+//                            //回话列表
+//                            startActivity(new Intent(MainActivity.this, ConversationListActivity.class));
+//                        }
+//
+//                        @Override
+//                        public void onError(RongIMClient.ErrorCode errorCode) {
+//                            Log.e("MainActivity", "——onError— -" + errorCode);
+//                        }
+//                    });
+//                }
+//            }).start();
+            startActivity(new Intent(MainActivity.this, ConversationListActivity.class));
 
         } /*else if (id == R.id.nav_manage) {
 
         }*/ else if (id == R.id.nav_share) {
-
+                startActivity(new Intent(MainActivity.this,MessageActivity.class));
         } else if (id == R.id.nav_send) {
             Intent intent = new Intent(MainActivity.this, WeChatPicActivity.class);
             startActivity(intent);

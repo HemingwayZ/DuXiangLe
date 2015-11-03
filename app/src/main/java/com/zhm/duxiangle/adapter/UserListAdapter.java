@@ -16,7 +16,6 @@ import com.zhm.duxiangle.R;
 import com.zhm.duxiangle.UserInfoDetailActivity;
 import com.zhm.duxiangle.bean.UserInfo;
 import com.zhm.duxiangle.utils.BitmapUtils;
-import com.zhm.duxiangle.view.CircleImageView;
 
 import java.util.List;
 
@@ -44,7 +43,7 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.MyView
     public void onBindViewHolder(UserListAdapter.MyViewHolder holder, int position) {
         final UserInfo userInfo = userInfoList.get(position);
         if (!TextUtils.isEmpty(userInfo.getAvatar())) {
-            BitmapUtils.getInstance(mContext).setBookAvatar(holder.ivUser, userInfo.getAvatar(), null);
+            BitmapUtils.getInstance(mContext).setAvatar(holder.ivUser, userInfo.getAvatar(), null);
         }
         holder.tvNickname.setText(userInfo.getNickname());
         holder.tvDesc.setText(userInfo.getDescrib());

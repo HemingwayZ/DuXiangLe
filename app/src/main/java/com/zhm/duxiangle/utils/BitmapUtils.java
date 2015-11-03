@@ -2,6 +2,7 @@ package com.zhm.duxiangle.utils;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.LinearGradient;
 import android.graphics.Matrix;
@@ -9,6 +10,7 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Shader;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.Toolbar;
 import android.widget.ImageView;
@@ -16,6 +18,8 @@ import android.widget.ImageView;
 import com.lidroid.xutils.bitmap.BitmapDisplayConfig;
 import com.lidroid.xutils.bitmap.callback.BitmapLoadCallBack;
 import com.lidroid.xutils.bitmap.callback.BitmapLoadFrom;
+
+import java.io.ByteArrayOutputStream;
 
 /**
  * Created by zhuanghm(183340093@qq.com) on 2015/10/9.
@@ -79,26 +83,7 @@ public class BitmapUtils {
      * @param url
      * @return
      */
-    public Bitmap setBookAvatar(ImageView container, String url, final Toolbar toolbar) {
-        if (null == bitmapUtils) {
-            bitmapUtils = new com.lidroid.xutils.BitmapUtils(mContext);
-        }
-
-        bitmapUtils.display(container, url, new BitmapLoadCallBack<ImageView>() {
-            @Override
-            public void onLoadCompleted(ImageView container, String uri, Bitmap bitmap, BitmapDisplayConfig config, BitmapLoadFrom from) {
-                container.setImageBitmap(createReflectedImage(bitmap));
-//                toolbar.setLogo(container.getDrawable());
-            }
-
-            @Override
-            public void onLoadFailed(ImageView container, String uri, Drawable drawable) {
-
-            }
-        });
-        return null;
-    }
-    public Bitmap setBookAvatar(ImageView container, String url) {
+    public Bitmap setAvatar(ImageView container, String url, final Toolbar toolbar) {
         if (null == bitmapUtils) {
             bitmapUtils = new com.lidroid.xutils.BitmapUtils(mContext);
         }
@@ -118,7 +103,26 @@ public class BitmapUtils {
         return null;
     }
 
-    public boolean cleanCache(){
+    public Bitmap setAvatar(ImageView container, String url) {
+        if (null == bitmapUtils) {
+            bitmapUtils = new com.lidroid.xutils.BitmapUtils(mContext);
+        }
+
+        bitmapUtils.display(container, url, new BitmapLoadCallBack<ImageView>() {
+            @Override
+            public void onLoadCompleted(ImageView container, String uri, Bitmap bitmap, BitmapDisplayConfig config, BitmapLoadFrom from) {
+                container.setImageBitmap(createReflectedImage(bitmap));
+            }
+
+            @Override
+            public void onLoadFailed(ImageView container, String uri, Drawable drawable) {
+
+            }
+        });
+        return null;
+    }
+
+    public boolean cleanCache() {
         bitmapUtils.clearCache();
         return true;
     }

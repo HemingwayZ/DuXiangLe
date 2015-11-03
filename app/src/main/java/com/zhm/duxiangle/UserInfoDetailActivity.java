@@ -5,33 +5,48 @@ import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.TextView;
 
 import com.lidroid.xutils.ViewUtils;
 import com.lidroid.xutils.view.annotation.ContentView;
 import com.lidroid.xutils.view.annotation.ViewInject;
 import com.zhm.duxiangle.bean.UserInfo;
+import com.zhm.duxiangle.utils.BitmapUtils;
 
 import io.rong.imkit.RongIM;
 import io.rong.imlib.RongIMClient;
 
 @ContentView(R.layout.activity_user_info_detail)
 public class UserInfoDetailActivity extends SlidingBackActivity implements View.OnClickListener {
-    @ViewInject(R.id.tvUserInfo)
-    private TextView tvUserInfo;
     @ViewInject(R.id.toolbar)
     private Toolbar toolbar;
-    String Token = "TgvtMFddoNkHDeWcaXtKWwB9ft/fZ3RIRK/GfxqI/3AS+vgXGRPNaiQ6XcHmxeendjCnD8jE8K6z8kfj1J8WUA==";//test userid=2
     @ViewInject(R.id.toolbar_layout)
     private CollapsingToolbarLayout collapsingToolbarLayout;
     @ViewInject(R.id.ibBack)
     private ImageButton ivVBack;
     UserInfo userinfo;
+
+    //发送消息和编辑资料
+    @ViewInject(R.id.btnSend)
+    private Button btnSend;
+    @ViewInject(R.id.btnEdit)
+    private Button btnEdit;
+
+    //资料部分
+    @ViewInject(R.id.etNickname)
+    private EditText etNickname;
+    @ViewInject(R.id.etCreated)
+    private EditText etCreated;
+    @ViewInject(R.id.etDesc)
+    private EditText etDesc;
+
+
+    String Token = "TgvtMFddoNkHDeWcaXtKWwB9ft/fZ3RIRK/GfxqI/3AS+vgXGRPNaiQ6XcHmxeendjCnD8jE8K6z8kfj1J8WUA==";//test userid=2
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,9 +56,11 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
 
         initData(getIntent());
         setSupportActionBar(toolbar);
-        ivVBack.setOnClickListener(this);
+
         toolbar.getLogo();
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        if (userinfo.getAvatar() != null)
+            BitmapUtils.getInstance(getApplicationContext()).setAvatar(fab, userinfo.getAvatar());
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View view) {
@@ -52,6 +69,15 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
                 enterConversation(view);
             }
         });
+        etDesc.setFocusable(false);
+        etCreated.setFocusable(false);
+        etNickname.setFocusable(false);
+        etCreated.setClickable(false);
+        etNickname.setClickable(false);
+        etDesc.setClickable(false);
+        ivVBack.setOnClickListener(this);
+        btnEdit.setOnClickListener(this);
+        btnSend.setOnClickListener(this);
     }
 
     /**
@@ -116,8 +142,12 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
 
     private void initData(Intent intent) {
         userinfo = (UserInfo) intent.getSerializableExtra("userinfo");
-        if (userinfo != null)
-            tvUserInfo.setText(userinfo.toString());
+        if (userinfo != null) {
+            etCreated.setText(userinfo.getCreated());
+            etNickname.setText(userinfo.getNickname());
+            etDesc.setText(userinfo.getDescrib());
+        }
+
     }
 
     @Override
@@ -125,6 +155,12 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
         switch (v.getId()) {
             case R.id.ibBack:
                 onBackPressed();
+                break;
+            case R.id.btnSend:
+                enterConversation(v);
+                break;
+            case R.id.btnEdit:
+
                 break;
         }
     }

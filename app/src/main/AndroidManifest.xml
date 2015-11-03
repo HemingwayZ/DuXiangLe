@@ -130,7 +130,7 @@
 
                 <data
                     android:host="com.zhm.duxiangle"
-                    android:pathPrefix="/conversationlist"
+                    android:pathPrefix="/conversationlist/"
                     android:scheme="rong" />
             </intent-filter>
         </activity>

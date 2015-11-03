@@ -15,34 +15,28 @@ import com.zhm.duxiangle.view.SlidingBackLayout;
  *
  * @author zhm
  * @version 2015-7-11
- *
  */
 public class SlidingBackActivity extends AppCompatActivity {
-	protected SlidingBackLayout layout;
+    protected SlidingBackLayout layout;
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		//1需要继承AppCompatActivity
-		//2需要将背景弄成透明
-		getWindow().setBackgroundDrawable(new ColorDrawable(0));
-		layout = (SlidingBackLayout) LayoutInflater.from(this).inflate(
-				R.layout.hm_base_activity, null);
-		layout.attachToActivity(this);
-	}
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        overridePendingTransition(R.anim.hm_base_slide_right_in,
+                0);
+        super.onCreate(savedInstanceState);
+        //1需要继承AppCompatActivity
+        //2需要将背景弄成透明
+        getWindow().setBackgroundDrawable(new ColorDrawable(0));
+        layout = (SlidingBackLayout) LayoutInflater.from(this).inflate(
+                R.layout.hm_base_activity, null);
+        layout.attachToActivity(this);
+    }
 
-	@Override
-	public void startActivity(Intent intent) {
-		super.startActivity(intent);
-		overridePendingTransition(R.anim.hm_base_slide_right_in,
-				0);
-	}
-
-	// Press the back button in mobile phone
-	@Override
-	public void onBackPressed() {
-		super.onBackPressed();
-		overridePendingTransition(0, R.anim.hm_base_slide_right_out);
-	}
+    // Press the back button in mobile phone
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        overridePendingTransition(0, R.anim.hm_base_slide_right_out);
+    }
 
 }
