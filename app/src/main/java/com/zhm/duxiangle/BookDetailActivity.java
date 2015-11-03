@@ -17,6 +17,7 @@ import android.view.DragEvent;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -77,6 +78,9 @@ public class BookDetailActivity extends SlidingBackActivity {
     @ViewInject(R.id.fabShare2)
     private FloatingActionButton fabShare2;
 
+    //后退
+    @ViewInject(R.id.ibBack)
+    private ImageButton ibBack;
     //CreditsRollView
 //    @ViewInject(R.id.creditsroll)
 //    private CreditsRollView creditsRollView;
@@ -100,6 +104,12 @@ public class BookDetailActivity extends SlidingBackActivity {
                     bookCover.setScaleType(ImageView.ScaleType.CENTER);
                 }
                 return true;
+            }
+        });
+        ibBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
             }
         });
         bookCover.setOnTouchListener(new View.OnTouchListener() {

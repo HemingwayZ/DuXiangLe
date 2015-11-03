@@ -1,18 +1,59 @@
 package com.zhm.duxiangle;
 
+import android.content.Intent;
 import android.net.Uri;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
 
+import io.rong.imkit.RongIM;
 import io.rong.imkit.fragment.ConversationListFragment;
+import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 
-public class ConversationListActivity extends AppCompatActivity {
-
+public class ConversationListActivity extends SlidingBackActivity {
+    String Token = "TgvtMFddoNkHDeWcaXtKWwB9ft/fZ3RIRK/GfxqI/3AS+vgXGRPNaiQ6XcHmxeendjCnD8jE8K6z8kfj1J8WUA==";//test userid=2
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation_list);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                /**
+                 * IMKit SDK调用第二步
+                 *
+                 * 建立与服务器的连接
+                 *
+                 */
+                RongIM.connect(Token, new RongIMClient.ConnectCallback() {
+                    @Override
+                    public void onTokenIncorrect() {
+                        //Connect Token 失效的状态处理，需要重新获取 Token
+                        findViewById(R.id.progressBar).setVisibility(View.GONE);
+                    }
+
+                    /**
+                     * 连接融云成功
+                     */
+                    @Override
+                    public void onSuccess(String userId) {
+                        Log.e("MainActivity", "——onSuccess— -" + userId);
+                        //回话列表
+                        enterFragment();
+                        findViewById(R.id.progressBar).setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onError(RongIMClient.ErrorCode errorCode) {
+                        Log.e("MainActivity", "——onError— -" + errorCode);
+                        findViewById(R.id.progressBar).setVisibility(View.GONE);
+                    }
+                });
+            }
+        }).start();
     }
 
     /**

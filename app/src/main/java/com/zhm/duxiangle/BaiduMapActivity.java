@@ -61,10 +61,25 @@ public class BaiduMapActivity extends AppCompatActivity {
         }
     };
 
+    // Press the back button in mobile phone
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        overridePendingTransition(0, R.anim.hm_base_slide_right_out);
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_baidu_map);
+        TextView tvTitle = (TextView) findViewById(R.id.tvTitle);
+        findViewById(R.id.ibBack).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+        tvTitle.setText("定位");
         requestLocButton = (Button) findViewById(R.id.button1);
         mCurrentMode = LocationMode.NORMAL;
         requestLocButton.setText("普通");

@@ -238,7 +238,6 @@ public class MainActivity extends AppCompatActivity
                         @Override
                         public void onSuccess(String userId) {
                             Log.e("MainActivity", "——onSuccess— -" + userId);
-
                             //回话列表
                             startActivity(new Intent(MainActivity.this, ConversationListActivity.class));
                         }
