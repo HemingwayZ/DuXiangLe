@@ -12,6 +12,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.DragEvent;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -29,18 +30,23 @@ import com.lidroid.xutils.HttpUtils;
 import com.lidroid.xutils.ViewUtils;
 import com.lidroid.xutils.exception.DbException;
 import com.lidroid.xutils.exception.HttpException;
+import com.lidroid.xutils.http.RequestParams;
 import com.lidroid.xutils.http.ResponseInfo;
 import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
 import com.lidroid.xutils.view.annotation.ContentView;
 import com.lidroid.xutils.view.annotation.ViewInject;
+import com.zhm.duxiangle.api.DXLApi;
 import com.zhm.duxiangle.api.DouBanApi;
 import com.zhm.duxiangle.bean.Book;
 import com.zhm.duxiangle.bean.Images;
+import com.zhm.duxiangle.bean.User;
 import com.zhm.duxiangle.utils.BitmapUtils;
 import com.zhm.duxiangle.utils.DXLDbUtils;
+import com.zhm.duxiangle.utils.DXLHttpUtils;
 import com.zhm.duxiangle.utils.GsonUtils;
 import com.zhm.duxiangle.utils.LogUtils;
+import com.zhm.duxiangle.utils.SpUtil;
 import com.zhm.duxiangle.utils.ToastUtils;
 
 @ContentView(R.layout.activity_book_detail)
@@ -81,7 +87,7 @@ public class BookDetailActivity extends SlidingBackActivity {
 //    @ViewInject(R.id.creditsroll)
 //    private CreditsRollView creditsRollView;
 
-
+    User user;
     private Book book;
 
     @Override
@@ -89,6 +95,8 @@ public class BookDetailActivity extends SlidingBackActivity {
         super.onCreate(savedInstanceState);
         getWindow().setBackgroundDrawable(new ColorDrawable(0));
         ViewUtils.inject(this);
+
+
         bookCover.setOnDragListener(new View.OnDragListener() {
             @Override
             public boolean onDrag(View v, DragEvent event) {
@@ -188,9 +196,10 @@ public class BookDetailActivity extends SlidingBackActivity {
             getBookInfoByScan();
             getDataFromNet();
         } else {
+
             tvTitle.setText("书名:" + book.getTitle());
             StringBuffer buffer = new StringBuffer();
-            for (int i = 0; i < book.getAuthor().size(); i++) {
+            for (int i = 0; book.getAuthor() != null && i < book.getAuthor().size(); i++) {
                 buffer.append(book.getAuthor().get(i));
             }
             tvAuthor.setText("作者:" + buffer.toString());
@@ -200,7 +209,7 @@ public class BookDetailActivity extends SlidingBackActivity {
             //拓展过后的标题颜色
             collapsingToolbarLayout.setExpandedTitleColor(Color.BLUE);
             collapsingToolbarLayout.setCollapsedTitleGravity(Gravity.BOTTOM | Gravity.RIGHT);
-            BitmapUtils.getInstance(getApplicationContext()).setAvatar(bookCover, book.getImages().getLarge(), toolbar);
+            BitmapUtils.getInstance(getApplicationContext()).setAvatar(bookCover, book.getImage(), toolbar);
             progressBar.setVisibility(View.GONE);
         }
     }
@@ -250,6 +259,28 @@ public class BookDetailActivity extends SlidingBackActivity {
         }
     }
 
+    public void saveBookToNet(Book book) {
+        String json = GsonUtils.getInstance().bean2Json(book);
+        RequestParams params = new RequestParams();
+        params.addBodyParameter("action", "save_book");
+        params.addBodyParameter("book", json);
+        DXLHttpUtils.getHttpUtils().send(HttpRequest.HttpMethod.POST, DXLApi.bookApi(), params, new RequestCallBack<String>() {
+            @Override
+            public void onSuccess(ResponseInfo<String> responseInfo) {
+                String result = responseInfo.result;
+                if (!"failed".equals(result)) {
+                    ToastUtils.showToast(getApplicationContext(), "result:" + result);
+                    return;
+                }
+            }
+
+            @Override
+            public void onFailure(HttpException error, String msg) {
+
+            }
+        });
+    }
+
     /**
      * 根据扫描的isbn获取书籍信息
      */
@@ -288,6 +319,10 @@ public class BookDetailActivity extends SlidingBackActivity {
                 progressBar.setVisibility(View.GONE);
 //              creditsRollView.setText(json);
                 saveData();
+                //获取用户信息
+                getUser();
+                book.setUserId(user.getUserId());
+                saveBookToNet(book);
             }
 
             @Override
@@ -303,5 +338,19 @@ public class BookDetailActivity extends SlidingBackActivity {
     protected void onStop() {
         super.onStop();
         ToastUtils.cancelToast();
+    }
+
+    public void getUser() {
+        //获取用户信息
+        String json = SpUtil.getSharePerference(getApplicationContext()).getString("user", "");
+        if (!TextUtils.isEmpty(json)) {
+            user = GsonUtils.getInstance().json2Bean(json, User.class);
+            if (user != null) {
+
+            } else {
+                Intent intent = new Intent(BookDetailActivity.this, LoginActivity.class);
+                startActivity(intent);
+            }
+        }
     }
 }

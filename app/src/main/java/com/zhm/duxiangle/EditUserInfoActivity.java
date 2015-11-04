@@ -7,6 +7,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -26,6 +27,14 @@ public class EditUserInfoActivity extends SlidingBackActivity implements View.On
     @ViewInject(R.id.tvTitle)
     private TextView tvTitle;
 
+    //个人信息
+    @ViewInject(R.id.etDesc)
+    private EditText etDesc;
+    @ViewInject(R.id.etCreated)
+    private EditText etCreated;
+    @ViewInject(R.id.etNickname)
+    private EditText etNickname;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,7 +48,9 @@ public class EditUserInfoActivity extends SlidingBackActivity implements View.On
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+
+
+                Snackbar.make(view, "修改成功", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
         });
@@ -50,6 +61,10 @@ public class EditUserInfoActivity extends SlidingBackActivity implements View.On
 
         ibBack.setOnClickListener(this);
         tvTitle.setText("修改-" + userInfo.getNickname());
+
+        etNickname.setText(userInfo.getNickname());
+        etCreated.setText(userInfo.getCreated());
+        etDesc.setText(userInfo.getDescrib());
     }
 
     @Override

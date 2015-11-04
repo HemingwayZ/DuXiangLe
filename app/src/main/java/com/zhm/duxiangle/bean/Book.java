@@ -32,6 +32,15 @@ public class Book implements Serializable {
     private Series series;//
     private String pages;//
     private String image;
+    private int userId;
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
 
     //作者信息
     private String strAuthor;

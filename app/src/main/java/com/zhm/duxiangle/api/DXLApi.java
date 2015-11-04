@@ -31,4 +31,8 @@ public class DXLApi {
     public static String getFileUpLoad() {
         return "http://" + HOST + PORT + "/DuXiangLeServer/FileUploadServlet";
     }
+
+    public static String bookApi(){
+        return "http://" + HOST + PORT + "/DuXiangLeServer/BookServlet";
+    }
 }

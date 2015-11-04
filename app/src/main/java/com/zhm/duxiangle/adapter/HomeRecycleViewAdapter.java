@@ -24,7 +24,9 @@ import java.util.List;
 public class HomeRecycleViewAdapter extends RecyclerView.Adapter<HomeRecycleViewAdapter.MyViewHolder> {
     private List<Book> mData;
     private Context mContext;
-
+    public void setBooks(List<Book> books){
+        mData = books;
+    }
     public HomeRecycleViewAdapter(List<Book> mData, Context context) {
         this.mData = mData;
         this.mContext = context;

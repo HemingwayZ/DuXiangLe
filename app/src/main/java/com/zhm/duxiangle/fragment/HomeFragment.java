@@ -1,5 +1,6 @@
 package com.zhm.duxiangle.fragment;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -8,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -16,16 +18,29 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.gson.reflect.TypeToken;
 import com.lidroid.xutils.DbUtils;
 import com.lidroid.xutils.ViewUtils;
 import com.lidroid.xutils.db.sqlite.Selector;
 import com.lidroid.xutils.exception.DbException;
+import com.lidroid.xutils.exception.HttpException;
+import com.lidroid.xutils.http.RequestParams;
+import com.lidroid.xutils.http.ResponseInfo;
+import com.lidroid.xutils.http.callback.RequestCallBack;
+import com.lidroid.xutils.http.client.HttpRequest;
 import com.lidroid.xutils.view.annotation.ViewInject;
+import com.zhm.duxiangle.LoginActivity;
 import com.zhm.duxiangle.R;
 import com.zhm.duxiangle.adapter.HomeRecycleViewAdapter;
+import com.zhm.duxiangle.api.DXLApi;
 import com.zhm.duxiangle.bean.Book;
 import com.zhm.duxiangle.bean.Images;
+import com.zhm.duxiangle.bean.User;
 import com.zhm.duxiangle.utils.DXLDbUtils;
+import com.zhm.duxiangle.utils.DXLHttpUtils;
+import com.zhm.duxiangle.utils.GsonUtils;
+import com.zhm.duxiangle.utils.SpUtil;
+import com.zhm.duxiangle.utils.ToastUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,6 +66,7 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
 
     private OnFragmentInteractionListener mListener;
     private int lastVisibleItem;
+    private User user;
 
     /**
      * Use this factory method to create a new instance of
@@ -90,7 +106,8 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                 case REFRESH_COMPLETE:
                     if (bookList != null && bookList.size() > 0)
 //                    mAdapter.notifyDataSetChanged();
-                        getDataFromLocalDb();
+//                        getDataFromLocalDb();
+                        getDataFromNet(user);
                     if (homeAdapter != null)
                         homeAdapter.notifyDataSetChanged();
                     mSwipeLayout.setRefreshing(false);
@@ -122,6 +139,29 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     public void onStart() {
         super.onStart();
 //        getDataFromLocalDb();
+    }
+
+    private void getDataFromNet(User user) {
+        RequestParams params = new RequestParams();
+        params.addBodyParameter("action", "books");
+        params.addBodyParameter("userId", String.valueOf(user.getUserId()));
+        DXLHttpUtils.getHttpUtils().send(HttpRequest.HttpMethod.POST, DXLApi.bookApi(), params, new RequestCallBack<String>() {
+            @Override
+            public void onSuccess(ResponseInfo<String> responseInfo) {
+                String result = responseInfo.result;
+                bookList = GsonUtils.getInstance().getBooks(result);
+                if (homeAdapter != null) {
+                    homeAdapter.setBooks(bookList);
+                    homeAdapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onFailure(HttpException error, String msg) {
+                ToastUtils.showToast(getActivity(), "msg:" + msg);
+                getDataFromLocalDb();
+            }
+        });
     }
 
     /**
@@ -156,8 +196,9 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                         }
 
                     }
-
-
+                    if (homeAdapter != null) {
+                        homeAdapter.notifyDataSetChanged();
+                    }
                 }
 
             } catch (DbException e) {
@@ -166,11 +207,30 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         }
     }
 
+    public void getUser() {
+        //获取用户信息
+        String json = SpUtil.getSharePerference(getActivity()).getString("user", "");
+        if (!TextUtils.isEmpty(json)) {
+            user = GsonUtils.getInstance().json2Bean(json, User.class);
+            if (user != null) {
+
+            } else {
+                Intent intent = new Intent(getActivity(), LoginActivity.class);
+                startActivity(intent);
+            }
+        }
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        getDataFromLocalDb();
+        bookList = new ArrayList<Book>();
+        getUser();
+
+
+        getDataFromNet(user);
+
         view = inflater.inflate(R.layout.fragment_home, container, false);
         ViewUtils.inject(this, view);
         //三设置下拉刷新监听事件和进度条
@@ -183,10 +243,9 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         //设置recycleView和相应的适配器需要设置布局管理器，否则会报错
         layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(layoutManager);
-        if (bookList != null && bookList.size() > 0) {
-            homeAdapter = new HomeRecycleViewAdapter(bookList, getActivity());
-            recyclerView.setAdapter(homeAdapter);
-        }
+        homeAdapter = new HomeRecycleViewAdapter(bookList, getActivity());
+        recyclerView.setAdapter(homeAdapter);
+        homeAdapter.notifyDataSetChanged();
         //设置recycleView上拉加载更多的方法
         recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -198,7 +257,7 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                if (homeAdapter!=null&&newState == RecyclerView.SCROLL_STATE_IDLE
+                if (homeAdapter != null && newState == RecyclerView.SCROLL_STATE_IDLE
                         && lastVisibleItem + 1 == homeAdapter.getItemCount()) {
                     mSwipeLayout.setRefreshing(true);
                     // 此处在现实项目中，请换成网络请求数据代码，sendRequest .....
@@ -218,7 +277,7 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                 }
             }
         });
-
+        getDataFromNet(user);
         return view;
     }
 

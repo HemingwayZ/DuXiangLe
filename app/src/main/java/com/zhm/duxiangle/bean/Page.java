@@ -1,13 +1,14 @@
 package com.zhm.duxiangle.bean;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 分页
  *
  * @author zhuanghm
  */
-public class Page {
+public class Page<T> {
     // 页面菜单属性
     private int thispage; // 当前页码
     private int rowperpage; // 每页记录数
@@ -18,7 +19,7 @@ public class Page {
     private int prepage; // 下一页
     private int nextpage; // 上一页
     private String sql;
-    private List<UserInfo> list;// 页面内容属性
+    private List<T> list;// 页面内容属性
 
     public int getThispage() {
         return thispage;
@@ -84,11 +85,11 @@ public class Page {
         this.nextpage = nextpage;
     }
 
-    public List<UserInfo> getList() {
+    public List<T> getList() {
         return list;
     }
 
-    public void setList(List<UserInfo> list) {
+    public void setList(List<T> list) {
         this.list = list;
     }
 

@@ -63,7 +63,7 @@ public class UserListFragment extends Fragment implements SwipeRefreshLayout.OnR
     private int countRow = 1;
     private String action = "userinfopage";
 
-    private Page page;
+    private Page<UserInfo> page;
 
     UserListAdapter userListAdapter;
     List<UserInfo> list;
@@ -148,7 +148,7 @@ public class UserListFragment extends Fragment implements SwipeRefreshLayout.OnR
 
                 String result = responseInfo.result;
 
-                page = GsonUtils.getInstance().json2Bean(result, Page.class);
+                page = GsonUtils.getInstance().getUserInfos(result);
 //                tvContent.setText(page.toString());
                 if (page.getList() != null && page.getList().size() > 0) {
                     //分页逻辑
