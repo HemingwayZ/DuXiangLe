@@ -60,4 +60,6 @@ public class GsonUtils {
         return gson.fromJson(json, new TypeToken<Page<UserInfo>>() {
         }.getType());
     }
+
+
 }

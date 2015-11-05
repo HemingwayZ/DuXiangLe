@@ -14,4 +14,11 @@ public class Constant {
     public static final int REQUEST_CODE_MEDIA = 3;
 
     public static final int REQUEST_CODE_CAPTURE_CAMEIA = 4;
+
+    //微信id
+    public static final String APP_ID_WECHAT="wxcb5e68f7c7a3f78a";
+    public static final String AppSecret = "d4624c36b6795d1d99dcf0547af5443d";
+
+
+
 }

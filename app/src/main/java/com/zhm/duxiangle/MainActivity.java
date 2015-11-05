@@ -1,6 +1,10 @@
 package com.zhm.duxiangle;
 
 import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -27,6 +31,15 @@ import com.google.zxing.client.android.Intents;
 import com.lidroid.xutils.ViewUtils;
 import com.lidroid.xutils.view.annotation.ContentView;
 import com.lidroid.xutils.view.annotation.ViewInject;
+import com.tencent.mm.sdk.modelmsg.SendMessageToWX;
+import com.tencent.mm.sdk.modelmsg.WXImageObject;
+import com.tencent.mm.sdk.modelmsg.WXMediaMessage;
+import com.tencent.mm.sdk.modelmsg.WXTextObject;
+import com.tencent.mm.sdk.modelmsg.WXWebpageObject;
+import com.tencent.mm.sdk.openapi.IWXAPI;
+import com.tencent.mm.sdk.openapi.WXAPIFactory;
+import com.zhm.duxiangle.api.ShareApi;
+import com.zhm.duxiangle.bean.Constant;
 import com.zhm.duxiangle.bean.User;
 import com.zhm.duxiangle.fragment.FindFragment;
 import com.zhm.duxiangle.fragment.HomeFragment;
@@ -35,6 +48,7 @@ import com.zhm.duxiangle.utils.BitmapUtils;
 import com.zhm.duxiangle.utils.GsonUtils;
 import com.zhm.duxiangle.utils.SpUtil;
 
+import java.net.URL;
 import java.util.ArrayList;
 
 import io.rong.imkit.RongIM;
@@ -68,6 +82,7 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         overridePendingTransition(R.anim.hm_base_slide_right_in, 0);
+        ShareApi.getInstance(getApplicationContext()).regToWx();
         ViewUtils.inject(this);
 
         setSupportActionBar(toolbar);
@@ -128,7 +143,7 @@ public class MainActivity extends AppCompatActivity
         fragmentArrayList.add(homeFragment);
         fragmentArrayList.add(findFragment);
         fragmentArrayList.add(userListFragment);
-        mData = new String[]{"我的书库", "我的最爱", "用户列表"};
+        mData = new String[]{"我的书库", "发现更多", "更多用户"};
         viewPager.setOffscreenPageLimit(2);//设置缓存页面为2
         viewPager.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
@@ -213,51 +228,27 @@ public class MainActivity extends AppCompatActivity
                     0);
             return false;
         } else if (id == R.id.nav_slideshow) {//消息
-//            Intent intent = new Intent(MainActivity.this, MessageActivity.class);
-//            startActivity(intent);
-//            final String Token = "TgvtMFddoNkHDeWcaXtKWwB9ft/fZ3RIRK/GfxqI/3AS+vgXGRPNaiQ6XcHmxeendjCnD8jE8K6z8kfj1J8WUA==";//test userid=2
-//            final String  Token = "8FQcKXFvWDqN2j3qZWDA5nM//2Y39LDCnuxr2xdDagUSew9ILDZp6n9+OUnzkJ/4/W8bX6Y2cB4VGTWNrvchrA==";//test userid=1
-//            new Thread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    /**
-//                     * IMKit SDK调用第二步
-//                     *
-//                     * 建立与服务器的连接
-//                     *
-//                     */
-//                    RongIM.connect(Token, new RongIMClient.ConnectCallback() {
-//                        @Override
-//                        public void onTokenIncorrect() {
-//                            //Connect Token 失效的状态处理，需要重新获取 Token
-//                        }
-//
-//                        /**
-//                         * 连接融云成功
-//                         */
-//                        @Override
-//                        public void onSuccess(String userId) {
-//                            Log.e("MainActivity", "——onSuccess— -" + userId);
-//                            //回话列表
-//                            startActivity(new Intent(MainActivity.this, ConversationListActivity.class));
-//                        }
-//
-//                        @Override
-//                        public void onError(RongIMClient.ErrorCode errorCode) {
-//                            Log.e("MainActivity", "——onError— -" + errorCode);
-//                        }
-//                    });
-//                }
-//            }).start();
+            //融云即时通讯
             startActivity(new Intent(MainActivity.this, ConversationListActivity.class));
 
         } /*else if (id == R.id.nav_manage) {
 
         }*/ else if (id == R.id.nav_share) {
-                startActivity(new Intent(MainActivity.this,MessageActivity.class));
+//                startActivity(new Intent(MainActivity.this,MessageActivity.class));
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+//                    ShareApi.getInstance(getApplicationContext()).share2WeChatWithWebUrl("http://120.25.201.60/ZL/ZL.html");
+//                    ShareApi.getInstance(getApplicationContext()).share2WeChatWithImage(1);
+                    ShareApi.getInstance(getApplicationContext()).wechatShare(1);
+//                    wechatShare(1);
+                }
+
+            }).start();
+
         } else if (id == R.id.nav_send) {
-            Intent intent = new Intent(MainActivity.this, WeChatPicActivity.class);
-            startActivity(intent);
+//            Intent intent = new Intent(MainActivity.this, WeChatPicActivity.class);
+//            startActivity(intent);
         } else if (id == R.id.nav_clean) {
             BitmapUtils.getInstance(getApplication()).cleanCache();
         }
@@ -265,6 +256,23 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void wechatShare(int flag) {
+        WXWebpageObject webpage = new WXWebpageObject();
+        webpage.webpageUrl = "http://120.25.201.60/ZL/ZL.html";
+        WXMediaMessage msg = new WXMediaMessage(webpage);
+        msg.title = "Be Happy";
+        msg.description = "Be Happy everyday";
+        //这里替换一张自己工程里的图片资源
+        Bitmap thumb = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
+        msg.setThumbImage(thumb);
+
+        SendMessageToWX.Req req = new SendMessageToWX.Req();
+        req.transaction = String.valueOf(System.currentTimeMillis());
+        req.message = msg;
+        req.scene = flag == 0 ? SendMessageToWX.Req.WXSceneSession : SendMessageToWX.Req.WXSceneTimeline;
+        ShareApi.api.sendReq(req);
     }
 
     @Override

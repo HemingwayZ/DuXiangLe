@@ -78,7 +78,9 @@ public class UserListFragment extends Fragment implements SwipeRefreshLayout.OnR
                 case Constant.REFRESH_DOWN://下拉刷新
                     ToastUtils.cancelToast();
                     ToastUtils.showToast(getActivity(), countRow + "  REFRESH_DOWN");
-                    initData(0, countRow, Constant.REFRESH_DOWN);
+                    if (countRow > 0) {
+                        initData(0, countRow, Constant.REFRESH_DOWN);
+                    }
                     mSwipeLayout.setRefreshing(false);
                     break;
                 case Constant.REFRESH_UP://上拉加载更多

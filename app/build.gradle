@@ -35,4 +35,5 @@ dependencies {
     compile files('D:/AsWorkSpace/DuXiangLe/libs/wximg.jar')
     compile files('D:/AsWorkSpace/DuXiangLe/libs/BaiduLBS_Android.jar')
     compile project(':IMKit')
+    compile files('D:/AsWorkSpace/DuXiangLe/libs/libammsdk.jar')
 }

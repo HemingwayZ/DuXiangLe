@@ -25,7 +25,8 @@ public class DXLApplication extends Application {
             /**
              * IMKit SDK调用第一步 初始化
              */
-            RongIM.init(this);
+            if (RongIM.getInstance() == null)
+                RongIM.init(this);
         }
     }
 

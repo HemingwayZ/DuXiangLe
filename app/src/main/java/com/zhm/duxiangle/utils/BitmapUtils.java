@@ -33,6 +33,10 @@ public class BitmapUtils {
     private BitmapUtils() {
     }
 
+    public com.lidroid.xutils.BitmapUtils getXUtilsBitmap() {
+        return bitmapUtils == null ? new com.lidroid.xutils.BitmapUtils(mContext) : bitmapUtils;
+    }
+
     public static BitmapUtils getInstance(Context context) {
         if (null == context) {
             return null;
@@ -125,5 +129,22 @@ public class BitmapUtils {
     public boolean cleanCache() {
         bitmapUtils.clearCache();
         return true;
+    }
+
+    public static byte[] bmpToByteArray(final Bitmap bmp, final boolean needRecycle) {
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        bmp.compress(Bitmap.CompressFormat.PNG, 100, output);
+        if (needRecycle) {
+            bmp.recycle();
+        }
+
+        byte[] result = output.toByteArray();
+        try {
+            output.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return result;
     }
 }

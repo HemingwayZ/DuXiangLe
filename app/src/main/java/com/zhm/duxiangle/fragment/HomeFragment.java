@@ -142,6 +142,9 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     }
 
     private void getDataFromNet(User user) {
+        if(user==null){
+            return;
+        }
         RequestParams params = new RequestParams();
         params.addBodyParameter("action", "books");
         params.addBodyParameter("userId", String.valueOf(user.getUserId()));

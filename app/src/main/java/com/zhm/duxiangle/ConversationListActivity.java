@@ -26,7 +26,12 @@ public class ConversationListActivity extends SlidingBackActivity {
         setContentView(R.layout.activity_conversation_list);
         //获取token
         String json  = SpUtil.getSharePerference(getApplicationContext()).getString("user","");
-        User user = GsonUtils.getInstance().json2Bean(json,User.class);
+        User user = GsonUtils.getInstance().json2Bean(json, User.class);
+        if(user==null){
+            Intent intent = new Intent(ConversationListActivity.this,LoginActivity.class);
+            startActivity(intent);
+            return;
+        }
         Token = user.getToken();
         new Thread(new Runnable() {
             @Override

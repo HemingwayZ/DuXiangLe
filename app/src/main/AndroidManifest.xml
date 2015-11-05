@@ -143,6 +143,8 @@
             android:label="@string/title_activity_edit_user_info"
             android:theme="@style/AppTheme.NoActionBar" >
         </activity>
+        <activity android:name=".WXEntryActivity" >
+        </activity>
     </application>
 
 </manifest>
