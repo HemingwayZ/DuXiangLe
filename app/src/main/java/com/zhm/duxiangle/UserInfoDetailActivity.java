@@ -37,9 +37,12 @@ import com.lidroid.xutils.view.annotation.ContentView;
 import com.lidroid.xutils.view.annotation.ViewInject;
 import com.zhm.duxiangle.api.DXLApi;
 import com.zhm.duxiangle.bean.Constant;
+import com.zhm.duxiangle.bean.User;
 import com.zhm.duxiangle.bean.UserInfo;
 import com.zhm.duxiangle.utils.BitmapUtils;
 import com.zhm.duxiangle.utils.DXLHttpUtils;
+import com.zhm.duxiangle.utils.GsonUtils;
+import com.zhm.duxiangle.utils.SpUtil;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -83,6 +86,10 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
         super.onCreate(savedInstanceState);
 
         ViewUtils.inject(this);
+        //获取token
+        String json  = SpUtil.getSharePerference(getApplicationContext()).getString("user","");
+        User user = GsonUtils.getInstance().json2Bean(json,User.class);
+        Token = user.getToken();
 
         initData(getIntent());
         setSupportActionBar(toolbar);

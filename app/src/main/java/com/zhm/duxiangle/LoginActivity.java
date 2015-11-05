@@ -20,6 +20,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -41,7 +42,10 @@ import com.lidroid.xutils.http.client.HttpRequest;
 import com.lidroid.xutils.view.annotation.ContentView;
 import com.lidroid.xutils.view.annotation.ViewInject;
 import com.zhm.duxiangle.api.DXLApi;
+import com.zhm.duxiangle.bean.RongYun;
+import com.zhm.duxiangle.bean.SdkHttpResult;
 import com.zhm.duxiangle.bean.User;
+import com.zhm.duxiangle.utils.DXLHttpUtils;
 import com.zhm.duxiangle.utils.GsonUtils;
 import com.zhm.duxiangle.utils.SpUtil;
 import com.zhm.duxiangle.utils.ToastUtils;
@@ -96,6 +100,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     //用户头像
     @ViewInject(R.id.ivUser)
     private CircleImageView ivUser;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -257,13 +262,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         mPasswordView.requestFocus();
                         return;
                     }
-                    //存储到本地
-                    SpUtil.setStringSharedPerference(SpUtil.getSharePerference(getApplicationContext()), "user", result);
                     User user = GsonUtils.getInstance().json2Bean(result, User.class);
-
-                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                    intent.putExtra("user", user);
-                    startActivity(intent);
+                    getTokenByUserId(user);
                 }
 
                 @Override
@@ -371,7 +371,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 }
                 break;
             case R.id.ivUser:
-                Intent intent = new Intent(LoginActivity.this,FaceCameraActivity.class);
+                Intent intent = new Intent(LoginActivity.this, FaceCameraActivity.class);
                 startActivity(intent);
                 break;
         }
@@ -396,5 +396,33 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mEmailView.setAdapter(adapter);
     }
 
+    private void getTokenByUserId(final User user) {
+        RequestParams params = new RequestParams();
+        params.addBodyParameter("userid", String.valueOf(user.getUserId()));
+        DXLHttpUtils.getHttpUtils().send(HttpRequest.HttpMethod.POST, DXLApi.getIoRongTokenApi(), params, new RequestCallBack<String>() {
+            @Override
+            public void onSuccess(ResponseInfo<String> responseInfo) {
+                String result = responseInfo.result;
+//                Log.i("LoginActivity", result);
+                SdkHttpResult tokenResult = GsonUtils.getInstance().json2Bean(result, SdkHttpResult.class);
+//                Log.i("LoginActivity", tokenResult.getResult());
+                RongYun rong = GsonUtils.getInstance().json2Bean(tokenResult.getResult(), RongYun.class);
+                if ("200".equals(rong.getCode())) {
+                    user.setToken(rong.getToken());
+                    Log.i("LoginActivity",user.getToken());
+                    //数据存储到本地
+                    SpUtil.setStringSharedPerference(SpUtil.getSharePerference(getApplicationContext()), "user", GsonUtils.getInstance().bean2Json(user));
+                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                    intent.putExtra("user", user);
+                    startActivity(intent);
+                }
+            }
+
+            @Override
+            public void onFailure(HttpException error, String msg) {
+
+            }
+        });
+    }
 }
 

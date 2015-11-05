@@ -10,6 +10,15 @@ public class User implements Serializable{
     private String username;
     private String password;
     private String status;//记录登录状态-online：在线  offline：离线
+    private String token;
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
 
     public String getStatus() {
         return status;

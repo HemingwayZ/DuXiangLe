@@ -35,4 +35,8 @@ public class DXLApi {
     public static String bookApi(){
         return "http://" + HOST + PORT + "/DuXiangLeServer/BookServlet";
     }
+
+    public static String getIoRongTokenApi(){
+        return  "http://" + HOST + PORT + "/DuXiangLeServer/IoRongServlet";
+    }
 }

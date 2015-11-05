@@ -1,3 +1,4 @@
+
 package com.zhm.duxiangle;
 
 import android.app.ActivityManager;
@@ -9,7 +10,6 @@ import com.baidu.mapapi.SDKInitializer;
 import io.rong.imkit.RongIM;
 
 public class DXLApplication extends Application {
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -22,7 +22,6 @@ public class DXLApplication extends Application {
          */
         if (getApplicationInfo().packageName.equals(getCurProcessName(getApplicationContext())) ||
                 "io.rong.push".equals(getCurProcessName(getApplicationContext()))) {
-
             /**
              * IMKit SDK调用第一步 初始化
              */

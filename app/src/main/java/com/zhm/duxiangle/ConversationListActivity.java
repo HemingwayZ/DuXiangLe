@@ -8,6 +8,10 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
+import com.zhm.duxiangle.bean.User;
+import com.zhm.duxiangle.utils.GsonUtils;
+import com.zhm.duxiangle.utils.SpUtil;
+
 import io.rong.imkit.RongIM;
 import io.rong.imkit.fragment.ConversationListFragment;
 import io.rong.imlib.RongIMClient;
@@ -20,6 +24,10 @@ public class ConversationListActivity extends SlidingBackActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation_list);
+        //获取token
+        String json  = SpUtil.getSharePerference(getApplicationContext()).getString("user","");
+        User user = GsonUtils.getInstance().json2Bean(json,User.class);
+        Token = user.getToken();
         new Thread(new Runnable() {
             @Override
             public void run() {
