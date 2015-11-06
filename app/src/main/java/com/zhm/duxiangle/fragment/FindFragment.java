@@ -1,9 +1,11 @@
 package com.zhm.duxiangle.fragment;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
@@ -12,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.Adapter;
 import android.widget.AdapterView;
@@ -30,6 +33,7 @@ import com.lidroid.xutils.http.ResponseInfo;
 import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
 import com.lidroid.xutils.view.annotation.ViewInject;
+import com.zhm.duxiangle.BookDetailActivity;
 import com.zhm.duxiangle.BookPage;
 import com.zhm.duxiangle.R;
 import com.zhm.duxiangle.api.DXLApi;
@@ -71,13 +75,16 @@ public class FindFragment extends Fragment implements AbsListView.OnItemClickLis
 
     private OnFragmentInteractionListener mListener;
 
-
+    private int start = 0;
+    private int count = 9;
+    private String search = "";
     /**
      * The Adapter which will be used to populate the ListView/GridView with
      * Views.
      */
     private ListAdapter mAdapter;
     private String TAG = "FindFragment";
+    BookPage bookPage;
 
     // TODO: Rename and change types of parameters
     public static FindFragment newInstance(String param1, String param2) {
@@ -143,6 +150,7 @@ public class FindFragment extends Fragment implements AbsListView.OnItemClickLis
         View view = inflater.inflate(R.layout.fragment_find_grid, container, false);
         ViewUtils.inject(this, view);
         //三设置下拉刷新监听事件和进度条
+        bookPage = new BookPage();
         mSwipeLayout.setOnRefreshListener(this);
         mSwipeLayout.setColorSchemeResources(android.R.color.holo_blue_light, android.R.color.holo_red_light, android.R.color.holo_orange_light, android.R.color.holo_green_light);
         // 这句话是为了，第一次进入页面的时候显示加载进度条
@@ -157,13 +165,30 @@ public class FindFragment extends Fragment implements AbsListView.OnItemClickLis
         ((AdapterView<ListAdapter>) mListView).setAdapter(adapter);
         mListView.setOnItemClickListener(this);
         btnSearch.setOnClickListener(this);
-        getBooksFromDouBan("", 0, 9);
+        getBooksFromDouBan(search, start, count);
 
 
         mListView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
 //                scrollState = AbsListView.OnScrollListener.SCROLL_STATE_IDLE
+                switch (scrollState) {
+                    case AbsListView.OnScrollListener.SCROLL_STATE_IDLE:
+                        Log.i("SCROLL_STATE_IDLE", mListView.getLastVisiblePosition() + "");
+                        if (mListView.getLastVisiblePosition() + 1 == bookPage.getTotal()) {
+                            Snackbar.make(mListView, "已到尾页", Snackbar.LENGTH_SHORT).show();
+                            return;
+                        }
+                        if (mListView.getLastVisiblePosition() + 1 == books.size()) {
+                            mSwipeLayout.setRefreshing(true);
+                            getBooksFromDouBan(search, start, count);
+                        }
+                        break;
+                    case AbsListView.OnScrollListener.SCROLL_STATE_FLING:
+                        break;
+                    case AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL:
+                        break;
+                }
             }
 
             @Override
@@ -171,7 +196,6 @@ public class FindFragment extends Fragment implements AbsListView.OnItemClickLis
 
             }
         });
-
         return view;
     }
 //    GET  https://api.douban.com/v2/book/search
@@ -181,31 +205,36 @@ public class FindFragment extends Fragment implements AbsListView.OnItemClickLis
 //    start	取结果的offset	默认为0
 //    count	取结果的条数	默认为20，最大为100
 
-    private void getBooksFromDouBan(String q, int start, int count) {
-        RequestParams params = new RequestParams();
-        params.addBodyParameter("q", q);
-//        params.addBodyParameter("start", "0");
-//        params.addBodyParameter("count", "10");
-//        params.setHeader("Authorization", "");
-//        params.setContentType("UTF-8");
-//        params.setHeader("","");
-        DXLHttpUtils.getHttpUtils().send(HttpRequest.HttpMethod.GET, DouBanApi.searchBooksFromDouBanApi(q, start, count), params, new RequestCallBack<String>() {
+    private void getBooksFromDouBan(String q, int _start, final int _count) {
+        DXLHttpUtils.getHttpUtils().send(HttpRequest.HttpMethod.GET, DouBanApi.searchBooksFromDouBanApi(q, _start, _count), new RequestCallBack<String>() {
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
                 String result = responseInfo.result;
                 Log.i(TAG, result);
-                BookPage bookPage = GsonUtils.getInstance().json2Bean(result, BookPage.class);
+                bookPage = GsonUtils.getInstance().json2Bean(result, BookPage.class);
                 if (bookPage.getBooks().size() > 0) {
-                    books = bookPage.getBooks();
+                    if (start == 0) {
+                        books.removeAll(books);
+                        Snackbar.make(mListView, "搜索到" + bookPage.getTotal() + "项", Snackbar.LENGTH_SHORT).show();
+                    }
+                    start += count;
+                    books.addAll(bookPage.getBooks());
+
+//                    books = bookPage.getBooks();
                     if (adapter != null)
                         adapter.notifyDataSetChanged();
+                }else{
+                    books.removeAll(books);
+                    Snackbar.make(mListView, "搜索到" + bookPage.getTotal() + "项", Snackbar.LENGTH_SHORT).show();
                 }
+                mSwipeLayout.setRefreshing(false);
             }
 
             @Override
             public void onFailure(HttpException error, String msg) {
                 ToastUtils.showToast(getActivity(), "FindFragment net failed" + msg);
                 Log.i(TAG, "" + msg);
+                mSwipeLayout.setRefreshing(false);
             }
         });
     }
@@ -282,6 +311,10 @@ public class FindFragment extends Fragment implements AbsListView.OnItemClickLis
             // fragment is attached to one) that an item has been selected.
             mListener.onFragmentInteraction(DummyContent.ITEMS.get(position).id);
         }
+        Intent intent = new Intent();
+        intent.setClass(getActivity(), BookDetailActivity.class);
+        intent.putExtra("book", books.get(position));
+        startActivity(intent);
     }
 
     /**
@@ -291,7 +324,6 @@ public class FindFragment extends Fragment implements AbsListView.OnItemClickLis
      */
     public void setEmptyText(CharSequence emptyText) {
         View emptyView = mListView.getEmptyView();
-
         if (emptyView instanceof TextView) {
             ((TextView) emptyView).setText(emptyText);
         }
@@ -302,7 +334,17 @@ public class FindFragment extends Fragment implements AbsListView.OnItemClickLis
         switch (v.getId()) {
             case R.id.btnSearch:
                 //搜索
-                getBooksFromDouBan(etSearch.getText().toString(), 1, 9);
+                search = etSearch.getText().toString().trim();
+                mSwipeLayout.setRefreshing(true);
+                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
+//                　　//显示键盘
+//                　　imm.showSoftInput(editText, 0);
+                //隐藏键盘
+                imm.hideSoftInputFromWindow(etSearch.getWindowToken(), 0);
+                //
+                start = 0;
+                count = 9;
+                getBooksFromDouBan(search, start, count);
                 break;
         }
     }

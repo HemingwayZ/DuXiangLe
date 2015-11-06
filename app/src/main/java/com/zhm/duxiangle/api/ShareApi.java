@@ -74,15 +74,36 @@ public class ShareApi {
         api.sendReq(req);
     }
 
-    public void wechatShare(int flag) {
+    public void wechatShare(int flag,String url) {
         WXWebpageObject webpage = new WXWebpageObject();
-        webpage.webpageUrl = "http://120.25.201.60/ZL/ZL.html";
+//        webpage.webpageUrl = "http://120.25.201.60/ZL/ZL.html";
+        webpage.webpageUrl = url;
         WXMediaMessage msg = new WXMediaMessage(webpage);
         msg.title = "Be Happy";
         msg.description = "Be Happy everyday";
         //这里替换一张自己工程里的图片资源
         Bitmap thumb = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.ic_launcher);
         msg.setThumbImage(thumb);
+
+        SendMessageToWX.Req req = new SendMessageToWX.Req();
+        req.transaction = String.valueOf(System.currentTimeMillis());
+        req.message = msg;
+        req.scene = flag == 0 ? SendMessageToWX.Req.WXSceneSession : SendMessageToWX.Req.WXSceneTimeline;
+        ShareApi.api.sendReq(req);
+    }
+
+    public void wechatShareToBook(int flag,String url,String title,String imageUrl) {
+        WXWebpageObject webpage = new WXWebpageObject();
+//        webpage.webpageUrl = "http://120.25.201.60/ZL/ZL.html";
+        webpage.webpageUrl = url;
+        WXMediaMessage msg = new WXMediaMessage(webpage);
+        msg.title = title;
+        msg.description = "Be Happy everyday";
+        //这里替换一张自己工程里的图片资源
+        Bitmap thumb = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.ic_launcher);
+//        Bitmap thumb = BitmapUtils.getInstance(mContext)
+        msg.setThumbImage(thumb);
+
 
         SendMessageToWX.Req req = new SendMessageToWX.Req();
         req.transaction = String.valueOf(System.currentTimeMillis());

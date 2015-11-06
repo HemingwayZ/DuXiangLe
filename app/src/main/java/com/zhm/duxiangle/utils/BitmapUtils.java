@@ -28,7 +28,7 @@ public class BitmapUtils {
 
     static BitmapUtils skBitmapUtils;
     private static Context mContext;
-    private com.lidroid.xutils.BitmapUtils bitmapUtils;
+    private static com.lidroid.xutils.BitmapUtils bitmapUtils;
 
     private BitmapUtils() {
     }
@@ -45,6 +45,8 @@ public class BitmapUtils {
             skBitmapUtils = new BitmapUtils();
         }
         mContext = context;
+        if (bitmapUtils == null)
+            bitmapUtils = new com.lidroid.xutils.BitmapUtils(context);
         return skBitmapUtils;
     }
 

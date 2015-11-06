@@ -240,7 +240,7 @@ public class MainActivity extends AppCompatActivity
                 public void run() {
 //                    ShareApi.getInstance(getApplicationContext()).share2WeChatWithWebUrl("http://120.25.201.60/ZL/ZL.html");
 //                    ShareApi.getInstance(getApplicationContext()).share2WeChatWithImage(1);
-                    ShareApi.getInstance(getApplicationContext()).wechatShare(1);
+                    ShareApi.getInstance(getApplicationContext()).wechatShare(1, "http://120.25.201.60/ZL/ZL.html");
 //                    wechatShare(1);
                 }
 
@@ -311,7 +311,6 @@ public class MainActivity extends AppCompatActivity
                 intent.setClass(MainActivity.this, LoginActivity.class);
                 startActivity(intent);
                 break;
-
             default:
 
         }

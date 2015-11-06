@@ -38,6 +38,7 @@ import com.lidroid.xutils.view.annotation.ContentView;
 import com.lidroid.xutils.view.annotation.ViewInject;
 import com.zhm.duxiangle.api.DXLApi;
 import com.zhm.duxiangle.api.DouBanApi;
+import com.zhm.duxiangle.api.ShareApi;
 import com.zhm.duxiangle.bean.Book;
 import com.zhm.duxiangle.bean.Images;
 import com.zhm.duxiangle.bean.User;
@@ -87,7 +88,7 @@ public class BookDetailActivity extends SlidingBackActivity {
 //    @ViewInject(R.id.creditsroll)
 //    private CreditsRollView creditsRollView;
 
-    User user;
+    private User user;
     private Book book;
 
     @Override
@@ -165,8 +166,8 @@ public class BookDetailActivity extends SlidingBackActivity {
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
-                saveData();
-
+                ShareApi.getInstance(getApplicationContext()).wechatShare(1, book.getAlt());//分享到朋友圈
+//                saveData();
             }
         });
 
@@ -196,7 +197,6 @@ public class BookDetailActivity extends SlidingBackActivity {
             getBookInfoByScan();
             getDataFromNet();
         } else {
-
             tvTitle.setText("书名:" + book.getTitle());
             StringBuffer buffer = new StringBuffer();
             for (int i = 0; book.getAuthor() != null && i < book.getAuthor().size(); i++) {
@@ -209,7 +209,11 @@ public class BookDetailActivity extends SlidingBackActivity {
             //拓展过后的标题颜色
             collapsingToolbarLayout.setExpandedTitleColor(Color.BLUE);
             collapsingToolbarLayout.setCollapsedTitleGravity(Gravity.BOTTOM | Gravity.RIGHT);
-            BitmapUtils.getInstance(getApplicationContext()).setAvatar(bookCover, book.getImage(), toolbar);
+            if (book.getImages() != null) {
+                BitmapUtils.getInstance(getApplicationContext()).setAvatar(bookCover, book.getImages().getLarge(), toolbar);
+            } else {
+                BitmapUtils.getInstance(getApplicationContext()).setAvatar(bookCover, book.getImage(), toolbar);
+            }
             progressBar.setVisibility(View.GONE);
         }
     }
@@ -342,6 +346,7 @@ public class BookDetailActivity extends SlidingBackActivity {
 
     public void getUser() {
         //获取用户信息
+        user = new User();
         String json = SpUtil.getSharePerference(getApplicationContext()).getString("user", "");
         if (!TextUtils.isEmpty(json)) {
             user = GsonUtils.getInstance().json2Bean(json, User.class);
