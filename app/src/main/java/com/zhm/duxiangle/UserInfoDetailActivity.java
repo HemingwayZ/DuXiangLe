@@ -17,6 +17,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -81,6 +82,71 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
     private ImageView ivWall;
     String Token = "TgvtMFddoNkHDeWcaXtKWwB9ft/fZ3RIRK/GfxqI/3AS+vgXGRPNaiQ6XcHmxeendjCnD8jE8K6z8kfj1J8WUA==";//test userid=2
 
+
+    //悬浮按钮
+    @ViewInject(R.id.fab)
+    private FloatingActionButton fab;
+
+    @Override
+    protected void onStart() {
+
+        super.onStart();
+    }
+
+    @Override
+    protected void onResume() {
+        if (MainActivity.updateUserInfo == true) {
+            getUser();
+        }
+        super.onResume();
+    }
+
+    private void getUser() {
+        //获取用户信息
+        String json = SpUtil.getSharePerference(getApplicationContext()).getString("user", "");
+        if (!TextUtils.isEmpty(json)) {
+            User user = GsonUtils.getInstance().json2Bean(json, User.class);
+            if (user != null) {
+                getUserInfo(user.getUserId());
+            } else {
+            }
+        }
+    }
+
+    private void getUserInfo(final int userId) {
+        userinfo = new UserInfo();
+        RequestParams params = new RequestParams();
+        params.addBodyParameter("action", "userinfo");
+        params.addBodyParameter("userid", String.valueOf(userId));
+        DXLHttpUtils.getHttpUtils().send(HttpRequest.HttpMethod.POST, DXLApi.getUserListByPage(), params, new RequestCallBack<String>() {
+            @Override
+            public void onSuccess(ResponseInfo<String> responseInfo) {
+                String result = responseInfo.result;
+                Log.i(MainActivity.class.getSimpleName(), result);
+                if ("no found".equals(result)) {
+                    return;
+                }
+                if ("action".equals(result)) {
+                    return;
+                }
+                userinfo = GsonUtils.getInstance().json2Bean(result, UserInfo.class);
+                if (userinfo == null) {
+                    return;
+                }
+                etNickname.setText(userinfo.getNickname());
+                etCreated.setText(userinfo.getCreated());
+                etDesc.setText(userinfo.getDescrib());
+                collapsingToolbarLayout.setTitle(userinfo.getNickname());
+                BitmapUtils.getInstance(getApplicationContext()).setAvatarWithoutReflect(fab, DXLApi.BASE_URL + userinfo.getAvatar());
+            }
+
+            @Override
+            public void onFailure(HttpException error, String msg) {
+
+            }
+        });
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,10 +160,8 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
         initData(getIntent());
         setSupportActionBar(toolbar);
 
-        toolbar.getLogo();
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         if (userinfo.getAvatar() != null)
-            BitmapUtils.getInstance(getApplicationContext()).setAvatar(fab, userinfo.getAvatar());
+            BitmapUtils.getInstance(getApplicationContext()).setAvatar(fab, DXLApi.BASE_URL + userinfo.getAvatar());
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View view) {
@@ -106,18 +170,14 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
                 enterConversation(view);
             }
         });
-        etDesc.setFocusable(false);
-        etCreated.setFocusable(false);
-        etNickname.setFocusable(false);
-        etCreated.setClickable(false);
-        etNickname.setClickable(false);
-        etDesc.setClickable(false);
-        ivVBack.setOnClickListener(this);
-        btnEdit.setOnClickListener(this);
-        btnSend.setOnClickListener(this);
 
         //照片墙
+        if (!TextUtils.isEmpty(userinfo.getPicWall())) {
+            BitmapUtils.getInstance(getApplicationContext()).setAvatarWithoutReflect(ivWall, DXLApi.BASE_URL + userinfo.getPicWall());
+        }
         ivWall.setOnClickListener(this);
+        btnSend.setOnClickListener(this);
+        btnEdit.setOnClickListener(this);
     }
 
     /**
@@ -128,72 +188,13 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
     private void enterConversation(final View view) {
 
         if (RongIM.getInstance() != null) {
-
-
             RongIM.getInstance().startPrivateChat(UserInfoDetailActivity.this, String.valueOf(userinfo.getUserId()), userinfo.getNickname());
 //                                    RongIM.getInstance().startConversationList(MessageActivity.this);
 //                                    RongIM.getInstance().startConversation(MessageActivity.this, Conversation.ConversationType.APP_PUBLIC_SERVICE,"2","aaa");
-
-
         } else {
             Snackbar.make(view, "初始化失败", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show();
         }
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                /**
-//                 * IMKit SDK调用第二步
-//                 *
-//                 * 建立与服务器的连接
-//                 *
-//                 */
-//                RongIM.connect(Token, new RongIMClient.ConnectCallback() {
-//                    @Override
-//                    public void onTokenIncorrect() {
-//                        //Connect Token 失效的状态处理，需要重新获取 Token
-//                        Snackbar.make(view, "Token错误", Snackbar.LENGTH_LONG)
-//                                .setAction("Action", null).show();
-//                    }
-//
-//                    /**
-//                     * 连接融云成功
-//                     */
-//                    @Override
-//                    public void onSuccess(String userId) {
-//                        Log.e("MainActivity", "——onSuccess— -" + userId);
-//                        /**
-//                         * 启动单聊
-//                         * context - 应用上下文。
-//                         * targetUserId - 要与之聊天的用户 Id。
-//                         * title - 聊天的标题，如果传入空值，则默认显示与之聊天的用户名称。
-//                         */
-//                        //{"code":200,"userId":"2462","token":"4Cp7WFQq92h1xjdmdaL5AXM//2Y39LDCnuxr2xdDagUSew9ILDZp6tvcV6rRhvbxbTnqk7cS56XBpjxS+NU4Ng=="}
-//                        //{"code":200,"userId":"1","token":"8FQcKXFvWDqN2j3qZWDA5nM//2Y39LDCnuxr2xdDagUSew9ILDZp6n9+OUnzkJ/4/W8bX6Y2cB4VGTWNrvchrA=="}
-//                        if (RongIM.getInstance() != null) {
-//
-//
-//                            RongIM.getInstance().startPrivateChat(UserInfoDetailActivity.this, String.valueOf(userinfo.getUserId()), userinfo.getNickname());
-////                                    RongIM.getInstance().startConversationList(MessageActivity.this);
-////                                    RongIM.getInstance().startConversation(MessageActivity.this, Conversation.ConversationType.APP_PUBLIC_SERVICE,"2","aaa");
-//
-//
-//                        } else {
-//                            Snackbar.make(view, "初始化失败", Snackbar.LENGTH_LONG)
-//                                    .setAction("Action", null).show();
-//                        }
-//                        //回话列表
-//                    }
-//
-//                    @Override
-//                    public void onError(RongIMClient.ErrorCode errorCode) {
-//                        Log.e("MainActivity", "——onError— -" + errorCode);
-//                        Snackbar.make(view, "访问服务器失败", Snackbar.LENGTH_LONG)
-//                                .setAction("Action", null).show();
-//                    }
-//                });
-//            }
-//        }).start();
     }
 
     private void initData(Intent intent) {
@@ -202,9 +203,8 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
             etCreated.setText(userinfo.getCreated());
             etNickname.setText(userinfo.getNickname());
             etDesc.setText(userinfo.getDescrib());
-            toolbar.setTitle(userinfo.getNickname());
+            collapsingToolbarLayout.setTitle(userinfo.getNickname());
         }
-
     }
 
     @Override
@@ -224,13 +224,20 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
                 break;
 
             case R.id.ivWall:
-                intent = new Intent();
-                intent.setAction(intent.ACTION_PICK);
-                intent.setType("image/*");
-                startActivityForResult(intent, Constant.REQUEST_CODE_MEDIA);
+                intentOpenImage();
                 break;
         }
     }
+
+    private void intentOpenImage() {
+        Intent intent;
+        intent = new Intent();
+        intent.setAction(intent.ACTION_PICK);
+        intent.setType("image/*");
+        startActivityForResult(intent, Constant.REQUEST_CODE_MEDIA);
+    }
+
+    Uri uri;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -242,7 +249,7 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
             case Constant.REQUEST_CODE_MEDIA:
                 ContentResolver resolver = getContentResolver();
 
-                Uri uri = data.getData();
+                uri = data.getData();
                 if (uri == null) {
                     return;
                 }
@@ -281,27 +288,36 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
                         }
                     }
                 }
-                String path = getImageAbsolutePath(this, uri);
-                File file = new File(path);
-                if (file.exists()) {
-                    RequestParams params = new RequestParams();
-                    params.addBodyParameter("file", file);
-                    DXLHttpUtils.getHttpUtils().send(HttpRequest.HttpMethod.POST, DXLApi.getFileUpLoad(), params, new RequestCallBack<String>() {
-                        @Override
-                        public void onSuccess(ResponseInfo<String> responseInfo) {
-
-                        }
-
-                        @Override
-                        public void onFailure(HttpException error, String msg) {
-
-                        }
-                    });
-                }
+                uploadPicWall();
                 break;
         }
 
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    /**
+     * 修改照片墙的照片
+     */
+    private void uploadPicWall() {
+        String path = BitmapUtils.getImageAbsolutePath(this, uri);
+        File file = new File(path);
+        if (file.exists()) {
+            RequestParams params = new RequestParams();
+            params.addBodyParameter("file", file);
+            params.addBodyParameter("userid", String.valueOf(userinfo.getUserId()));
+            DXLHttpUtils.getHttpUtils().send(HttpRequest.HttpMethod.POST, DXLApi.getUpdatePicWallApi(), params, new RequestCallBack<String>() {
+                @Override
+                public void onSuccess(ResponseInfo<String> responseInfo) {
+                    Log.i(UserInfoDetailActivity.class.getSimpleName() + "responseInfo:", responseInfo.result);
+                    MainActivity.updateUserInfo = true;
+                }
+
+                @Override
+                public void onFailure(HttpException error, String msg) {
+                    Log.i(UserInfoDetailActivity.class.getSimpleName() + "msg:", msg);
+                }
+            });
+        }
     }
 
     protected void getImageFromCamera() {
@@ -312,106 +328,5 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
         } else {
             Toast.makeText(getApplicationContext(), "请确认已经插入SD卡", Toast.LENGTH_LONG).show();
         }
-    }
-
-    /**
-     * 根据Uri获取图片绝对路径，解决Android4.4以上版本Uri转换
-     *
-     * @param imageUri
-     * @author yaoxing
-     * @date 2014-10-12
-     */
-    public static String getImageAbsolutePath(AppCompatActivity context, Uri imageUri) {
-        if (context == null || imageUri == null)
-            return null;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT && DocumentsContract.isDocumentUri(context, imageUri)) {
-            if (isExternalStorageDocument(imageUri)) {
-                String docId = DocumentsContract.getDocumentId(imageUri);
-                String[] split = docId.split(":");
-                String type = split[0];
-                if ("primary".equalsIgnoreCase(type)) {
-                    return Environment.getExternalStorageDirectory() + "/" + split[1];
-                }
-            } else if (isDownloadsDocument(imageUri)) {
-                String id = DocumentsContract.getDocumentId(imageUri);
-                Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
-                return getDataColumn(context, contentUri, null, null);
-            } else if (isMediaDocument(imageUri)) {
-                String docId = DocumentsContract.getDocumentId(imageUri);
-                String[] split = docId.split(":");
-                String type = split[0];
-                Uri contentUri = null;
-                if ("image".equals(type)) {
-                    contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-                } else if ("video".equals(type)) {
-                    contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
-                } else if ("audio".equals(type)) {
-                    contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-                }
-                String selection = MediaStore.Images.Media._ID + "=?";
-                String[] selectionArgs = new String[]{split[1]};
-                return getDataColumn(context, contentUri, selection, selectionArgs);
-            }
-        } // MediaStore (and general)
-        else if ("content".equalsIgnoreCase(imageUri.getScheme())) {
-            // Return the remote address
-            if (isGooglePhotosUri(imageUri))
-                return imageUri.getLastPathSegment();
-            return getDataColumn(context, imageUri, null, null);
-        }
-        // File
-        else if ("file".equalsIgnoreCase(imageUri.getScheme())) {
-            return imageUri.getPath();
-        }
-        return null;
-    }
-
-    public static String getDataColumn(Context context, Uri uri, String selection, String[] selectionArgs) {
-        Cursor cursor = null;
-        String column = MediaStore.Images.Media.DATA;
-        String[] projection = {column};
-        try {
-            cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs, null);
-            if (cursor != null && cursor.moveToFirst()) {
-                int index = cursor.getColumnIndexOrThrow(column);
-                return cursor.getString(index);
-            }
-        } finally {
-            if (cursor != null)
-                cursor.close();
-        }
-        return null;
-    }
-
-    /**
-     * @param uri The Uri to check.
-     * @return Whether the Uri authority is ExternalStorageProvider.
-     */
-    public static boolean isExternalStorageDocument(Uri uri) {
-        return "com.android.externalstorage.documents".equals(uri.getAuthority());
-    }
-
-    /**
-     * @param uri The Uri to check.
-     * @return Whether the Uri authority is DownloadsProvider.
-     */
-    public static boolean isDownloadsDocument(Uri uri) {
-        return "com.android.providers.downloads.documents".equals(uri.getAuthority());
-    }
-
-    /**
-     * @param uri The Uri to check.
-     * @return Whether the Uri authority is MediaProvider.
-     */
-    public static boolean isMediaDocument(Uri uri) {
-        return "com.android.providers.media.documents".equals(uri.getAuthority());
-    }
-
-    /**
-     * @param uri The Uri to check.
-     * @return Whether the Uri authority is Google Photos.
-     */
-    public static boolean isGooglePhotosUri(Uri uri) {
-        return "com.google.android.apps.photos.content".equals(uri.getAuthority());
     }
 }

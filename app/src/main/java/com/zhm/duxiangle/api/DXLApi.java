@@ -10,6 +10,7 @@ public class DXLApi {
     //    public static String HOST = "120.25.201.60";
     public static final String PORT = "";
 
+    public static String BASE_URL = "http://" + HOST + PORT;
     /**
      * 获取登录的url
      *
@@ -38,5 +39,14 @@ public class DXLApi {
 
     public static String getIoRongTokenApi(){
         return  "http://" + HOST + PORT + "/DuXiangLeServer/IoRongServlet";
+    }
+
+    public static String getUpdateUserInfoApi(){
+
+        return "http://" + HOST + PORT + "/DuXiangLeServer/UpdateUserInfoServlet";
+    }
+    public static String getUpdatePicWallApi(){
+
+        return "http://" + HOST + PORT + "/DuXiangLeServer/UpdatePicWallServlet";
     }
 }

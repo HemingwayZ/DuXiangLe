@@ -26,9 +26,15 @@ import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.gson.reflect.TypeToken;
 import com.google.zxing.client.android.CaptureActivity;
 import com.google.zxing.client.android.Intents;
 import com.lidroid.xutils.ViewUtils;
+import com.lidroid.xutils.exception.HttpException;
+import com.lidroid.xutils.http.RequestParams;
+import com.lidroid.xutils.http.ResponseInfo;
+import com.lidroid.xutils.http.callback.RequestCallBack;
+import com.lidroid.xutils.http.client.HttpRequest;
 import com.lidroid.xutils.view.annotation.ContentView;
 import com.lidroid.xutils.view.annotation.ViewInject;
 import com.tencent.mm.sdk.modelmsg.SendMessageToWX;
@@ -38,13 +44,16 @@ import com.tencent.mm.sdk.modelmsg.WXTextObject;
 import com.tencent.mm.sdk.modelmsg.WXWebpageObject;
 import com.tencent.mm.sdk.openapi.IWXAPI;
 import com.tencent.mm.sdk.openapi.WXAPIFactory;
+import com.zhm.duxiangle.api.DXLApi;
 import com.zhm.duxiangle.api.ShareApi;
 import com.zhm.duxiangle.bean.Constant;
 import com.zhm.duxiangle.bean.User;
+import com.zhm.duxiangle.bean.UserInfo;
 import com.zhm.duxiangle.fragment.FindFragment;
 import com.zhm.duxiangle.fragment.HomeFragment;
 import com.zhm.duxiangle.fragment.UserListFragment;
 import com.zhm.duxiangle.utils.BitmapUtils;
+import com.zhm.duxiangle.utils.DXLHttpUtils;
 import com.zhm.duxiangle.utils.GsonUtils;
 import com.zhm.duxiangle.utils.SpUtil;
 
@@ -57,7 +66,7 @@ import io.rong.imlib.RongIMClient;
 @ContentView(R.layout.activity_main)
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
-
+    public static boolean updateUserInfo = false;
     private int REQUEST_CODE = 200;
     @ViewInject(R.id.toolbar)
     private Toolbar toolbar;
@@ -77,6 +86,9 @@ public class MainActivity extends AppCompatActivity
     private TextView tvUsername;
     @ViewInject(R.id.tvDesc)
     private TextView tvDesc;
+
+    //用户信息
+    private UserInfo userinfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,9 +125,9 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         getUser();
-
         super.onStart();
     }
+
 
     private void getUser() {
         //获取用户信息
@@ -123,9 +135,11 @@ public class MainActivity extends AppCompatActivity
         if (!TextUtils.isEmpty(json)) {
             User user = GsonUtils.getInstance().json2Bean(json, User.class);
             if (user != null) {
+
+                getUserInfo(user.getUserId());
                 tvUsername.setText(user.getUsername());
                 tvDesc.setText(user.getPassword());
-                if(user.getToken()!=null){
+                if (user.getToken() != null) {
                     initRong(user.getToken());
                 }
             } else {
@@ -133,6 +147,43 @@ public class MainActivity extends AppCompatActivity
                 startActivity(intent);
             }
         }
+    }
+
+    private void getUserInfo(int userId) {
+        userinfo = new UserInfo();
+        userinfo.setUserId(userId);
+        RequestParams params = new RequestParams();
+        params.addBodyParameter("action", "userinfo");
+        params.addBodyParameter("userid", String.valueOf(userId));
+        DXLHttpUtils.getHttpUtils().send(HttpRequest.HttpMethod.POST, DXLApi.getUserListByPage(), params, new RequestCallBack<String>() {
+            @Override
+            public void onSuccess(ResponseInfo<String> responseInfo) {
+                String result = responseInfo.result;
+                Log.i(MainActivity.class.getSimpleName(), result);
+                if ("no found".equals(result)) {
+                    tvUsername.setText("");
+                    tvDesc.setText("");
+                    ivUser.setImageResource(R.drawable.book_cover_default);
+                    return;
+                }
+                if ("action".equals(result)) {
+                    return;
+                }
+                userinfo = GsonUtils.getInstance().json2Bean(result, UserInfo.class);
+                if (userinfo == null) {
+                    return;
+                }
+
+                tvUsername.setText(userinfo.getNickname());
+                tvDesc.setText(userinfo.getDescrib());
+                BitmapUtils.getInstance(getApplicationContext()).setAvatarWithoutReflect(ivUser, DXLApi.BASE_URL + userinfo.getAvatar());
+            }
+
+            @Override
+            public void onFailure(HttpException error, String msg) {
+
+            }
+        });
     }
 
     private void initRong(final String token) {
@@ -151,6 +202,7 @@ public class MainActivity extends AppCompatActivity
                     public void onTokenIncorrect() {
                         //Connect Token 失效的状态处理，需要重新获取 Token
                     }
+
                     /**
                      * 连接融云成功
                      */
@@ -171,6 +223,7 @@ public class MainActivity extends AppCompatActivity
                         }
                         //回话列表
                     }
+
                     @Override
                     public void onError(RongIMClient.ErrorCode errorCode) {
                         Log.e("MainActivity", "——onError— -" + errorCode);
@@ -242,6 +295,10 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onResume() {
+        if (updateUserInfo == true) {
+            updateUserInfo = false;
+            getUser();
+        }
         super.onResume();
 
     }
@@ -298,12 +355,12 @@ public class MainActivity extends AppCompatActivity
                 }
 
             }).start();
-
-        } else if (id == R.id.nav_send) {
-//            Intent intent = new Intent(MainActivity.this, WeChatPicActivity.class);
-//            startActivity(intent);
         } else if (id == R.id.nav_clean) {
             BitmapUtils.getInstance(getApplication()).cleanCache();
+        } else if (id == R.id.nav_login) {
+            Intent intent = new Intent();
+            intent.setClass(MainActivity.this, LoginActivity.class);
+            startActivity(intent);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -355,19 +412,21 @@ public class MainActivity extends AppCompatActivity
         intent.setClass(this, CaptureActivity.class);
         startActivityForResult(intent, REQUEST_CODE);
     }
-    public int getViewPgeCurrentItem(){
+
+    public int getViewPgeCurrentItem() {
         return viewPager.getCurrentItem();
     }
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.ivUser:
                 Intent intent = new Intent();
-                intent.setClass(MainActivity.this, LoginActivity.class);
+                intent.setClass(MainActivity.this, UserInfoDetailActivity.class);
+                intent.putExtra("userinfo", userinfo);
                 startActivity(intent);
                 break;
             default:
-
         }
     }
 }

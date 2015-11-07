@@ -5,13 +5,22 @@ import java.io.Serializable;
 /**
  * @author zhuanghm
  */
-public class UserInfo implements Serializable{
+public class UserInfo implements Serializable {
     private int userinfoId;
     private int userId;
     private String nickname;
     private String avatar;
     private String created;
     private String describ;
+    private String picWall;//照片墙
+
+    public String getPicWall() {
+        return picWall;
+    }
+
+    public void setPicWall(String picWall) {
+        this.picWall = picWall;
+    }
 
     public int getUserinfoId() {
         return userinfoId;

@@ -207,14 +207,23 @@ public class FindFragment extends Fragment implements AbsListView.OnItemClickLis
 //    start	取结果的offset	默认为0
 //    count	取结果的条数	默认为20，最大为100
 
-    private void getBooksFromDouBan(String q, int _start, final int _count) {
+    private void getBooksFromDouBan(String q, int _start, int _count) {
         DXLHttpUtils.getHttpUtils().send(HttpRequest.HttpMethod.GET, DouBanApi.searchBooksFromDouBanApi(q, _start, _count), new RequestCallBack<String>() {
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
+                mSwipeLayout.setRefreshing(false);
                 isRefresh = false;
                 String result = responseInfo.result;
                 Log.i(TAG, result);
                 bookPage = GsonUtils.getInstance().json2Bean(result, BookPage.class);
+                if(bookPage.getTotal()==-1){
+                    if (getActivity() instanceof MainActivity) {
+                        if (((MainActivity) getActivity()).getViewPgeCurrentItem() == 1) {
+                            Snackbar.make(mListView, "获取数据失败,请一分钟后重试", Snackbar.LENGTH_SHORT).show();
+                        }
+                    }
+                    return;
+                }
                 if (bookPage.getBooks().size() > 0) {
                     if (start == 0) {
                         books.removeAll(books);
@@ -230,13 +239,12 @@ public class FindFragment extends Fragment implements AbsListView.OnItemClickLis
                     if (adapter != null)
                         adapter.notifyDataSetChanged();
                 }
-                mSwipeLayout.setRefreshing(false);
+
             }
 
             @Override
             public void onFailure(HttpException error, String msg) {
                 isRefresh = false;
-                ToastUtils.showToast(getActivity(), "FindFragment net failed" + msg);
                 Log.i(TAG, "" + msg);
                 mSwipeLayout.setRefreshing(false);
             }

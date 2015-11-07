@@ -14,6 +14,7 @@ import com.lidroid.xutils.ViewUtils;
 import com.lidroid.xutils.view.annotation.ViewInject;
 import com.zhm.duxiangle.R;
 import com.zhm.duxiangle.UserInfoDetailActivity;
+import com.zhm.duxiangle.api.DXLApi;
 import com.zhm.duxiangle.bean.UserInfo;
 import com.zhm.duxiangle.utils.BitmapUtils;
 
@@ -43,7 +44,7 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.MyView
     public void onBindViewHolder(UserListAdapter.MyViewHolder holder, int position) {
         final UserInfo userInfo = userInfoList.get(position);
         if (!TextUtils.isEmpty(userInfo.getAvatar())) {
-            BitmapUtils.getInstance(mContext).setAvatar(holder.ivUser, userInfo.getAvatar(), null);
+            BitmapUtils.getInstance(mContext).setAvatar(holder.ivUser, DXLApi.BASE_URL+userInfo.getAvatar(), null);
         }
         holder.tvNickname.setText(userInfo.getNickname());
         holder.tvDesc.setText(userInfo.getDescrib());

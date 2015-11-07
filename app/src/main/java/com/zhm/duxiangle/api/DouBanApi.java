@@ -27,6 +27,8 @@ public class DouBanApi {
 //        return "https://api.douban.com/v2/book/search?apikey=028f9ddc0036915507aed99400a3b3ff&q='" + q + "'";
 //        return "http://192.168.23.1:8080/DuXiangLeServer/DouBanServlet";
         return "https://api.douban.com/v2/book/search?apikey=028f9ddc0036915507aed99400a3b3ff&q='" + q + "'&start=" + start + "&count=" + count;
+//        return "https://api.douban.com/v2/book/search?q='" + q + "'&start=" + start + "&count=" + count;
+
     }
 
 }
