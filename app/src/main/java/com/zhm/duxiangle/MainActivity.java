@@ -112,6 +112,12 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onStart() {
+        getUser();
+
+        super.onStart();
+    }
+
+    private void getUser() {
         //获取用户信息
         String json = SpUtil.getSharePerference(getApplicationContext()).getString("user", "");
         if (!TextUtils.isEmpty(json)) {
@@ -119,12 +125,59 @@ public class MainActivity extends AppCompatActivity
             if (user != null) {
                 tvUsername.setText(user.getUsername());
                 tvDesc.setText(user.getPassword());
+                if(user.getToken()!=null){
+                    initRong(user.getToken());
+                }
             } else {
                 Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                 startActivity(intent);
             }
         }
-        super.onStart();
+    }
+
+    private void initRong(final String token) {
+        //访问融云服务器
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                /**
+                 * IMKit SDK调用第二步
+                 *
+                 * 建立与服务器的连接
+                 *
+                 */
+                RongIM.connect(token, new RongIMClient.ConnectCallback() {
+                    @Override
+                    public void onTokenIncorrect() {
+                        //Connect Token 失效的状态处理，需要重新获取 Token
+                    }
+                    /**
+                     * 连接融云成功
+                     */
+                    @Override
+                    public void onSuccess(String userId) {
+                        Log.e("MainActivity", "——onSuccess— -" + userId);
+                        /**
+                         * 启动单聊
+                         * context - 应用上下文。
+                         * targetUserId - 要与之聊天的用户 Id。
+                         * title - 聊天的标题，如果传入空值，则默认显示与之聊天的用户名称。
+                         */
+                        //{"code":200,"userId":"2462","token":"4Cp7WFQq92h1xjdmdaL5AXM//2Y39LDCnuxr2xdDagUSew9ILDZp6tvcV6rRhvbxbTnqk7cS56XBpjxS+NU4Ng=="}
+                        //{"code":200,"userId":"1","token":"8FQcKXFvWDqN2j3qZWDA5nM//2Y39LDCnuxr2xdDagUSew9ILDZp6n9+OUnzkJ/4/W8bX6Y2cB4VGTWNrvchrA=="}
+                        if (RongIM.getInstance() != null) {
+
+                        } else {
+                        }
+                        //回话列表
+                    }
+                    @Override
+                    public void onError(RongIMClient.ErrorCode errorCode) {
+                        Log.e("MainActivity", "——onError— -" + errorCode);
+                    }
+                });
+            }
+        }).start();
     }
 
     /**
@@ -302,7 +355,9 @@ public class MainActivity extends AppCompatActivity
         intent.setClass(this, CaptureActivity.class);
         startActivityForResult(intent, REQUEST_CODE);
     }
-
+    public int getViewPgeCurrentItem(){
+        return viewPager.getCurrentItem();
+    }
     @Override
     public void onClick(View v) {
         switch (v.getId()) {

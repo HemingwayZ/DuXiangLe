@@ -54,6 +54,9 @@ import com.zhm.duxiangle.view.CircleImageView;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.rong.imkit.RongIM;
+import io.rong.imlib.RongIMClient;
+
 import static android.Manifest.permission.READ_CONTACTS;
 
 /**

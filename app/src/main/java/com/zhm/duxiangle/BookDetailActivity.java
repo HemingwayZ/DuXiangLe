@@ -71,6 +71,16 @@ public class BookDetailActivity extends SlidingBackActivity {
     private KenBurnsView bookCover;
     @ViewInject(R.id.tvIsbn)
     private TextView tvIsbn;
+    @ViewInject(R.id.tvSummary)
+    private TextView tvSummary;
+    @ViewInject(R.id.tvAuthorIntro)
+    private TextView tvAuthorIntro;
+    @ViewInject(R.id.tvPublisher)
+    private TextView tvPublisher;
+    @ViewInject(R.id.tvSubtitle)
+    private TextView tvSubtitle;
+    @ViewInject(R.id.tvCatalog)
+    private TextView tvCatalog;
     //滚动条
     @ViewInject(R.id.nestedScrollView)
     private NestedScrollView nestedScrollView;
@@ -202,17 +212,22 @@ public class BookDetailActivity extends SlidingBackActivity {
             for (int i = 0; book.getAuthor() != null && i < book.getAuthor().size(); i++) {
                 buffer.append(book.getAuthor().get(i));
             }
-            tvAuthor.setText("作者:" + buffer.toString());
-            tvIsbn.setText("ISBN:" + book.getIsbn13());
+            tvAuthor.setText(buffer.toString());
+            tvIsbn.setText(book.getIsbn13());
+            tvSummary.setText(book.getSummary());
+            tvAuthorIntro.setText(book.getAuthor_intro());
+            tvPublisher.setText(book.getPublisher());
+            tvSubtitle.setText(book.getSubtitle());
+            tvCatalog.setText(book.getCatalog());
             collapsingToolbarLayout.setTitle(book.getTitle());
             collapsingToolbarLayout.setCollapsedTitleTextColor(Color.WHITE);
             //拓展过后的标题颜色
-            collapsingToolbarLayout.setExpandedTitleColor(Color.BLUE);
+//            collapsingToolbarLayout.setExpandedTitleColor(Color.BLUE);
             collapsingToolbarLayout.setCollapsedTitleGravity(Gravity.BOTTOM | Gravity.RIGHT);
             if (book.getImages() != null) {
-                BitmapUtils.getInstance(getApplicationContext()).setAvatar(bookCover, book.getImages().getLarge(), toolbar);
+                BitmapUtils.getInstance(getApplicationContext()).setAvatarWithoutReflect(bookCover, book.getImages().getLarge());
             } else {
-                BitmapUtils.getInstance(getApplicationContext()).setAvatar(bookCover, book.getImage(), toolbar);
+                BitmapUtils.getInstance(getApplicationContext()).setAvatarWithoutReflect(bookCover, book.getImage());
             }
             progressBar.setVisibility(View.GONE);
         }
@@ -307,19 +322,26 @@ public class BookDetailActivity extends SlidingBackActivity {
             public void onSuccess(ResponseInfo<String> responseInfo) {
                 String json = responseInfo.result;
                 book = GsonUtils.getInstance().json2Bean(json, Book.class);
-                tvTitle.setText("书名:" + book.getTitle());
+                tvTitle.setText(book.getTitle());
                 StringBuffer buffer = new StringBuffer();
                 for (int i = 0; i < book.getAuthor().size(); i++) {
                     buffer.append(book.getAuthor().get(i));
                 }
-                tvAuthor.setText("作者:" + buffer.toString());
-                tvIsbn.setText("ISBN:" + book.getIsbn13());
+                //书籍信息
+                tvAuthor.setText(buffer.toString());
+                tvIsbn.setText(book.getIsbn13());
+                tvSummary.setText(book.getSummary());
+                tvAuthorIntro.setText(book.getAuthor_intro());
+                tvPublisher.setText(book.getPublisher());
+                tvSubtitle.setText(book.getSubtitle());
+                tvCatalog.setText(book.getCatalog());
+
                 collapsingToolbarLayout.setTitle(book.getTitle());
                 collapsingToolbarLayout.setCollapsedTitleTextColor(Color.WHITE);
                 //拓展过后的标题颜色
                 collapsingToolbarLayout.setExpandedTitleColor(Color.BLUE);
                 collapsingToolbarLayout.setCollapsedTitleGravity(Gravity.BOTTOM | Gravity.RIGHT);
-                BitmapUtils.getInstance(getApplicationContext()).setAvatar(bookCover, book.getImages().getLarge(), toolbar);
+                BitmapUtils.getInstance(getApplicationContext()).setAvatarWithoutReflect(bookCover, book.getImages().getLarge());
                 progressBar.setVisibility(View.GONE);
 //              creditsRollView.setText(json);
                 saveData();

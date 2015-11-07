@@ -87,8 +87,8 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
 
         ViewUtils.inject(this);
         //获取token
-        String json  = SpUtil.getSharePerference(getApplicationContext()).getString("user","");
-        User user = GsonUtils.getInstance().json2Bean(json,User.class);
+        String json = SpUtil.getSharePerference(getApplicationContext()).getString("user", "");
+        User user = GsonUtils.getInstance().json2Bean(json, User.class);
         Token = user.getToken();
 
         initData(getIntent());
@@ -126,61 +126,74 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
      * @param view
      */
     private void enterConversation(final View view) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                /**
-                 * IMKit SDK调用第二步
-                 *
-                 * 建立与服务器的连接
-                 *
-                 */
-                RongIM.connect(Token, new RongIMClient.ConnectCallback() {
-                    @Override
-                    public void onTokenIncorrect() {
-                        //Connect Token 失效的状态处理，需要重新获取 Token
-                        Snackbar.make(view, "Token错误", Snackbar.LENGTH_LONG)
-                                .setAction("Action", null).show();
-                    }
 
-                    /**
-                     * 连接融云成功
-                     */
-                    @Override
-                    public void onSuccess(String userId) {
-                        Log.e("MainActivity", "——onSuccess— -" + userId);
-                        /**
-                         * 启动单聊
-                         * context - 应用上下文。
-                         * targetUserId - 要与之聊天的用户 Id。
-                         * title - 聊天的标题，如果传入空值，则默认显示与之聊天的用户名称。
-                         */
-                        //{"code":200,"userId":"2462","token":"4Cp7WFQq92h1xjdmdaL5AXM//2Y39LDCnuxr2xdDagUSew9ILDZp6tvcV6rRhvbxbTnqk7cS56XBpjxS+NU4Ng=="}
-                        //{"code":200,"userId":"1","token":"8FQcKXFvWDqN2j3qZWDA5nM//2Y39LDCnuxr2xdDagUSew9ILDZp6n9+OUnzkJ/4/W8bX6Y2cB4VGTWNrvchrA=="}
-                        if (RongIM.getInstance() != null) {
+        if (RongIM.getInstance() != null) {
 
 
-                            RongIM.getInstance().startPrivateChat(UserInfoDetailActivity.this, String.valueOf(userinfo.getUserId()), userinfo.getNickname());
+            RongIM.getInstance().startPrivateChat(UserInfoDetailActivity.this, String.valueOf(userinfo.getUserId()), userinfo.getNickname());
 //                                    RongIM.getInstance().startConversationList(MessageActivity.this);
 //                                    RongIM.getInstance().startConversation(MessageActivity.this, Conversation.ConversationType.APP_PUBLIC_SERVICE,"2","aaa");
 
 
-                        } else {
-                            Snackbar.make(view, "初始化失败", Snackbar.LENGTH_LONG)
-                                    .setAction("Action", null).show();
-                        }
-                        //回话列表
-                    }
-
-                    @Override
-                    public void onError(RongIMClient.ErrorCode errorCode) {
-                        Log.e("MainActivity", "——onError— -" + errorCode);
-                        Snackbar.make(view, "访问服务器失败", Snackbar.LENGTH_LONG)
-                                .setAction("Action", null).show();
-                    }
-                });
-            }
-        }).start();
+        } else {
+            Snackbar.make(view, "初始化失败", Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show();
+        }
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                /**
+//                 * IMKit SDK调用第二步
+//                 *
+//                 * 建立与服务器的连接
+//                 *
+//                 */
+//                RongIM.connect(Token, new RongIMClient.ConnectCallback() {
+//                    @Override
+//                    public void onTokenIncorrect() {
+//                        //Connect Token 失效的状态处理，需要重新获取 Token
+//                        Snackbar.make(view, "Token错误", Snackbar.LENGTH_LONG)
+//                                .setAction("Action", null).show();
+//                    }
+//
+//                    /**
+//                     * 连接融云成功
+//                     */
+//                    @Override
+//                    public void onSuccess(String userId) {
+//                        Log.e("MainActivity", "——onSuccess— -" + userId);
+//                        /**
+//                         * 启动单聊
+//                         * context - 应用上下文。
+//                         * targetUserId - 要与之聊天的用户 Id。
+//                         * title - 聊天的标题，如果传入空值，则默认显示与之聊天的用户名称。
+//                         */
+//                        //{"code":200,"userId":"2462","token":"4Cp7WFQq92h1xjdmdaL5AXM//2Y39LDCnuxr2xdDagUSew9ILDZp6tvcV6rRhvbxbTnqk7cS56XBpjxS+NU4Ng=="}
+//                        //{"code":200,"userId":"1","token":"8FQcKXFvWDqN2j3qZWDA5nM//2Y39LDCnuxr2xdDagUSew9ILDZp6n9+OUnzkJ/4/W8bX6Y2cB4VGTWNrvchrA=="}
+//                        if (RongIM.getInstance() != null) {
+//
+//
+//                            RongIM.getInstance().startPrivateChat(UserInfoDetailActivity.this, String.valueOf(userinfo.getUserId()), userinfo.getNickname());
+////                                    RongIM.getInstance().startConversationList(MessageActivity.this);
+////                                    RongIM.getInstance().startConversation(MessageActivity.this, Conversation.ConversationType.APP_PUBLIC_SERVICE,"2","aaa");
+//
+//
+//                        } else {
+//                            Snackbar.make(view, "初始化失败", Snackbar.LENGTH_LONG)
+//                                    .setAction("Action", null).show();
+//                        }
+//                        //回话列表
+//                    }
+//
+//                    @Override
+//                    public void onError(RongIMClient.ErrorCode errorCode) {
+//                        Log.e("MainActivity", "——onError— -" + errorCode);
+//                        Snackbar.make(view, "访问服务器失败", Snackbar.LENGTH_LONG)
+//                                .setAction("Action", null).show();
+//                    }
+//                });
+//            }
+//        }).start();
     }
 
     private void initData(Intent intent) {

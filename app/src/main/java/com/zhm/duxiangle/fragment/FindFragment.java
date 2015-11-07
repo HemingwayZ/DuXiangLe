@@ -35,6 +35,7 @@ import com.lidroid.xutils.http.client.HttpRequest;
 import com.lidroid.xutils.view.annotation.ViewInject;
 import com.zhm.duxiangle.BookDetailActivity;
 import com.zhm.duxiangle.BookPage;
+import com.zhm.duxiangle.MainActivity;
 import com.zhm.duxiangle.R;
 import com.zhm.duxiangle.api.DXLApi;
 import com.zhm.duxiangle.api.DouBanApi;
@@ -129,7 +130,7 @@ public class FindFragment extends Fragment implements AbsListView.OnItemClickLis
     private EditText etSearch;
     @ViewInject(R.id.btnSearch)
     private Button btnSearch;
-
+    private boolean isRefresh = false;//判断是否正在刷新
     List<Book> books;
     SearchAdapter adapter;
     Handler handler = new Handler() {
@@ -179,7 +180,8 @@ public class FindFragment extends Fragment implements AbsListView.OnItemClickLis
                             Snackbar.make(mListView, "已到尾页", Snackbar.LENGTH_SHORT).show();
                             return;
                         }
-                        if (mListView.getLastVisiblePosition() + 1 == books.size()) {
+                        if (isRefresh == false&&mListView.getLastVisiblePosition() + 1 == books.size()) {
+                            isRefresh = true;//标志正在刷新
                             mSwipeLayout.setRefreshing(true);
                             getBooksFromDouBan(search, start, count);
                         }
@@ -209,29 +211,31 @@ public class FindFragment extends Fragment implements AbsListView.OnItemClickLis
         DXLHttpUtils.getHttpUtils().send(HttpRequest.HttpMethod.GET, DouBanApi.searchBooksFromDouBanApi(q, _start, _count), new RequestCallBack<String>() {
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
+                isRefresh = false;
                 String result = responseInfo.result;
                 Log.i(TAG, result);
                 bookPage = GsonUtils.getInstance().json2Bean(result, BookPage.class);
                 if (bookPage.getBooks().size() > 0) {
                     if (start == 0) {
                         books.removeAll(books);
-                        Snackbar.make(mListView, "搜索到" + bookPage.getTotal() + "项", Snackbar.LENGTH_SHORT).show();
+                        if (getActivity() instanceof MainActivity) {
+                            if (((MainActivity) getActivity()).getViewPgeCurrentItem() == 1) {
+                                Snackbar.make(mListView, "搜索到" + bookPage.getTotal() + "项", Snackbar.LENGTH_SHORT).show();
+                            }
+                        }
                     }
                     start += count;
                     books.addAll(bookPage.getBooks());
-
 //                    books = bookPage.getBooks();
                     if (adapter != null)
                         adapter.notifyDataSetChanged();
-                }else{
-                    books.removeAll(books);
-                    Snackbar.make(mListView, "搜索到" + bookPage.getTotal() + "项", Snackbar.LENGTH_SHORT).show();
                 }
                 mSwipeLayout.setRefreshing(false);
             }
 
             @Override
             public void onFailure(HttpException error, String msg) {
+                isRefresh = false;
                 ToastUtils.showToast(getActivity(), "FindFragment net failed" + msg);
                 Log.i(TAG, "" + msg);
                 mSwipeLayout.setRefreshing(false);
