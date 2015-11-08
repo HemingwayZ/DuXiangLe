@@ -12,6 +12,7 @@ public class Book implements Serializable {
      *
      */
     private static final long serialVersionUID = 1L;
+    private int bookId;
     private String id;//
     private String title;
     private String subtitle;
@@ -40,6 +41,14 @@ public class Book implements Serializable {
 
     public void setUserId(int userId) {
         this.userId = userId;
+    }
+
+    public int getBookId() {
+        return bookId;
+    }
+
+    public void setBookId(int bookId) {
+        this.bookId = bookId;
     }
 
     //作者信息

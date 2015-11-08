@@ -78,6 +78,7 @@
         android:visibility="gone"
         app:layout_anchor="@id/coordinatrorLayout"
         app:layout_anchorGravity="bottom|end" />
+
 </android.support.design.widget.CoordinatorLayout>
 
 

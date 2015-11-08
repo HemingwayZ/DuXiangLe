@@ -106,7 +106,8 @@ public class BookDetailActivity extends SlidingBackActivity {
         super.onCreate(savedInstanceState);
         getWindow().setBackgroundDrawable(new ColorDrawable(0));
         ViewUtils.inject(this);
-
+        //获取用户信息
+        getUser();
 
         bookCover.setOnDragListener(new View.OnDragListener() {
             @Override
@@ -175,9 +176,13 @@ public class BookDetailActivity extends SlidingBackActivity {
         fabShare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-                ShareApi.getInstance(getApplicationContext()).wechatShare(1, book.getAlt());//分享到朋友圈
+                Intent intent = new Intent(BookDetailActivity.this, BookOperatorActivity.class);
+                book.setUserId(user.getUserId());
+                intent.putExtra("book", book);
+                startActivity(intent);
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+//                ShareApi.getInstance(getApplicationContext()).wechatShare(1, book.getAlt());//分享到朋友圈
 //                saveData();
             }
         });
@@ -346,10 +351,9 @@ public class BookDetailActivity extends SlidingBackActivity {
                 progressBar.setVisibility(View.GONE);
 //              creditsRollView.setText(json);
                 saveData();
-                //获取用户信息
-                getUser();
+
                 book.setUserId(user.getUserId());
-                saveBookToNet(book);
+//                saveBookToNet(book);
             }
 
             @Override
@@ -378,6 +382,7 @@ public class BookDetailActivity extends SlidingBackActivity {
             } else {
                 Intent intent = new Intent(BookDetailActivity.this, LoginActivity.class);
                 startActivity(intent);
+                finish();
             }
         }
     }
