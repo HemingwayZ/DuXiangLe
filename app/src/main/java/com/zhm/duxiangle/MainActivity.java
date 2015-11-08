@@ -5,6 +5,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -93,7 +94,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        overridePendingTransition(R.anim.hm_base_slide_right_in, 0);
+//        overridePendingTransition(R.anim.hm_base_slide_right_in, 0);
         ShareApi.getInstance(getApplicationContext()).regToWx();
         ViewUtils.inject(this);
 
@@ -218,6 +219,12 @@ public class MainActivity extends AppCompatActivity
                         //{"code":200,"userId":"2462","token":"4Cp7WFQq92h1xjdmdaL5AXM//2Y39LDCnuxr2xdDagUSew9ILDZp6tvcV6rRhvbxbTnqk7cS56XBpjxS+NU4Ng=="}
                         //{"code":200,"userId":"1","token":"8FQcKXFvWDqN2j3qZWDA5nM//2Y39LDCnuxr2xdDagUSew9ILDZp6n9+OUnzkJ/4/W8bX6Y2cB4VGTWNrvchrA=="}
                         if (RongIM.getInstance() != null) {
+                            /**
+                             * 刷新用户缓存数据。
+                             *
+                             * @param userInfo 需要更新的用户缓存数据。
+                             */
+                            RongIM.getInstance().refreshUserInfoCache(new io.rong.imlib.model.UserInfo(userId, userinfo.getNickname(), Uri.parse(DXLApi.BASE_URL + userinfo.getAvatar())));
 
                         } else {
                         }
@@ -361,6 +368,7 @@ public class MainActivity extends AppCompatActivity
             Intent intent = new Intent();
             intent.setClass(MainActivity.this, LoginActivity.class);
             startActivity(intent);
+            finish();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

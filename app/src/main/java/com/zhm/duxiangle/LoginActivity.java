@@ -385,7 +385,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 ContactsContract.CommonDataKinds.Email.ADDRESS,
                 ContactsContract.CommonDataKinds.Email.IS_PRIMARY,
         };
-
         int ADDRESS = 0;
         int IS_PRIMARY = 1;
     }
@@ -412,12 +411,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 RongYun rong = GsonUtils.getInstance().json2Bean(tokenResult.getResult(), RongYun.class);
                 if ("200".equals(rong.getCode())) {
                     user.setToken(rong.getToken());
-                    Log.i("LoginActivity",user.getToken());
+                    Log.i("LoginActivity", user.getToken());
                     //数据存储到本地
                     SpUtil.setStringSharedPerference(SpUtil.getSharePerference(getApplicationContext()), "user", GsonUtils.getInstance().bean2Json(user));
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                     intent.putExtra("user", user);
                     startActivity(intent);
+                    finish();
                 }
             }
 

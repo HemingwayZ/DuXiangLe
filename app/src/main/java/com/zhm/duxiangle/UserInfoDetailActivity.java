@@ -189,6 +189,8 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
 
         if (RongIM.getInstance() != null) {
             RongIM.getInstance().startPrivateChat(UserInfoDetailActivity.this, String.valueOf(userinfo.getUserId()), userinfo.getNickname());
+            RongIM.getInstance().refreshUserInfoCache(new io.rong.imlib.model.UserInfo(String.valueOf(userinfo.getUserId()), userinfo.getNickname(), Uri.parse(DXLApi.BASE_URL + userinfo.getAvatar())));
+
 //                                    RongIM.getInstance().startConversationList(MessageActivity.this);
 //                                    RongIM.getInstance().startConversation(MessageActivity.this, Conversation.ConversationType.APP_PUBLIC_SERVICE,"2","aaa");
         } else {
