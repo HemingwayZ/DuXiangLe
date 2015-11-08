@@ -145,6 +145,8 @@
         </activity>
         <activity android:name=".WXEntryActivity" >
         </activity>
+        <activity android:name=".WebImageActivity" >
+        </activity>
     </application>
 
 </manifest>

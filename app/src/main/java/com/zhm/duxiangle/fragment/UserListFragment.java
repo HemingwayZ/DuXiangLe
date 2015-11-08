@@ -58,9 +58,9 @@ public class UserListFragment extends Fragment implements SwipeRefreshLayout.OnR
     @ViewInject(R.id.recycler_userlist)
     private RecyclerView recyclerView;
     private OnFragmentInteractionListener mListener;
-    private int rowperpage = 1;//每页的条数
+    private int rowperpage = 4;//每页的条数
     private int thispage = 0;//起始页
-    private int countRow = 1;
+    private int countRow = 0;
     private String action = "userinfopage";
 
     private Page<UserInfo> page;
@@ -76,17 +76,13 @@ public class UserListFragment extends Fragment implements SwipeRefreshLayout.OnR
             super.handleMessage(msg);
             switch (msg.what) {
                 case Constant.REFRESH_DOWN://下拉刷新
-                    ToastUtils.cancelToast();
-                    ToastUtils.showToast(getActivity(), countRow + "  REFRESH_DOWN");
                     if (countRow > 0) {
                         initData(0, countRow, Constant.REFRESH_DOWN);
                     }
                     mSwipeLayout.setRefreshing(false);
                     break;
                 case Constant.REFRESH_UP://上拉加载更多
-                    ToastUtils.cancelToast();
-                    ToastUtils.showToast(getActivity(), thispage + "  REFRESH_UP");
-                    if (page != null && thispage <= page.getCountpage() - 1) {
+                    if (page != null && thispage <= page.getCountrow()-1) {
                         initData(thispage, rowperpage, Constant.REFRESH_UP);
                     } else {
                         Snackbar.make(recyclerView, "已到尾页", Snackbar.LENGTH_SHORT).show();
@@ -156,7 +152,7 @@ public class UserListFragment extends Fragment implements SwipeRefreshLayout.OnR
                     //分页逻辑
                     switch (type) {
                         case Constant.REFRESH_UP:
-                            thispage++;
+                            thispage += page.getList().size();
                             list.addAll(page.getList());
                             break;
                         case Constant.REFRESH_DOWN:
@@ -171,8 +167,6 @@ public class UserListFragment extends Fragment implements SwipeRefreshLayout.OnR
 
             @Override
             public void onFailure(HttpException error, String msg) {
-                ToastUtils.cancelToast();
-                ToastUtils.showToast(getActivity(), "链接超时");
             }
         });
     }
@@ -185,7 +179,6 @@ public class UserListFragment extends Fragment implements SwipeRefreshLayout.OnR
         thispage = 0;
         countRow = 1;
         lastVisibleItem = 0;
-        ToastUtils.showToast(getActivity(), "onCreateView");
         view = inflater.inflate(R.layout.fragment_user_list, container, false);
         ViewUtils.inject(this, view);
         //三设置下拉刷新监听事件和进度条

@@ -127,48 +127,49 @@ public class BookDetailActivity extends SlidingBackActivity {
                 onBackPressed();
             }
         });
-        bookCover.setOnTouchListener(new View.OnTouchListener() {
+//        bookCover.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                int xEvent = (int) event.getX();
+//                int yEvent = (int) event.getY();
+//                switch (event.getAction()) {
+//                    case MotionEvent.ACTION_DOWN:
+//                        int x = (int) v.getX();
+//                        int y = (int) v.getY();
+//                        Bitmap bitmap = ((BitmapDrawable) bookCover.getDrawable()).getBitmap();
+////                        int pixel = bitmap.getPixel(xEvent,yEvent);
+//////获取颜色
+////                        int redValue = Color.red(pixel);
+////                        int blueValue = Color.blue(pixel);
+////                        int greenValue = Color.green(pixel);
+////                        Color color = new Color();
+////                        collapsingToolbarLayout.setExpandedTitleColor(Color.argb(100,redValue,greenValue,blueValue));
+////                        collapsingToolbarLayout.setBackgroundColor(Color.argb(100,redValue,greenValue,blueValue));
+////                        bookCover.pause();
+//                        break;
+//
+//
+//                    case MotionEvent.ACTION_MOVE:
+////                        bookCover.resume();
+////                        bookCover.setVerticalScrollbarPosition(0);
+//                        break;
+//                    case MotionEvent.ACTION_UP:
+//                        bookCover.restart(xEvent, yEvent);
+//                        break;
+//                }
+//                return true;
+//            }
+//        });
+        bookCover.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                int xEvent = (int) event.getX();
-                int yEvent = (int) event.getY();
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        int x = (int) v.getX();
-                        int y = (int) v.getY();
-                        Bitmap bitmap = ((BitmapDrawable) bookCover.getDrawable()).getBitmap();
-//                        int pixel = bitmap.getPixel(xEvent,yEvent);
-////获取颜色
-//                        int redValue = Color.red(pixel);
-//                        int blueValue = Color.blue(pixel);
-//                        int greenValue = Color.green(pixel);
-//                        Color color = new Color();
-//                        collapsingToolbarLayout.setExpandedTitleColor(Color.argb(100,redValue,greenValue,blueValue));
-//                        collapsingToolbarLayout.setBackgroundColor(Color.argb(100,redValue,greenValue,blueValue));
-//                        bookCover.pause();
-                        break;
-
-
-                    case MotionEvent.ACTION_MOVE:
-//                        bookCover.resume();
-//                        bookCover.setVerticalScrollbarPosition(0);
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        bookCover.restart(xEvent, yEvent);
-                        break;
+            public void onClick(View v) {
+                Intent intent = new Intent(BookDetailActivity.this, WebImageActivity.class);
+                if (book.getImages() != null) {
+                    intent.putExtra("url", book.getImages().getLarge());
+                } else {
+                    intent.putExtra("url", book.getImage());
                 }
-                return true;
-            }
-        });
-        bookCover.setTransitionListener(new KenBurnsView.TransitionListener() {
-            @Override
-            public void onTransitionStart(Transition transition) {
-                LogUtils.i(BookDetailActivity.this, transition.getDuration() + "--begin");
-            }
-
-            @Override
-            public void onTransitionEnd(Transition transition) {
-                LogUtils.i(BookDetailActivity.this, transition.getDuration() + "--end");
+                startActivity(intent);
             }
         });
         fabShare.setOnClickListener(new View.OnClickListener() {

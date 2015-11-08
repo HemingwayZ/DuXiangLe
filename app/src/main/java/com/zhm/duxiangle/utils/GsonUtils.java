@@ -61,5 +61,13 @@ public class GsonUtils {
         }.getType());
     }
 
+    public Page<Book> getPageBooks(String json) {
+        //gson源码已经对json空值进行判断
+        if (null == gson) {
+            gson = new Gson();
+        }
+        return gson.fromJson(json, new TypeToken<Page<Book>>() {
+        }.getType());
+    }
 
 }

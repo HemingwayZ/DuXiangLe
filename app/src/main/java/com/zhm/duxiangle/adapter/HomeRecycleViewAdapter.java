@@ -42,7 +42,7 @@ public class HomeRecycleViewAdapter extends RecyclerView.Adapter<HomeRecycleView
 
     @Override
     public void onBindViewHolder(HomeRecycleViewAdapter.MyViewHolder holder, final int position) {
-        BitmapUtils.getInstance(mContext).setAvatar(holder.ivBookCover, mData.get(position).getImage(), null);
+        BitmapUtils.getInstance(mContext).setAvatarWithoutReflect(holder.ivBookCover, mData.get(position).getImage());
         holder.tvTitle.setText("书名:" + mData.get(position).getTitle());
         holder.tvAuthor.setText("作者:" + mData.get(position).getStrAuthor());
         holder.tvIsbn.setText("ISBN:" + mData.get(position).getIsbn13());
