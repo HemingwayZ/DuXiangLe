@@ -1,16 +1,13 @@
 package com.zhm.duxiangle;
 
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
@@ -37,9 +34,6 @@ import com.zhm.duxiangle.utils.BitmapUtils;
 import com.zhm.duxiangle.utils.DXLHttpUtils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 
 @ContentView(R.layout.activity_edit_user_info)
 public class EditUserInfoActivity extends SlidingBackActivity implements View.OnClickListener {
@@ -129,7 +123,7 @@ public class EditUserInfoActivity extends SlidingBackActivity implements View.On
         String state = Environment.getExternalStorageState();
         if (state.equals(Environment.MEDIA_MOUNTED)) {
             Intent getImageByCamera = new Intent("android.media.action.IMAGE_CAPTURE");
-            startActivityForResult(getImageByCamera, Constant.REQUEST_CODE_CAPTURE_CAMEIA);
+            startActivityForResult(getImageByCamera, Constant.REQUEST_CODE_CAPTURE_CAMERIA);
         } else {
             Toast.makeText(getApplicationContext(), "请确认已经插入SD卡", Toast.LENGTH_LONG).show();
         }

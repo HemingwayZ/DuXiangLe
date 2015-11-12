@@ -41,7 +41,7 @@ import java.util.List;
 public class SearchBookActivity extends SlidingBackActivity implements View.OnClickListener, SwipeRefreshLayout.OnRefreshListener {
 
     private int thispage = 0;
-    private int rowperpage = 1;
+    private int rowperpage = 5;
     private User user;
     //搜索视图
     @ViewInject(R.id.etSearch)
@@ -64,14 +64,16 @@ public class SearchBookActivity extends SlidingBackActivity implements View.OnCl
     private ImageButton ibBack;
     @ViewInject(R.id.tvTitle)
     private TextView tvTitle;
+    private String userid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ViewUtils.inject(this);
         ibBack.setOnClickListener(this);
-        tvTitle.setText("搜索我的书库");
-        getUser();
+        userid = String.valueOf(getIntent().getIntExtra("userid", 0));
+        tvTitle.setText("搜索书库");
+//        getUser();
         pageBooks = new Page<>();
         list = new ArrayList<>();
         btnSearch.setOnClickListener(this);
@@ -99,7 +101,7 @@ public class SearchBookActivity extends SlidingBackActivity implements View.OnCl
                                 Snackbar.make(mSwipeLayout, "已到尾页", Snackbar.LENGTH_SHORT).show();
                                 return;
                             }
-                            mSwipeLayout.setRefreshing(true);
+
                             Log.i("LastItem", String.valueOf(layoutManager.findLastCompletelyVisibleItemPosition()));
                             searchBooks(keywords, thispage, rowperpage);
                         }
@@ -116,6 +118,8 @@ public class SearchBookActivity extends SlidingBackActivity implements View.OnCl
                 super.onScrolled(recyclerView, dx, dy);
             }
         });
+
+        searchBooks("", thispage, rowperpage);
     }
 
     public void getUser() {
@@ -136,6 +140,7 @@ public class SearchBookActivity extends SlidingBackActivity implements View.OnCl
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btnSearch:
+                list.removeAll(list);
                 keywords = etSearch.getText().toString().trim();
                 mSwipeLayout.setRefreshing(true);
                 thispage = 0;
@@ -148,21 +153,25 @@ public class SearchBookActivity extends SlidingBackActivity implements View.OnCl
     }
 
     private void searchBooks(String keywords, int _thispage, int _rowperpage) {
+        mSwipeLayout.setRefreshing(true);
         RequestParams params = new RequestParams();
         params.addBodyParameter("action", "searchbook");
         params.addBodyParameter("keywords", keywords);
-        params.addBodyParameter("userid", String.valueOf(user.getUserId()));
+        params.addBodyParameter("userid", userid);
         params.addBodyParameter("thispage", String.valueOf(_thispage));
         params.addBodyParameter("rowperpage", String.valueOf(_rowperpage));
         DXLHttpUtils.getHttpUtils().send(HttpRequest.HttpMethod.POST, DXLApi.bookApi(), params, new RequestCallBack<String>() {
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
+                mSwipeLayout.setRefreshing(false);
                 String result = responseInfo.result;
                 Log.i("Result:", result);
                 if ("action is null".equals(result)) {
+                    Snackbar.make(btnSearch, result, Snackbar.LENGTH_SHORT).show();
                     return;
                 }
                 if ("userid is null".equals(result)) {
+                    Snackbar.make(btnSearch, result, Snackbar.LENGTH_SHORT).show();
                     return;
                 }
                 pageBooks = GsonUtils.getInstance().getPageBooks(result);
@@ -177,9 +186,7 @@ public class SearchBookActivity extends SlidingBackActivity implements View.OnCl
                         adapter.notifyDataSetChanged();
                     }
                 } else {
-
                 }
-                mSwipeLayout.setRefreshing(false);
             }
 
             @Override
@@ -192,17 +199,6 @@ public class SearchBookActivity extends SlidingBackActivity implements View.OnCl
 
     @Override
     public void onRefresh() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                mSwipeLayout.setRefreshing(false);
-            }
-        }).start();
-
+        mSwipeLayout.setRefreshing(false);
     }
 }

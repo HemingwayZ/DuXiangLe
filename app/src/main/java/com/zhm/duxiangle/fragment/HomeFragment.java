@@ -324,6 +324,7 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), SearchBookActivity.class);
+                intent.putExtra("userid",user.getUserId());
                 startActivity(intent);
             }
         });

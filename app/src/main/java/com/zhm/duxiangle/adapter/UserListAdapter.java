@@ -12,17 +12,35 @@ import android.widget.TextView;
 
 import com.lidroid.xutils.ViewUtils;
 import com.lidroid.xutils.view.annotation.ViewInject;
+import com.zhm.duxiangle.LoginActivity;
 import com.zhm.duxiangle.R;
+import com.zhm.duxiangle.SearchBookActivity;
 import com.zhm.duxiangle.UserInfoDetailActivity;
 import com.zhm.duxiangle.api.DXLApi;
+import com.zhm.duxiangle.bean.User;
 import com.zhm.duxiangle.bean.UserInfo;
 import com.zhm.duxiangle.utils.BitmapUtils;
+import com.zhm.duxiangle.utils.GsonUtils;
+import com.zhm.duxiangle.utils.SpUtil;
 
 import java.util.List;
 
-public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.MyViewHolder> implements View.OnClickListener {
+public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.MyViewHolder> {
     private Context mContext;
     private List<UserInfo> userInfoList;
+    private User user;
+
+    public void getUser() {
+        //获取用户信息
+        user = new User();
+        String json = SpUtil.getSharePerference(mContext).getString("user", "");
+        if (!TextUtils.isEmpty(json)) {
+            user = GsonUtils.getInstance().json2Bean(json, User.class);
+            if (user != null) {
+            } else {
+            }
+        }
+    }
 
     /**
      * @param mContext     上下文
@@ -36,7 +54,6 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.MyView
     @Override
     public UserListAdapter.MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(mContext).inflate(R.layout.fragment_user_list_item, null);
-        view.setOnClickListener(this);
         return new MyViewHolder(view);
     }
 
@@ -44,16 +61,35 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.MyView
     public void onBindViewHolder(UserListAdapter.MyViewHolder holder, int position) {
         final UserInfo userInfo = userInfoList.get(position);
         if (!TextUtils.isEmpty(userInfo.getAvatar())) {
-            BitmapUtils.getInstance(mContext).setAvatar(holder.ivUser, DXLApi.BASE_URL+userInfo.getAvatar(), null);
+            BitmapUtils.getInstance(mContext).setAvatar(holder.ivUser, DXLApi.BASE_URL + userInfo.getAvatar(), null);
         }
         holder.tvNickname.setText(userInfo.getNickname());
         holder.tvDesc.setText(userInfo.getDescrib());
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+//                Intent intent = new Intent();
+//                intent.setClass(mContext, UserInfoDetailActivity.class);
+//                intent.putExtra("userinfo", userInfo);
+//                mContext.startActivity(intent);
+                Intent intent = new Intent(mContext, SearchBookActivity.class);
+                intent.putExtra("userid", userInfo.getUserId());
+                if (userInfo.getUserId() == user.getUserId()) {
+                    intent.putExtra("isMy", true);
+                }
+                mContext.startActivity(intent);
+            }
+        });
+
+        holder.ivUser.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
                 Intent intent = new Intent();
                 intent.setClass(mContext, UserInfoDetailActivity.class);
                 intent.putExtra("userinfo", userInfo);
+                if (userInfo.getUserId() == user.getUserId()) {
+                    intent.putExtra("isMy", true);
+                }
                 mContext.startActivity(intent);
             }
         });
@@ -62,17 +98,6 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.MyView
     @Override
     public int getItemCount() {
         return userInfoList.size();
-    }
-
-    @Override
-    public void onClick(View v) {
-//        switch (v.getId()) {
-//            case R.layout.fragment_user_list_item:
-        Intent intent = new Intent();
-        intent.setClass(mContext, UserInfoDetailActivity.class);
-        mContext.startActivity(intent);
-//                break;
-//        }
     }
 
     class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -86,6 +111,7 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.MyView
         public MyViewHolder(View itemView) {
             super(itemView);
             ViewUtils.inject(this, itemView);
+            getUser();
 
         }
 

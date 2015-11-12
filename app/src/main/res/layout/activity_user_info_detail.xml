@@ -23,10 +23,11 @@
             app:contentScrim="?attr/colorPrimary"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
             <!--照片墙-->
-            <ImageView
+            <com.flaviofaria.kenburnsview.KenBurnsView
                 android:id="@+id/ivWall"
                 android:layout_width="match_parent"
                 android:adjustViewBounds="true"
+                android:scaleType="fitXY"
                 android:layout_height="match_parent"
                 android:src="@drawable/book_cover_default" />
 
@@ -51,10 +52,10 @@
     <include layout="@layout/content_user_info_detail" />
 
 
-    <android.support.design.widget.FloatingActionButton
+    <com.zhm.duxiangle.view.CircleImageView
         android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:layout_margin="@dimen/fab_margin"
         android:src="@android:drawable/ic_dialog_email"
         app:layout_anchor="@id/app_bar"

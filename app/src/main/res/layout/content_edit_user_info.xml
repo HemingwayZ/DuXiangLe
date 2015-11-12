@@ -28,7 +28,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="昵称:" />
+            android:text="我的昵称:" />
 
         <EditText
             android:id="@+id/etNickname"
@@ -47,7 +47,7 @@
 
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="时间" />
+            android:text="个性签名" />
 
         <EditText
             android:id="@+id/etCreated"
@@ -64,7 +64,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="描述:" />
+            android:text="个人描述:" />
 
         <EditText
             android:id="@+id/etDesc"

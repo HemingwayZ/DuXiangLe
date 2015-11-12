@@ -36,4 +36,5 @@ dependencies {
     compile files('D:/AsWorkSpace/DuXiangLe/libs/BaiduLBS_Android.jar')
     compile project(':IMKit')
     compile files('D:/AsWorkSpace/DuXiangLe/libs/libammsdk.jar')
+    compile 'me.drakeet.materialdialog:library:1.2.3'
 }

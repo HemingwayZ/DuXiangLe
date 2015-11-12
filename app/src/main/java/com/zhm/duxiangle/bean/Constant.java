@@ -13,7 +13,7 @@ public class Constant {
     //从相册获取照片
     public static final int REQUEST_CODE_MEDIA = 3;
 
-    public static final int REQUEST_CODE_CAPTURE_CAMEIA = 4;
+    public static final int REQUEST_CODE_CAPTURE_CAMERIA = 4;
 
     //微信id
     public static final String APP_ID_WECHAT="wxcb5e68f7c7a3f78a";

@@ -1,33 +1,28 @@
 package com.zhm.duxiangle;
 
 import android.content.ContentResolver;
-import android.content.ContentUris;
-import android.content.Context;
+import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.lidroid.xutils.HttpUtils;
 import com.lidroid.xutils.ViewUtils;
 import com.lidroid.xutils.exception.HttpException;
 import com.lidroid.xutils.http.RequestParams;
@@ -51,7 +46,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import io.rong.imkit.RongIM;
-import io.rong.imlib.RongIMClient;
 
 @ContentView(R.layout.activity_user_info_detail)
 public class UserInfoDetailActivity extends SlidingBackActivity implements View.OnClickListener {
@@ -85,7 +79,8 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
 
     //悬浮按钮
     @ViewInject(R.id.fab)
-    private FloatingActionButton fab;
+    private ImageView fab;
+    private boolean isMy;
 
     @Override
     protected void onStart() {
@@ -164,14 +159,7 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
 
         if (userinfo.getAvatar() != null)
             BitmapUtils.getInstance(getApplicationContext()).setAvatar(fab, DXLApi.BASE_URL + userinfo.getAvatar());
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-                enterConversation(view);
-            }
-        });
+
 
         //照片墙
         if (!TextUtils.isEmpty(userinfo.getPicWall())) {
@@ -180,12 +168,13 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
 
         btnSend.setOnClickListener(this);
         btnEdit.setOnClickListener(this);
-        boolean isMy = getIntent().getBooleanExtra("isMy",false);
-        Log.i("isMy",isMy+"");
-        if(isMy){
+        isMy = getIntent().getBooleanExtra("isMy", false);
+        Log.i("isMy", isMy + "");
+        ivWall.setOnClickListener(this);
+        if (isMy) {
             btnSend.setVisibility(View.GONE);
-            ivWall.setOnClickListener(this);
-        }else{
+            fab.setOnClickListener(this);
+        } else {
             btnEdit.setVisibility(View.GONE);
         }
 
@@ -208,6 +197,31 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
             Snackbar.make(view, "初始化失败", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show();
         }
+    }
+
+    private void dialog() {
+        new AlertDialog.Builder(this).setTitle("个性背景墙").setIcon(
+                R.drawable.ic_launcher).setSingleChoiceItems(
+                new String[]{"从相册选择", "拍照选择"}, 0,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case 0:
+                                intentOpenImage();
+                                break;
+                            case 1:
+                                intentOpenCamera();
+                                break;
+                        }
+                        dialog.dismiss();
+                    }
+                })
+                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                }).show();
     }
 
     private void initData(Intent intent) {
@@ -237,7 +251,17 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
                 break;
 
             case R.id.ivWall:
-                intentOpenImage();
+                if (TextUtils.isEmpty(userinfo.getPicWall()) && isMy == true) {
+                    dialog();
+                } else {
+                    intent = new Intent();
+                    intent.setClass(UserInfoDetailActivity.this, WebImageActivity.class);
+                    intent.putExtra("url", DXLApi.BASE_URL + userinfo.getPicWall());
+                    startActivity(intent);
+                }
+                break;
+            case R.id.fab:
+                dialog();
                 break;
         }
     }
@@ -250,57 +274,61 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
         startActivityForResult(intent, Constant.REQUEST_CODE_MEDIA);
     }
 
+    private void intentOpenCamera() {
+        String state = Environment.getExternalStorageState();
+        if (state.equals(Environment.MEDIA_MOUNTED)) {
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            uri = Uri.fromFile(new File(Environment.getExternalStorageDirectory() + "/duxiangle_ivWall.jpg"));
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+            intent.putExtra("return-data", true);
+            /***
+             * 需要说明一下，以下操作使用照相机拍照，拍照后的图片会存放在相册中的
+             * 这里使用的这种方式有一个好处就是获取的图片是拍照后的原图
+             * 如果不实用ContentValues存放照片路径的话
+             * ，拍照后获取的图片为缩略图不清晰
+             */
+//            Uri photoUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, new ContentValues());
+//            intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, photoUri);
+            startActivityForResult(intent, Constant.REQUEST_CODE_CAPTURE_CAMERIA);
+        } else {
+            Toast.makeText(getApplicationContext(), "请确认已经插入SD卡", Toast.LENGTH_LONG).show();
+        }
+    }
+
     Uri uri;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode != RESULT_OK || data == null) {
+        if (resultCode != RESULT_OK) {
+            Log.i("data:", "null" + RESULT_OK);
             return;
         }
+//        if(uri==null){
+//            Bundle bundle = data.getExtras();
+//            Bitmap bitmap = (Bitmap) bundle.get("data");
+//            uri = Uri.parse(MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, null, null));
+//        }
 
         switch (requestCode) {
             case Constant.REQUEST_CODE_MEDIA:
-                ContentResolver resolver = getContentResolver();
-
-                uri = data.getData();
-                if (uri == null) {
+                if (data == null) {
                     return;
                 }
-                InputStream is = null;
-                try {
-                    // 直接使用下面的方法会出现OOM异常
-                    // java.lang.OutOfMemoryError
-                    BitmapFactory.Options opts = new BitmapFactory.Options();
-                    opts.inJustDecodeBounds = true;// 设置只获取图片的边界，先不讲图片读入内存
-                    is = getContentResolver().openInputStream(uri);
-                    Bitmap bitmap = BitmapFactory.decodeStream(is, null, opts);
-
-                    // opts.outWidth = 200;
-                    // int height = opts.outHeight * 200 / opts.outWidth;
-                    // opts.outHeight = height;
-
-                    opts.inJustDecodeBounds = false;
-
-                    // 压缩图片为原来的1/4
-                    opts.inSampleSize = 4;// 图片缩小为原来的1/8
-
-                    bitmap = BitmapFactory.decodeStream(getContentResolver()
-                            .openInputStream(uri), null, opts);
-                    ivWall.setImageBitmap(bitmap);
-
-                } catch (FileNotFoundException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } finally {
-                    if (is != null) {
-                        try {
-                            is.close();
-                        } catch (IOException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        }
-                    }
+                uri = data.getData();
+                if (uri == null) {
+                    Log.i("uri", "uri为null");
+                    return;
                 }
+                String path = BitmapUtils.getImageAbsolutePath(this, uri);
+                Log.i("path:", path);
+                Bitmap bitmap = BitmapUtils.getimage(path);
+                ivWall.setImageBitmap(bitmap);
+                uploadPicWall();
+                break;
+            case Constant.REQUEST_CODE_CAPTURE_CAMERIA:
+                String path1 = BitmapUtils.getImageAbsolutePath(this, uri);
+                Bitmap bitmap1 = BitmapUtils.getimage(path1);
+                ivWall.setImageBitmap(bitmap1);
                 uploadPicWall();
                 break;
         }
@@ -323,11 +351,14 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
                 public void onSuccess(ResponseInfo<String> responseInfo) {
                     Log.i(UserInfoDetailActivity.class.getSimpleName() + "responseInfo:", responseInfo.result);
                     MainActivity.updateUserInfo = true;
+                    Snackbar.make(ivWall,"修改成功",Snackbar.LENGTH_SHORT).show();
+                    getUser();
                 }
 
                 @Override
                 public void onFailure(HttpException error, String msg) {
                     Log.i(UserInfoDetailActivity.class.getSimpleName() + "msg:", msg);
+                    Snackbar.make(ivWall,"网络异常，修改失败",Snackbar.LENGTH_SHORT).show();
                 }
             });
         }
@@ -337,7 +368,7 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
         String state = Environment.getExternalStorageState();
         if (state.equals(Environment.MEDIA_MOUNTED)) {
             Intent getImageByCamera = new Intent("android.media.action.IMAGE_CAPTURE");
-            startActivityForResult(getImageByCamera, Constant.REQUEST_CODE_CAPTURE_CAMEIA);
+            startActivityForResult(getImageByCamera, Constant.REQUEST_CODE_CAPTURE_CAMERIA);
         } else {
             Toast.makeText(getApplicationContext(), "请确认已经插入SD卡", Toast.LENGTH_LONG).show();
         }

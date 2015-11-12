@@ -52,37 +52,33 @@ public class WXEntryActivity extends AppCompatActivity implements IWXAPIEventHan
 //                tvContent.setText(baseResp.errStr + "--translaction" + baseResp.transaction + "--openid" + baseResp.openId + "--- checkargs[]" + baseResp.checkArgs());
 
                 Log.i(TAG, "分享成功");
-                ToastUtils.showToast(getApplicationContext(), "OK" + baseResp.errCode);
+                ToastUtils.showToast(getApplicationContext(), "分享成功");
 //                ToastUtils.showToast();
                 break;
             case BaseResp.ErrCode.ERR_USER_CANCEL:
                 //分享取消
 //                tvContent.setText(baseResp.errStr);
                 Log.i(TAG, "分享取消");
-                ToastUtils.showToast(getApplicationContext(), "分享取消" + baseResp.errCode);
+                ToastUtils.showToast(getApplicationContext(), "分享失败");
                 break;
             case BaseResp.ErrCode.ERR_AUTH_DENIED:
                 Log.i(TAG, "分享拒绝");
 //                tvContent.setText(baseResp.errStr);
-                ToastUtils.showToast(getApplicationContext(), "OK" + baseResp.errCode);
+                ToastUtils.showToast(getApplicationContext(), "分享失败");
                 //分享拒绝
                 break;
             case BaseResp.ErrCode.ERR_SENT_FAILED:
 //                tvContent.setText(baseResp.errStr);
                 Log.i(TAG, "ERR_SENT_FAILED");
-                ToastUtils.showToast(getApplicationContext(), "ERR_SENT_FAILED  " + baseResp.errCode);
+                ToastUtils.showToast(getApplicationContext(), "分享失败  ");
                 break;
             case BaseResp.ErrCode.ERR_UNSUPPORT:
                 Log.i(TAG, "ERR_UNSUPPORT");
-                ToastUtils.showToast(getApplicationContext(), "ERR_UNSUPPORT  " + baseResp.errCode);
-                break;
-            case BaseResp.ErrCode.ERR_COMM:
-                Log.i(TAG, "default");
-                ToastUtils.showToast(getApplicationContext(), "default" + baseResp.errCode);
+                ToastUtils.showToast(getApplicationContext(), "分享失败  ");
                 break;
             default:
                 Log.i(TAG, "default");
-                ToastUtils.showToast(getApplicationContext(), "default" + baseResp.errCode);
+                ToastUtils.showToast(getApplicationContext(), "分享失败");
                 break;
         }
         finish();

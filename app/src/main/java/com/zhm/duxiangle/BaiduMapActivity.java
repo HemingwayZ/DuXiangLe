@@ -54,7 +54,7 @@ public class BaiduMapActivity extends AppCompatActivity {
             super.handleMessage(msg);
             switch (msg.what) {
                 case 1:
-                    tvLocation.append((String) msg.obj + "s");
+                    tvLocation.setText("当前位置:"+(String) msg.obj);
                     break;
             }
 
@@ -116,28 +116,29 @@ public class BaiduMapActivity extends AppCompatActivity {
         tvLocation = (TextView) findViewById(R.id.tvLocation);
         requestLocButton.setOnClickListener(btnClickListener);
 
-        RadioGroup group = (RadioGroup) this.findViewById(R.id.radioGroup);
-        radioButtonListener = new OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                if (checkedId == R.id.defaulticon) {
-                    // 传入null则，恢复默认图标
-                    mCurrentMarker = null;
-                    mBaiduMap
-                            .setMyLocationConfigeration(new MyLocationConfiguration(
-                                    mCurrentMode, true, null));
-                }
-                if (checkedId == R.id.customicon) {
-                    // 修改为自定义marker
-                    mCurrentMarker = BitmapDescriptorFactory
-                            .fromResource(R.drawable.ic_info_black_24dp);
-                    mBaiduMap
-                            .setMyLocationConfigeration(new MyLocationConfiguration(
-                                    mCurrentMode, true, mCurrentMarker));
-                }
-            }
-        };
-        group.setOnCheckedChangeListener(radioButtonListener);
+//        RadioGroup group = (RadioGroup) this.findViewById(R.id.radioGroup);
+//        radioButtonListener = new OnCheckedChangeListener() {
+//            @Override
+//            public void onCheckedChanged(RadioGroup group, int checkedId) {
+//                if (checkedId == R.id.defaulticon) {
+//                    // 传入null则，恢复默认图标
+//                    mCurrentMarker = null;
+//                    mBaiduMap
+//                            .setMyLocationConfigeration(new MyLocationConfiguration(
+//                                    mCurrentMode, true, null));
+//                }
+//                if (checkedId == R.id.customicon) {
+//                    // 修改为自定义marker
+//                    mCurrentMarker = BitmapDescriptorFactory
+//                            .fromResource(R.drawable.ic_launcher);
+//                    mBaiduMap
+//                            .setMyLocationConfigeration(new MyLocationConfiguration(
+//                                    mCurrentMode, true, mCurrentMarker));
+//                }
+//            }
+//        };
+
+//        group.setOnCheckedChangeListener(radioButtonListener);
 
         // 地图初始化
         mMapView = (MapView) findViewById(R.id.bmapView);
@@ -154,6 +155,12 @@ public class BaiduMapActivity extends AppCompatActivity {
         option.setIsNeedAddress(true);//反编译获得具体位置，只有网络定位才可以--重要！！！
         mLocClient.setLocOption(option);
         mLocClient.start();
+        // 修改为自定义marker
+        mCurrentMarker = BitmapDescriptorFactory
+                .fromResource(R.drawable.ic_launcher);
+        mBaiduMap
+                .setMyLocationConfigeration(new MyLocationConfiguration(
+                        mCurrentMode, true, mCurrentMarker));
     }
 
     /**
@@ -178,7 +185,7 @@ public class BaiduMapActivity extends AppCompatActivity {
                 LatLng ll = new LatLng(location.getLatitude(),
                         location.getLongitude());
 
-                tvLocation.setText("" + ll.toString() + "    " + ll.latitude);
+//                tvLocation.setText("" + ll.toString() + "    " + ll.latitude);
                 MapStatusUpdate u = MapStatusUpdateFactory.newLatLng(ll);
                 mBaiduMap.animateMapStatus(u);
             }

@@ -110,7 +110,6 @@ public class BookDetailActivity extends SlidingBackActivity {
         isMy = getIntent().getBooleanExtra("isMy",false);
         //获取用户信息
         getUser();
-
         bookCover.setOnDragListener(new View.OnDragListener() {
             @Override
             public boolean onDrag(View v, DragEvent event) {
