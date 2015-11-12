@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.zhm.duxiangle"
-    android:versionCode="2"
-    android:versionName="1.0.1">
+    package="com.zhm.duxiangle">
 
     <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL" />
 
@@ -146,7 +144,7 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".wxapi.WXEntryActivity"
-
+            android:exported="true"
             android:windowSoftInputMode="adjustPan|adjustUnspecified|stateHidden" />
         <activity android:name=".WebImageActivity" />
         <activity

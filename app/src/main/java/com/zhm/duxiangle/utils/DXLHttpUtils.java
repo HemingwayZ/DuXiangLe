@@ -8,7 +8,7 @@ import com.lidroid.xutils.HttpUtils;
 public class DXLHttpUtils {
     public static HttpUtils getHttpUtils() {
         HttpUtils http = new HttpUtils();
-        http.configTimeout(3000);
+        http.configTimeout(10*1000);
         return http;
     }
 }

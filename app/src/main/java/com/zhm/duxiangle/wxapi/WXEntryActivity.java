@@ -85,6 +85,7 @@ public class WXEntryActivity extends AppCompatActivity implements IWXAPIEventHan
                 ToastUtils.showToast(getApplicationContext(), "default" + baseResp.errCode);
                 break;
         }
+        finish();
     }
 
 

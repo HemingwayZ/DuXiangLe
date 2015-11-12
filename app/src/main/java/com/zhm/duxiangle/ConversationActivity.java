@@ -21,6 +21,8 @@ import com.zhm.duxiangle.utils.DXLHttpUtils;
 import com.zhm.duxiangle.utils.GsonUtils;
 import com.zhm.duxiangle.utils.SpUtil;
 
+import org.w3c.dom.Text;
+
 import java.util.Locale;
 
 import io.rong.imkit.RongIM;
@@ -89,8 +91,8 @@ public class ConversationActivity extends SlidingBackActivity {
                 }
                 if (userinfo.getNickname() != null)
                     tvTitle.setText("与 " + userinfo.getNickname() + " 聊天");
-//                if (!TextUtils.isEmpty(userinfo.getAvatar()))
-//                    RongIM.getInstance().refreshUserInfoCache(new io.rong.imlib.model.UserInfo(String.valueOf(userinfo.getUserId()), userinfo.getNickname(), Uri.parse(DXLApi.BASE_URL + userinfo.getAvatar())));
+                if (!TextUtils.isEmpty(userinfo.getAvatar()))
+                    RongIM.getInstance().refreshUserInfoCache(new io.rong.imlib.model.UserInfo(String.valueOf(userinfo.getUserId()), userinfo.getNickname(), Uri.parse(DXLApi.BASE_URL + userinfo.getAvatar())));
 
             }
 
@@ -106,8 +108,8 @@ public class ConversationActivity extends SlidingBackActivity {
      */
     private void getIntentDate(Intent intent) {
         String mTargetId = intent.getData().getQueryParameter("targetId");
-
-        getUserInfo(Integer.valueOf(mTargetId));
+        if (!TextUtils.isEmpty(mTargetId))
+            getUserInfo(Integer.valueOf(mTargetId));
         String mTargetIds = intent.getData().getQueryParameter("targetIds");
         //intent.getData().getLastPathSegment();//获得当前会话类型
         Conversation.ConversationType mConversationType = Conversation.ConversationType.valueOf(intent.getData().getLastPathSegment().toUpperCase(Locale.getDefault()));
