@@ -16,6 +16,7 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 
 import com.lidroid.xutils.DbUtils;
@@ -31,6 +32,7 @@ import com.lidroid.xutils.view.annotation.ViewInject;
 import com.lidroid.xutils.view.annotation.event.OnScrollStateChanged;
 import com.zhm.duxiangle.LoginActivity;
 import com.zhm.duxiangle.R;
+import com.zhm.duxiangle.SearchBookActivity;
 import com.zhm.duxiangle.adapter.HomeRecycleViewAdapter;
 import com.zhm.duxiangle.api.DXLApi;
 import com.zhm.duxiangle.bean.Book;
@@ -117,19 +119,8 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                     mSwipeLayout.setRefreshing(false);
                     break;
                 case 101:
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                Thread.sleep(1000);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                            if (bookList != null && bookList.size() > 0)
-                                mSwipeLayout.setRefreshing(false);
-                        }
-                    }).start();
-
+                    if (bookList != null && bookList.size() > 0)
+                        mSwipeLayout.setRefreshing(false);
                     break;
             }
         }
@@ -144,7 +135,11 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     @ViewInject(R.id.book_cover)
     private ImageView ivBookCover;
 
-
+    @ViewInject(R.id.btnSearch)
+    private Button btnSearch;
+    //未登录状态
+    @ViewInject(R.id.isLogin)
+    private ImageView isLogin;
     private LinearLayoutManager layoutManager;
     private HomeRecycleViewAdapter homeAdapter;
     List<Book> bookList;
@@ -155,9 +150,11 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     }
 
     private void getDataFromNet(User user, int _thispage, int _rowperpage) {
+
         if (user == null) {
             return;
         }
+        mSwipeLayout.setRefreshing(true);
         RequestParams params = new RequestParams();
         params.addBodyParameter("action", "pagebooks");
         params.addBodyParameter("userid", String.valueOf(user.getUserId()));
@@ -263,9 +260,6 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         //初始化数据
         thispage = 0;
         rowperpage = 4;
-
-        getDataFromNet(user, thispage, rowperpage);
-
         view = inflater.inflate(R.layout.fragment_home, container, false);
         ViewUtils.inject(this, view);
         //三设置下拉刷新监听事件和进度条
@@ -278,6 +272,18 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         //设置recycleView和相应的适配器需要设置布局管理器，否则会报错
         layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(layoutManager);
+
+        if (user == null) {
+            isLogin.setVisibility(View.VISIBLE);
+            isLogin.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startActivity(new Intent(getActivity(), LoginActivity.class));
+                    getActivity().finish();
+                }
+            });
+        }
+
         homeAdapter = new HomeRecycleViewAdapter(bookList, getActivity());
         recyclerView.setAdapter(homeAdapter);
         homeAdapter.notifyDataSetChanged();
@@ -314,43 +320,16 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                 super.onScrolled(recyclerView, dx, dy);
             }
         });
-/*
-        recyclerView.onScrollListener(new RecyclerView.OnScrollListener() {
+        btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                lastVisibleItem = layoutManager.findLastVisibleItemPosition();
-                if (layoutManager.findLastVisibleItemPosition() == bookList.size() - 1) {
-                    layoutManager.onScrollStateChanged(RecyclerView.sta);
-                    Log.i("LastItem", String.valueOf(layoutManager.findLastVisibleItemPosition()));
-                }
-                super.onScrolled(recyclerView, dx, dy);
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), SearchBookActivity.class);
+                startActivity(intent);
             }
+        });
+        //初始化数据
+        getDataFromNet(user, thispage, rowperpage);
 
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-                if (homeAdapter != null && newState == RecyclerView.SCROLL_STATE_IDLE
-                        && lastVisibleItem + 1 == homeAdapter.getItemCount()) {
-
-                    mSwipeLayout.setRefreshing(true);
-                    // 此处在现实项目中，请换成网络请求数据代码，sendRequest .....
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (thispage >= bookPage.getCountpage()) {
-                                Snackbar.make(mSwipeLayout, "已到尾页", Snackbar.LENGTH_SHORT).show();
-                                mSwipeLayout.setRefreshing(false);
-                                return;
-                            }
-                            getDataFromNet(user, thispage, rowperpage);
-                            Message message = new Message();
-                            message.what = 101;
-                            mHandler.sendMessage(message);
-                        }
-                    }).start();
-                }
-            }
-        });*/
         return view;
     }
 

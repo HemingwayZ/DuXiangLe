@@ -89,7 +89,8 @@ public class ConversationActivity extends SlidingBackActivity {
                 }
                 if (userinfo.getNickname() != null)
                     tvTitle.setText("与 " + userinfo.getNickname() + " 聊天");
-                RongIM.getInstance().refreshUserInfoCache(new io.rong.imlib.model.UserInfo(String.valueOf(userinfo.getUserId()), userinfo.getNickname(), Uri.parse(DXLApi.BASE_URL + userinfo.getAvatar())));
+//                if (!TextUtils.isEmpty(userinfo.getAvatar()))
+//                    RongIM.getInstance().refreshUserInfoCache(new io.rong.imlib.model.UserInfo(String.valueOf(userinfo.getUserId()), userinfo.getNickname(), Uri.parse(DXLApi.BASE_URL + userinfo.getAvatar())));
 
             }
 

@@ -57,6 +57,7 @@ import com.zhm.duxiangle.utils.BitmapUtils;
 import com.zhm.duxiangle.utils.DXLHttpUtils;
 import com.zhm.duxiangle.utils.GsonUtils;
 import com.zhm.duxiangle.utils.SpUtil;
+import com.zhm.duxiangle.utils.ToastUtils;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -73,7 +74,6 @@ public class MainActivity extends AppCompatActivity
     private Toolbar toolbar;
     @ViewInject(R.id.fabScan)
     private FloatingActionButton fabScan;
-
     //
     @ViewInject(R.id.tabLayout)
     private TabLayout tabLayout;
@@ -90,6 +90,7 @@ public class MainActivity extends AppCompatActivity
 
     //用户信息
     private UserInfo userinfo;
+    private User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,7 +126,8 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onStart() {
-        getUser();
+        if (user == null)
+            getUser();
         super.onStart();
     }
 
@@ -134,12 +136,12 @@ public class MainActivity extends AppCompatActivity
         //获取用户信息
         String json = SpUtil.getSharePerference(getApplicationContext()).getString("user", "");
         if (!TextUtils.isEmpty(json)) {
-            User user = GsonUtils.getInstance().json2Bean(json, User.class);
+            user = GsonUtils.getInstance().json2Bean(json, User.class);
             if (user != null) {
 
                 getUserInfo(user.getUserId());
-                tvUsername.setText(user.getUsername());
-                tvDesc.setText(user.getPassword());
+//                tvUsername.setText(user.getUsername());
+//                tvDesc.setText(user.getPassword());
                 if (user.getToken() != null) {
                     initRong(user.getToken());
                 }
@@ -177,7 +179,8 @@ public class MainActivity extends AppCompatActivity
 
                 tvUsername.setText(userinfo.getNickname());
                 tvDesc.setText(userinfo.getDescrib());
-                BitmapUtils.getInstance(getApplicationContext()).setAvatarWithoutReflect(ivUser, DXLApi.BASE_URL + userinfo.getAvatar());
+                if (userinfo.getAvatar() != null)
+                    BitmapUtils.getInstance(getApplicationContext()).setAvatarWithoutReflect(ivUser, DXLApi.BASE_URL + userinfo.getAvatar());
             }
 
             @Override
@@ -202,6 +205,10 @@ public class MainActivity extends AppCompatActivity
                     @Override
                     public void onTokenIncorrect() {
                         //Connect Token 失效的状态处理，需要重新获取 Token
+                        ToastUtils.showToast(getApplicationContext(), "onTokenIncorrect");
+                        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                        startActivity(intent);
+                        finish();
                     }
 
                     /**
@@ -209,7 +216,7 @@ public class MainActivity extends AppCompatActivity
                      */
                     @Override
                     public void onSuccess(String userId) {
-                        Log.e("MainActivity", "——onSuccess— -" + userId);
+                        Log.e("MainActivity", "——onSuccess— -userid" + userId);
                         /**
                          * 启动单聊
                          * context - 应用上下文。
@@ -224,7 +231,9 @@ public class MainActivity extends AppCompatActivity
                              *
                              * @param userInfo 需要更新的用户缓存数据。
                              */
-                            RongIM.getInstance().refreshUserInfoCache(new io.rong.imlib.model.UserInfo(userId, userinfo.getNickname(), Uri.parse(DXLApi.BASE_URL + userinfo.getAvatar())));
+                            if (!TextUtils.isEmpty(userinfo.getAvatar()))// host null --url拼接导致的host为null
+
+                                RongIM.getInstance().refreshUserInfoCache(new io.rong.imlib.model.UserInfo(userId, userinfo.getNickname(), Uri.parse(DXLApi.BASE_URL + userinfo.getAvatar())));
 
                         } else {
                         }
@@ -340,6 +349,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_gallery) {
             Intent intent = new Intent();
             intent.setClass(MainActivity.this, BookDetailActivity.class);
+            intent.putExtra("true", "isMy");
             startActivity(intent);
             overridePendingTransition(R.anim.hm_base_slide_right_in,
                     0);
@@ -357,7 +367,7 @@ public class MainActivity extends AppCompatActivity
                 public void run() {
 //                    ShareApi.getInstance(getApplicationContext()).share2WeChatWithWebUrl("http://120.25.201.60/ZL/ZL.html");
 //                    ShareApi.getInstance(getApplicationContext()).share2WeChatWithImage(1);
-                    ShareApi.getInstance(getApplicationContext()).wechatShare(1, "http://120.25.201.60/ZL/ZL.html");
+                    ShareApi.getInstance(getApplicationContext()).wechatShare(1, "http://120.25.201.60/DuXiangLeServer/index/index.html");
 //                    wechatShare(1);
                 }
 
@@ -368,6 +378,7 @@ public class MainActivity extends AppCompatActivity
             Intent intent = new Intent();
             intent.setClass(MainActivity.this, LoginActivity.class);
             startActivity(intent);
+            SpUtil.cleanUser(SpUtil.getSharePerference(getApplicationContext()));
             finish();
         }
 
@@ -429,10 +440,18 @@ public class MainActivity extends AppCompatActivity
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.ivUser:
+                if (user == null) {
+                    Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                    startActivity(intent);
+                    finish();
+                    return;
+                }
                 Intent intent = new Intent();
                 intent.setClass(MainActivity.this, UserInfoDetailActivity.class);
+                intent.putExtra("isMy", true);
                 intent.putExtra("userinfo", userinfo);
                 startActivity(intent);
+
                 break;
             default:
         }

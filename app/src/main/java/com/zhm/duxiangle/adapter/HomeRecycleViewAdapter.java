@@ -24,9 +24,11 @@ import java.util.List;
 public class HomeRecycleViewAdapter extends RecyclerView.Adapter<HomeRecycleViewAdapter.MyViewHolder> {
     private List<Book> mData;
     private Context mContext;
-    public void setBooks(List<Book> books){
+
+    public void setBooks(List<Book> books) {
         mData = books;
     }
+
     public HomeRecycleViewAdapter(List<Book> mData, Context context) {
         this.mData = mData;
         this.mContext = context;
@@ -44,7 +46,7 @@ public class HomeRecycleViewAdapter extends RecyclerView.Adapter<HomeRecycleView
     public void onBindViewHolder(HomeRecycleViewAdapter.MyViewHolder holder, final int position) {
         BitmapUtils.getInstance(mContext).setAvatarWithoutReflect(holder.ivBookCover, mData.get(position).getImage());
         holder.tvTitle.setText("书名:" + mData.get(position).getTitle());
-        holder.tvAuthor.setText("作者:" + mData.get(position).getStrAuthor());
+        holder.tvAuthor.setText("作者:" + (mData.get(position).getStrAuthor() == null ? "佚名" : mData.get(position).getStrAuthor()));
         holder.tvIsbn.setText("ISBN:" + mData.get(position).getIsbn13());
         holder.ivBookCover.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -52,6 +54,7 @@ public class HomeRecycleViewAdapter extends RecyclerView.Adapter<HomeRecycleView
                 Intent intent = new Intent();
                 intent.setClass(mContext, BookDetailActivity.class);
                 intent.putExtra("book", mData.get(position));
+                intent.putExtra("isMy", true);
                 mContext.startActivity(intent);
             }
         });
@@ -76,10 +79,6 @@ public class HomeRecycleViewAdapter extends RecyclerView.Adapter<HomeRecycleView
         public MyViewHolder(View view) {
             super(view);
             ViewUtils.inject(this, view);//以注解的方式载入视图对象
-//            ivBookCover = (ImageView) view.findViewById(R.id.book_cover);
-//            tvTitle = (TextView) view.findViewById(R.id.tvTitle);
-//            tvAuthor = (TextView) view.findViewById(R.id.tvAuthor);
-//            tvIsbn = (TextView) view.findViewById(R.id.tvIsbn);
         }
     }
 }

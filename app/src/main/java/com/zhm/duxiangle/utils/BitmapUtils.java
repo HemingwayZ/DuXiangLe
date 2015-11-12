@@ -20,14 +20,27 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
+import android.util.Log;
 import android.widget.ImageView;
 
 import com.lidroid.xutils.bitmap.BitmapDisplayConfig;
 import com.lidroid.xutils.bitmap.callback.BitmapLoadCallBack;
 import com.lidroid.xutils.bitmap.callback.BitmapLoadFrom;
+import com.zhm.duxiangle.R;
 import com.zhm.duxiangle.api.DXLApi;
 
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.Buffer;
 
 /**
  * Created by zhuanghm(183340093@qq.com) on 2015/10/9.
@@ -98,6 +111,9 @@ public class BitmapUtils {
      * @return
      */
     public Bitmap setAvatar(ImageView container, String url, final Toolbar toolbar) {
+        if(TextUtils.isEmpty(url)){
+            return  null;
+        }
         if (null == bitmapUtils) {
             bitmapUtils = new com.lidroid.xutils.BitmapUtils(mContext);
         }
@@ -118,6 +134,9 @@ public class BitmapUtils {
     }
 
     public Bitmap setAvatar(ImageView container, String url) {
+        if(TextUtils.isEmpty(url)){
+            return  null;
+        }
         if (null == bitmapUtils) {
             bitmapUtils = new com.lidroid.xutils.BitmapUtils(mContext);
         }
@@ -136,11 +155,20 @@ public class BitmapUtils {
         return null;
     }
     public Bitmap setAvatarWithoutReflect(ImageView container, String url) {
+        if(TextUtils.isEmpty(url)){
+            return  null;
+        }
         if (null == bitmapUtils) {
             bitmapUtils = new com.lidroid.xutils.BitmapUtils(mContext);
         }
 
         bitmapUtils.display(container, url, new BitmapLoadCallBack<ImageView>() {
+            @Override
+            public void onLoading(ImageView container, String uri, BitmapDisplayConfig config, long total, long current) {
+                container.setBackgroundResource(R.drawable.ic_launcher);
+                super.onLoading(container, uri, config, total, current);
+            }
+
             @Override
             public void onLoadCompleted(ImageView container, String uri, Bitmap bitmap, BitmapDisplayConfig config, BitmapLoadFrom from) {
                 container.setImageBitmap(bitmap);
@@ -148,7 +176,7 @@ public class BitmapUtils {
 
             @Override
             public void onLoadFailed(ImageView container, String uri, Drawable drawable) {
-
+                container.setImageResource(R.drawable.book_cover_default);
             }
         });
         return null;
@@ -278,5 +306,64 @@ public class BitmapUtils {
      */
     public static boolean isGooglePhotosUri(Uri uri) {
         return "com.google.android.apps.photos.content".equals(uri.getAuthority());
+    }
+
+
+    public static Bitmap compressImage(Bitmap image) {
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        image.compress(Bitmap.CompressFormat.JPEG, 100, baos);//质量压缩方法，这里100表示不压缩，把压缩后的数据存放到baos中
+        int options = 100;
+        while ( baos.toByteArray().length / 1024>100) {	//循环判断如果压缩后图片是否大于100kb,大于继续压缩
+            baos.reset();//重置baos即清空baos
+            image.compress(Bitmap.CompressFormat.JPEG, options, baos);//这里压缩options%，把压缩后的数据存放到baos中
+            options -= 10;//每次都减少10
+        }
+        FileOutputStream fos = null;
+        try {
+
+            Log.i("Bitmap", Environment.getExternalStorageDirectory() + "/duxiangle_avatar.jpg");
+            File file = new File(Environment.getExternalStorageDirectory()+"/duxiangle_avatar.jpg");
+
+            if(!file.exists()){
+                file.createNewFile();
+            }
+            fos = new FileOutputStream(file);
+            baos.writeTo(fos);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        ByteArrayInputStream isBm = new ByteArrayInputStream(baos.toByteArray());//把压缩后的数据baos存放到ByteArrayInputStream中
+        Bitmap bitmap = BitmapFactory.decodeStream(isBm, null, null);//把ByteArrayInputStream数据生成图片
+        return bitmap;
+    }
+
+    public static  Bitmap getimage(String srcPath) {
+        BitmapFactory.Options newOpts = new BitmapFactory.Options();
+        //开始读入图片，此时把options.inJustDecodeBounds 设回true了
+        newOpts.inJustDecodeBounds = true;
+        Bitmap bitmap = BitmapFactory.decodeFile(srcPath,newOpts);//此时返回bm为空
+
+        newOpts.inJustDecodeBounds = false;
+        int w = newOpts.outWidth;
+        int h = newOpts.outHeight;
+        //现在主流手机比较多是800*480分辨率，所以高和宽我们设置为
+        float hh = 800f;//这里设置高度为800f
+        float ww = 480f;//这里设置宽度为480f
+        //缩放比。由于是固定比例缩放，只用高或者宽其中一个数据进行计算即可
+        int be = 1;//be=1表示不缩放
+        if (w > h && w > ww) {//如果宽度大的话根据宽度固定大小缩放
+            be = (int) (newOpts.outWidth / ww);
+        } else if (w < h && h > hh) {//如果高度高的话根据宽度固定大小缩放
+            be = (int) (newOpts.outHeight / hh);
+        }
+        if (be <= 0)
+            be = 1;
+        newOpts.inSampleSize = be;//设置缩放比例
+        //重新读入图片，注意此时已经把options.inJustDecodeBounds 设回false了
+        bitmap = BitmapFactory.decodeFile(srcPath, newOpts);
+        return compressImage(bitmap);//压缩好比例大小后再进行质量压缩
     }
 }

@@ -1,5 +1,6 @@
 package com.zhm.duxiangle.fragment;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -9,10 +10,12 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import com.lidroid.xutils.ViewUtils;
 import com.lidroid.xutils.exception.HttpException;
@@ -21,14 +24,17 @@ import com.lidroid.xutils.http.ResponseInfo;
 import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
 import com.lidroid.xutils.view.annotation.ViewInject;
+import com.zhm.duxiangle.LoginActivity;
 import com.zhm.duxiangle.R;
 import com.zhm.duxiangle.adapter.UserListAdapter;
 import com.zhm.duxiangle.api.DXLApi;
 import com.zhm.duxiangle.bean.Constant;
 import com.zhm.duxiangle.bean.Page;
+import com.zhm.duxiangle.bean.User;
 import com.zhm.duxiangle.bean.UserInfo;
 import com.zhm.duxiangle.utils.DXLHttpUtils;
 import com.zhm.duxiangle.utils.GsonUtils;
+import com.zhm.duxiangle.utils.SpUtil;
 import com.zhm.duxiangle.utils.ToastUtils;
 
 import java.util.ArrayList;
@@ -65,6 +71,9 @@ public class UserListFragment extends Fragment implements SwipeRefreshLayout.OnR
 
     private Page<UserInfo> page;
 
+    //未登录状态
+    @ViewInject(R.id.isLogin)
+    private ImageView isLogin;
     UserListAdapter userListAdapter;
     List<UserInfo> list;
     //recycleView布局管理器
@@ -77,13 +86,13 @@ public class UserListFragment extends Fragment implements SwipeRefreshLayout.OnR
             switch (msg.what) {
                 case Constant.REFRESH_DOWN://下拉刷新
                     if (countRow > 0) {
-                        initData(0, countRow, Constant.REFRESH_DOWN);
+                        getUserFromNet(0, countRow, Constant.REFRESH_DOWN);
                     }
                     mSwipeLayout.setRefreshing(false);
                     break;
                 case Constant.REFRESH_UP://上拉加载更多
-                    if (page != null && thispage <= page.getCountrow()-1) {
-                        initData(thispage, rowperpage, Constant.REFRESH_UP);
+                    if (page != null && thispage <= page.getCountrow() - 1) {
+                        getUserFromNet(thispage, rowperpage, Constant.REFRESH_UP);
                     } else {
                         Snackbar.make(recyclerView, "已到尾页", Snackbar.LENGTH_SHORT).show();
                     }
@@ -92,6 +101,7 @@ public class UserListFragment extends Fragment implements SwipeRefreshLayout.OnR
             }
         }
     };
+    private User user;
 
     @Override
     public void onDestroy() {
@@ -135,7 +145,7 @@ public class UserListFragment extends Fragment implements SwipeRefreshLayout.OnR
     /**
      * 联网获取数据
      */
-    private void initData(int _thispage, int _rowperpage, final int type) {
+    private void getUserFromNet(int _thispage, int _rowperpage, final int type) {
         RequestParams params = new RequestParams();
         params.addBodyParameter("action", action);
         params.addBodyParameter("thispage", String.valueOf(_thispage));
@@ -171,6 +181,16 @@ public class UserListFragment extends Fragment implements SwipeRefreshLayout.OnR
         });
     }
 
+    public User getUser() {
+        //获取用户信息
+        String json = SpUtil.getSharePerference(getActivity()).getString("user", "");
+        if (!TextUtils.isEmpty(json)) {
+            return GsonUtils.getInstance().json2Bean(json, User.class);
+
+        }
+        return null;
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -181,6 +201,8 @@ public class UserListFragment extends Fragment implements SwipeRefreshLayout.OnR
         lastVisibleItem = 0;
         view = inflater.inflate(R.layout.fragment_user_list, container, false);
         ViewUtils.inject(this, view);
+
+
         //三设置下拉刷新监听事件和进度条
         mSwipeLayout.setOnRefreshListener(this);
         mSwipeLayout.setColorSchemeResources(android.R.color.holo_blue_light, android.R.color.holo_red_light, android.R.color.holo_orange_light, android.R.color.holo_green_light);
@@ -191,10 +213,23 @@ public class UserListFragment extends Fragment implements SwipeRefreshLayout.OnR
         // use a linear layout manager
         layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(layoutManager);
+        //未登录处理
+        user = getUser();
+        if (user == null) {
+            isLogin.setVisibility(View.VISIBLE);
+            isLogin.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startActivity(new Intent(getActivity(), LoginActivity.class));
+                    getActivity().finish();
+                }
+            });
+            return view;
+        }
         list = new ArrayList<UserInfo>();
         userListAdapter = new UserListAdapter(getActivity(), list);
         recyclerView.setAdapter(userListAdapter);
-        initData(thispage, rowperpage, Constant.REFRESH_UP);
+        getUserFromNet(thispage, rowperpage, Constant.REFRESH_UP);
 
         //设置recycleView上拉加载更多的方法
         recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {

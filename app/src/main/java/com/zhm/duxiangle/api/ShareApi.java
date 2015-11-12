@@ -14,6 +14,13 @@ import com.zhm.duxiangle.R;
 import com.zhm.duxiangle.bean.Constant;
 import com.zhm.duxiangle.utils.BitmapUtils;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+
 /**
  * Created by Administrator on 2015/11/5.
  */
@@ -25,13 +32,16 @@ public class ShareApi {
         mContext = _mContext;
         return shareApi == null ? new ShareApi() : shareApi;
     }
-    public static IWXAPI api ;
-    public void regToWx(){
+
+    public static IWXAPI api;
+
+    public void regToWx() {
         //通过工厂模式获取微信的实例
         api = WXAPIFactory.createWXAPI(mContext, Constant.APP_ID_WECHAT, true);
         //将应用的appID注册到微信
         api.registerApp(Constant.APP_ID_WECHAT);
     }
+
     /**
      * 分享微信图片到个人
      *
@@ -51,30 +61,30 @@ public class ShareApi {
         SendMessageToWX.Req req = new SendMessageToWX.Req();
         req.transaction = buildTransaction("img");
         req.message = msg;
-        req.scene =flag==0? SendMessageToWX.Req.WXSceneSession:SendMessageToWX.Req.WXSceneTimeline;//分享图片到个人
+        req.scene = flag == 0 ? SendMessageToWX.Req.WXSceneSession : SendMessageToWX.Req.WXSceneTimeline;//分享图片到个人
         api.sendReq(req);
     }
 
-    public void share2WeChatWithWebUrl(int flag,String url){
+    public void share2WeChatWithWebUrl(int flag, String url) {
         WXWebpageObject webpage = new WXWebpageObject();
         webpage.webpageUrl = url;
         WXMediaMessage msg = new WXMediaMessage(webpage);
 //        msg.title = "WebPage Title WebPage Title WebPage Title WebPage Title WebPage Title WebPage Title WebPage Title WebPage Title WebPage Title Very Long Very Long Very Long Very Long Very Long Very Long Very Long Very Long Very Long Very Long";
 //        msg.description = "WebPage Description WebPage Description WebPage Description WebPage Description WebPage Description WebPage Description WebPage Description WebPage Description WebPage Description Very Long Very Long Very Long Very Long Very Long Very Long Very Long";
 
-        msg.title="title";
-        msg.description="description";
+        msg.title = "title";
+        msg.description = "description";
         Bitmap thumb = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.book_cover_default);
         msg.thumbData = BitmapUtils.getInstance(mContext).bmpToByteArray(thumb, true);
 
         SendMessageToWX.Req req = new SendMessageToWX.Req();
         req.transaction = buildTransaction("webpage");
         req.message = msg;
-        req.scene =flag==0? SendMessageToWX.Req.WXSceneSession:SendMessageToWX.Req.WXSceneTimeline;//分享图片到个人
+        req.scene = flag == 0 ? SendMessageToWX.Req.WXSceneSession : SendMessageToWX.Req.WXSceneTimeline;//分享图片到个人
         api.sendReq(req);
     }
 
-    public void wechatShare(int flag,String url) {
+    public void wechatShare(int flag, String url) {
         WXWebpageObject webpage = new WXWebpageObject();
 //        webpage.webpageUrl = "http://120.25.201.60/ZL/ZL.html";
         webpage.webpageUrl = url;
@@ -92,17 +102,30 @@ public class ShareApi {
         ShareApi.api.sendReq(req);
     }
 
-    public void wechatShareToBook(int flag,String url,String title,String imageUrl) {
+    public void wechatShareToBook(int flag, String url, String title, String imageUrl, String description) {
         WXWebpageObject webpage = new WXWebpageObject();
 //        webpage.webpageUrl = "http://120.25.201.60/ZL/ZL.html";
+
+
         webpage.webpageUrl = url;
         WXMediaMessage msg = new WXMediaMessage(webpage);
         msg.title = title;
-        msg.description = "Be Happy everyday";
+        msg.description = description;
+
+        Bitmap bmp = null;
+
+        try {
+            bmp = BitmapFactory.decodeStream(new URL(imageUrl).openStream());
+        } catch (IOException e) {
+            bmp = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.ic_launcher);
+        }
+        Bitmap thumbBmp = Bitmap.createScaledBitmap(bmp, 100, 100, true);
+        bmp.recycle();
+//        msg.thumbData = BitmapUtils.getInstance(mContext).bmpToByteArray(thumbBmp, true);
         //这里替换一张自己工程里的图片资源
-        Bitmap thumb = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.ic_launcher);
+//        Bitmap thumb = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.ic_launcher);
 //        Bitmap thumb = BitmapUtils.getInstance(mContext)
-        msg.setThumbImage(thumb);
+        msg.setThumbImage(thumbBmp);
 
 
         SendMessageToWX.Req req = new SendMessageToWX.Req();
@@ -111,7 +134,8 @@ public class ShareApi {
         req.scene = flag == 0 ? SendMessageToWX.Req.WXSceneSession : SendMessageToWX.Req.WXSceneTimeline;
         ShareApi.api.sendReq(req);
     }
-//http://120.25.201.60/ZL/ZL.html
+
+    //http://120.25.201.60/ZL/ZL.html
     private String buildTransaction(final String type) {
         return (type == null) ? String.valueOf(System.currentTimeMillis()) : type + System.currentTimeMillis();
     }

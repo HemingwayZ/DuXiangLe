@@ -6,12 +6,10 @@
     tools:context="com.zhm.duxiangle.fragment.HomeFragment">
 
     <!-- TODO: Update blank fragment layout -->
-    <ImageView
-        android:id="@+id/isLogin"
+    <include
+        layout="@layout/include_toorbar_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:src="@drawable/login_out"
-        android:visibility="gone" />
+        android:layout_height="wrap_content"></include>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -23,7 +21,6 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.8"
-            android:focusable="false"
             android:hint="搜索书名" />
 
         <Button
@@ -37,7 +34,9 @@
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
+
         android:layout_height="match_parent">
+
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recycler"

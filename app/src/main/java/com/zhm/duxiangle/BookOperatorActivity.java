@@ -47,10 +47,17 @@ public class BookOperatorActivity extends Activity implements View.OnClickListen
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
+        ShareApi.getInstance(getApplicationContext()).regToWx();
         super.onCreate(savedInstanceState);
         overridePendingTransition(R.anim.activity_enter_from_bottom, 0);
         ViewUtils.inject(this);
+
+        boolean isMy = getIntent().getBooleanExtra("isMy",false);
+        if (isMy) {
+            btnAdd.setVisibility(View.GONE);
+        } else {
+            btnDelete.setVisibility(View.GONE);
+        }
         book = (Book) getIntent().getSerializableExtra("book");
         //设置监听事件
         btnAdd.setOnClickListener(this);
@@ -62,7 +69,6 @@ public class BookOperatorActivity extends Activity implements View.OnClickListen
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
         finish();
         overridePendingTransition(0, R.anim.activity_out_from_top);
     }
@@ -80,7 +86,13 @@ public class BookOperatorActivity extends Activity implements View.OnClickListen
         }
         switch (v.getId()) {
             case R.id.btnShare://分享
-                ShareApi.getInstance(getApplicationContext()).wechatShareToBook(1, book.getUrl(), book.getTitle(), book.getImage());
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ShareApi.getInstance(getApplicationContext()).wechatShareToBook(1, book.getAlt(), book.getTitle(), book.getImage(), book.getSummary());
+                    }
+                }).start();
+
                 break;
             case R.id.btnAdd://增加
                 saveBookToNet(btnAdd);
@@ -136,6 +148,9 @@ public class BookOperatorActivity extends Activity implements View.OnClickListen
     }
 
     public void saveBookToNet(View view) {
+        if (book.getImages() != null && book.getImages().getLarge() != null) {
+            book.setImage(book.getImages().getLarge());
+        }
         String json = GsonUtils.getInstance().bean2Json(book);
         RequestParams params = new RequestParams();
         params.addBodyParameter("action", "save_book");

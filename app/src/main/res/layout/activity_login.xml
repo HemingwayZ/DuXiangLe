@@ -31,12 +31,7 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <com.zhm.duxiangle.view.CircleImageView
-                android:id="@+id/ivUser"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:layout_gravity="center_horizontal"
-                android:src="@drawable/book_cover_default" />
+
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
@@ -99,8 +94,12 @@
                 android:id="@+id/btnSetIp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="New Button" />
-
+                android:text="修改ip" />
+            <Button
+                android:id="@+id/btnWeChatLogin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="微信登录" />
         </LinearLayout>
     </ScrollView>
 

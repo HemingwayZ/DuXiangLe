@@ -1,8 +1,11 @@
 package com.zhm.duxiangle;
 
+import android.graphics.Bitmap;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 /**
  * 图片放大
@@ -19,5 +22,18 @@ public class WebImageActivity extends AppCompatActivity {
         // 设置支持缩放
         webView.getSettings().setSupportZoom(true);
         webView.loadUrl(url);
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
+                super.onPageStarted(view, url, favicon);
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                findViewById(R.id.progressBar).setVisibility(View.GONE);
+                super.onPageFinished(view, url);
+            }
+        });
     }
 }

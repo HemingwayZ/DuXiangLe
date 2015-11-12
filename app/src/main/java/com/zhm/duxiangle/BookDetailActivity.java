@@ -100,12 +100,14 @@ public class BookDetailActivity extends SlidingBackActivity {
 
     private User user;
     private Book book;
+    private boolean isMy;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().setBackgroundDrawable(new ColorDrawable(0));
         ViewUtils.inject(this);
+        isMy = getIntent().getBooleanExtra("isMy",false);
         //获取用户信息
         getUser();
 
@@ -179,6 +181,9 @@ public class BookDetailActivity extends SlidingBackActivity {
                 Intent intent = new Intent(BookDetailActivity.this, BookOperatorActivity.class);
                 book.setUserId(user.getUserId());
                 intent.putExtra("book", book);
+                if (isMy) {
+                    intent.putExtra("isMy", true);
+                }
                 startActivity(intent);
 //                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
 //                        .setAction("Action", null).show();

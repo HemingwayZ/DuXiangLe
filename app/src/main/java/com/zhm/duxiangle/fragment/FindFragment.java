@@ -8,6 +8,7 @@ import android.os.Message;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -35,16 +36,18 @@ import com.lidroid.xutils.http.client.HttpRequest;
 import com.lidroid.xutils.view.annotation.ViewInject;
 import com.zhm.duxiangle.BookDetailActivity;
 import com.zhm.duxiangle.BookPage;
+import com.zhm.duxiangle.LoginActivity;
 import com.zhm.duxiangle.MainActivity;
 import com.zhm.duxiangle.R;
 import com.zhm.duxiangle.api.DXLApi;
 import com.zhm.duxiangle.api.DouBanApi;
 import com.zhm.duxiangle.bean.Book;
 import com.zhm.duxiangle.bean.Constant;
-import com.zhm.duxiangle.fragment.dummy.DummyContent;
+import com.zhm.duxiangle.bean.User;
 import com.zhm.duxiangle.utils.BitmapUtils;
 import com.zhm.duxiangle.utils.DXLHttpUtils;
 import com.zhm.duxiangle.utils.GsonUtils;
+import com.zhm.duxiangle.utils.SpUtil;
 import com.zhm.duxiangle.utils.ToastUtils;
 
 import org.apache.http.Header;
@@ -83,9 +86,9 @@ public class FindFragment extends Fragment implements AbsListView.OnItemClickLis
      * The Adapter which will be used to populate the ListView/GridView with
      * Views.
      */
-    private ListAdapter mAdapter;
     private String TAG = "FindFragment";
     BookPage bookPage;
+    private User user;
 
     // TODO: Rename and change types of parameters
     public static FindFragment newInstance(String param1, String param2) {
@@ -112,10 +115,6 @@ public class FindFragment extends Fragment implements AbsListView.OnItemClickLis
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-
-        // TODO: Change Adapter to display your content
-        mAdapter = new ArrayAdapter<DummyContent.DummyItem>(getActivity(),
-                android.R.layout.simple_list_item_1, android.R.id.text1, DummyContent.ITEMS);
     }
 
     /**
@@ -133,6 +132,9 @@ public class FindFragment extends Fragment implements AbsListView.OnItemClickLis
     private boolean isRefresh = false;//判断是否正在刷新
     List<Book> books;
     SearchAdapter adapter;
+    //是否登录标志
+    @ViewInject(R.id.isLogin)
+    private ImageView isLogin;
     Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -145,11 +147,35 @@ public class FindFragment extends Fragment implements AbsListView.OnItemClickLis
         }
     };
 
+    public User getUser() {
+        //获取用户信息
+        String json = SpUtil.getSharePerference(getActivity()).getString("user", "");
+        if (!TextUtils.isEmpty(json)) {
+            return GsonUtils.getInstance().json2Bean(json, User.class);
+
+        }
+        return null;
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_find_grid, container, false);
         ViewUtils.inject(this, view);
+
+        user = getUser();
+        if (user == null) {
+            isLogin.setVisibility(View.VISIBLE);
+            isLogin.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startActivity(new Intent(getActivity(), LoginActivity.class));
+                    getActivity().finish();
+                }
+            });
+            return view;
+        }
+
         //三设置下拉刷新监听事件和进度条
         bookPage = new BookPage();
         mSwipeLayout.setOnRefreshListener(this);
@@ -180,7 +206,7 @@ public class FindFragment extends Fragment implements AbsListView.OnItemClickLis
                             Snackbar.make(mListView, "已到尾页", Snackbar.LENGTH_SHORT).show();
                             return;
                         }
-                        if (isRefresh == false&&mListView.getLastVisiblePosition() + 1 == books.size()) {
+                        if (isRefresh == false && mListView.getLastVisiblePosition() + 1 == books.size()) {
                             isRefresh = true;//标志正在刷新
                             mSwipeLayout.setRefreshing(true);
                             getBooksFromDouBan(search, start, count);
@@ -216,7 +242,7 @@ public class FindFragment extends Fragment implements AbsListView.OnItemClickLis
                 String result = responseInfo.result;
                 Log.i(TAG, result);
                 bookPage = GsonUtils.getInstance().json2Bean(result, BookPage.class);
-                if(bookPage.getTotal()==-1){
+                if (bookPage.getTotal() == -1) {
                     if (getActivity() instanceof MainActivity) {
                         if (((MainActivity) getActivity()).getViewPgeCurrentItem() == 1) {
                             Snackbar.make(mListView, "获取数据失败,请一分钟后重试", Snackbar.LENGTH_SHORT).show();
@@ -319,9 +345,6 @@ public class FindFragment extends Fragment implements AbsListView.OnItemClickLis
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         if (null != mListener) {
-            // Notify the active callbacks interface (the activity, if the
-            // fragment is attached to one) that an item has been selected.
-            mListener.onFragmentInteraction(DummyContent.ITEMS.get(position).id);
         }
         Intent intent = new Intent();
         intent.setClass(getActivity(), BookDetailActivity.class);
@@ -347,6 +370,10 @@ public class FindFragment extends Fragment implements AbsListView.OnItemClickLis
             case R.id.btnSearch:
                 //搜索
                 search = etSearch.getText().toString().trim();
+                if (TextUtils.isEmpty(search)) {
+                    Snackbar.make(v, "请输入关键词", Snackbar.LENGTH_SHORT).show();
+                    return;
+                }
                 mSwipeLayout.setRefreshing(true);
                 InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
 //                　　//显示键盘

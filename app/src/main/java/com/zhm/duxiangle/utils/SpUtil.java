@@ -37,4 +37,10 @@ public class SpUtil {
 		editor.putBoolean(key, value);
 		editor.commit();
 	}
+
+	public static void cleanUser(SharedPreferences sp){
+		Editor editor=sp.edit();
+		editor.clear();
+		editor.commit();
+	}
 }

@@ -41,7 +41,9 @@ import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
 import com.lidroid.xutils.view.annotation.ContentView;
 import com.lidroid.xutils.view.annotation.ViewInject;
+import com.tencent.mm.sdk.modelmsg.SendAuth;
 import com.zhm.duxiangle.api.DXLApi;
+import com.zhm.duxiangle.api.ShareApi;
 import com.zhm.duxiangle.bean.RongYun;
 import com.zhm.duxiangle.bean.SdkHttpResult;
 import com.zhm.duxiangle.bean.User;
@@ -100,9 +102,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     //注册按钮
     @ViewInject(R.id.tvRegister)
     private TextView tvRegister;
+    //@
+    @ViewInject(R.id.btnWeChatLogin)
+    private Button btnWeChatLogin;
     //用户头像
-    @ViewInject(R.id.ivUser)
-    private CircleImageView ivUser;
+//    @ViewInject(R.id.ivUser)
+//    private CircleImageView ivUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,7 +116,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         // Set up the login form.
         populateAutoComplete();
         btnSetIp.setOnClickListener(this);
-        ivUser.setOnClickListener(this);
+//        ivUser.setOnClickListener(this);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
@@ -123,6 +128,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         });
         btnLogin.setOnClickListener(this);
+        btnWeChatLogin.setOnClickListener(this);
         tvRegister.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -274,7 +280,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     showProgress(false);
                     ToastUtils.cancelToast();
                     //网络链接超时
-                    ToastUtils.showToast(getApplication(), msg.substring(msg.lastIndexOf(".") + 1));
+                    ToastUtils.showToast(getApplication(), "网络链接失败");
                 }
             });
         }
@@ -373,11 +379,24 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     btnSetIp.setText(DXLApi.HOST);
                 }
                 break;
-            case R.id.ivUser:
-                Intent intent = new Intent(LoginActivity.this, FaceCameraActivity.class);
-                startActivity(intent);
+            case R.id.btnWeChatLogin:
+                weChatLogin();
                 break;
+
+//            case R.id.ivUser:
+//                Intent intent = new Intent(LoginActivity.this, FaceCameraActivity.class);
+//                startActivity(intent);
+//                break;
         }
+    }
+
+    private void weChatLogin() {
+        SendAuth.Req req = new SendAuth.Req();
+        req.scope = "snsapi_userinfo";
+        req.state = "wechat_sdk_demo_test";
+        ShareApi.getInstance(getApplicationContext()).regToWx();
+        boolean b = ShareApi.api.sendReq(req);
+        Log.i("Login",b+"");
     }
 
     private interface ProfileQuery {

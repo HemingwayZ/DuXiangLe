@@ -152,6 +152,8 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
         super.onCreate(savedInstanceState);
 
         ViewUtils.inject(this);
+
+
         //获取token
         String json = SpUtil.getSharePerference(getApplicationContext()).getString("user", "");
         User user = GsonUtils.getInstance().json2Bean(json, User.class);
@@ -175,9 +177,18 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
         if (!TextUtils.isEmpty(userinfo.getPicWall())) {
             BitmapUtils.getInstance(getApplicationContext()).setAvatarWithoutReflect(ivWall, DXLApi.BASE_URL + userinfo.getPicWall());
         }
-        ivWall.setOnClickListener(this);
+
         btnSend.setOnClickListener(this);
         btnEdit.setOnClickListener(this);
+        boolean isMy = getIntent().getBooleanExtra("isMy",false);
+        Log.i("isMy",isMy+"");
+        if(isMy){
+            btnSend.setVisibility(View.GONE);
+            ivWall.setOnClickListener(this);
+        }else{
+            btnEdit.setVisibility(View.GONE);
+        }
+
     }
 
     /**
