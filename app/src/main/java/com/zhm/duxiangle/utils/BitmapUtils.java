@@ -322,9 +322,12 @@ public class BitmapUtils {
         FileOutputStream fos = null;
         try {
 
-            Log.i("Bitmap", Environment.getExternalStorageDirectory() + "/duxiangle_avatar.jpg");
-            File file = new File(Environment.getExternalStorageDirectory()+"/duxiangle_avatar.jpg");
-
+            Log.i("Bitmap_path", Environment.getExternalStorageDirectory() + "/duxiangle_avatar1.jpg");
+            File file = new File(Environment.getExternalStorageDirectory()+"/duxiangle_avatar1.jpg");
+            if(file.exists()){
+                Log.i("exists",file.exists()+"");
+                file.deleteOnExit();
+            }
             if(!file.exists()){
                 file.createNewFile();
             }

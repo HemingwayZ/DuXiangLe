@@ -159,45 +159,8 @@ public class EditUserInfoActivity extends SlidingBackActivity implements View.On
                     return;
                 }
                 String path = BitmapUtils.getImageAbsolutePath(this,uri);
-                Bitmap bitmap = BitmapUtils.getimage(Environment.getExternalStorageDirectory()+"/duxiangle_avatar.jpg");
+                Bitmap bitmap = BitmapUtils.getimage(path);
                 ivUser.setImageBitmap(bitmap);
-
-//                InputStream is = null;
-//                try {
-//                    // 直接使用下面的方法会出现OOM异常
-//                    // java.lang.OutOfMemoryError
-//                    BitmapFactory.Options opts = new BitmapFactory.Options();
-//                    opts.inJustDecodeBounds = true;// 设置只获取图片的边界，先不讲图片读入内存
-//                    is = getContentResolver().openInputStream(uri);
-//                    Bitmap bitmap = BitmapFactory.decodeStream(is, null, opts);
-//
-//                    // opts.outWidth = 200;
-//                    // int height = opts.outHeight * 200 / opts.outWidth;
-//                    // opts.outHeight = height;
-//
-//                    opts.inJustDecodeBounds = false;
-//
-//                    // 压缩图片为原来的1/4
-//                    bitmap = BitmapUtils.compressImage(bitmap);
-//
-//                    bitmap = BitmapFactory.decodeStream(getContentResolver()
-//                            .openInputStream(uri), null, opts);
-//                    ivUser.setImageBitmap(bitmap);
-//
-//                } catch (FileNotFoundException e) {
-//                    // TODO Auto-generated catch block
-//                    e.printStackTrace();
-//                } finally {
-//                    if (is != null) {
-//                        try {
-//                            is.close();
-//                        } catch (IOException e) {
-//                            // TODO Auto-generated catch block
-//                            e.printStackTrace();
-//                        }
-//                    }
-//                }
-//                uploadAvatar();
                 break;
         }
         super.onActivityResult(requestCode, resultCode, data);
@@ -216,7 +179,8 @@ public class EditUserInfoActivity extends SlidingBackActivity implements View.On
         params.addBodyParameter("describ", userInfo.getDescrib());
         if (uri != null) {
             String path = BitmapUtils.getImageAbsolutePath(this, uri);
-            File file = new File(Environment.getExternalStorageDirectory()+"duxiangle_avatar.jpg");
+            File file = new File(Environment.getExternalStorageDirectory()+"/duxiangle_avatar1.jpg");
+//            File file = new File(path);
             if (file.exists())
                 params.addBodyParameter("file", file);
         }
@@ -236,7 +200,7 @@ public class EditUserInfoActivity extends SlidingBackActivity implements View.On
             @Override
             public void onFailure(HttpException error, String msg) {
                 showProgress(false);
-                Snackbar.make(view, "修改失败，请联系庄海明", Snackbar.LENGTH_LONG)
+                Snackbar.make(view, "修改失败，请联系183340093@qq.com", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
 
             }
