@@ -89,7 +89,7 @@ public class ShareApi {
 //        webpage.webpageUrl = "http://120.25.201.60/ZL/ZL.html";
         webpage.webpageUrl = url;
         WXMediaMessage msg = new WXMediaMessage(webpage);
-        msg.title = "Be Happy";
+        msg.title = "读享乐";
         msg.description = "Be Happy everyday";
         //这里替换一张自己工程里的图片资源
         Bitmap thumb = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.ic_launcher);
@@ -105,8 +105,6 @@ public class ShareApi {
     public void wechatShareToBook(int flag, String url, String title, String imageUrl, String description) {
         WXWebpageObject webpage = new WXWebpageObject();
 //        webpage.webpageUrl = "http://120.25.201.60/ZL/ZL.html";
-
-
         webpage.webpageUrl = url;
         WXMediaMessage msg = new WXMediaMessage(webpage);
         msg.title = title;

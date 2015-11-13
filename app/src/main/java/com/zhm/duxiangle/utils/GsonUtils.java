@@ -3,6 +3,7 @@ package com.zhm.duxiangle.utils;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.zhm.duxiangle.bean.Book;
+import com.zhm.duxiangle.bean.Friends;
 import com.zhm.duxiangle.bean.Page;
 import com.zhm.duxiangle.bean.UserInfo;
 
@@ -70,4 +71,21 @@ public class GsonUtils {
         }.getType());
     }
 
+    public List<Friends> getFriends(String json) {
+        //gson源码已经对json空值进行判断
+        if (null == gson) {
+            gson = new Gson();
+        }
+        return gson.fromJson(json, new TypeToken<List<Friends>>() {
+        }.getType());
+    }
+
+    public List<UserInfo> getFriendsInfo(String json) {
+        //gson源码已经对json空值进行判断
+        if (null == gson) {
+            gson = new Gson();
+        }
+        return gson.fromJson(json, new TypeToken<List<UserInfo>>() {
+        }.getType());
+    }
 }

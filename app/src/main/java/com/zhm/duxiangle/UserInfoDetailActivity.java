@@ -1,11 +1,8 @@
 package com.zhm.duxiangle;
 
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -41,9 +38,6 @@ import com.zhm.duxiangle.utils.GsonUtils;
 import com.zhm.duxiangle.utils.SpUtil;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 
 import io.rong.imkit.RongIM;
 
@@ -62,7 +56,10 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
     private Button btnSend;
     @ViewInject(R.id.btnEdit)
     private Button btnEdit;
-
+    @ViewInject(R.id.btnAddFriend)
+    private Button btnAddFriend;
+    @ViewInject(R.id.btnBookRoom)
+    private Button btnBookRoom;
     //资料部分
     @ViewInject(R.id.etNickname)
     private TextView etNickname;
@@ -81,6 +78,7 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
     @ViewInject(R.id.fab)
     private ImageView fab;
     private boolean isMy;
+    private User user;
 
     @Override
     protected void onStart() {
@@ -100,7 +98,7 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
         //获取用户信息
         String json = SpUtil.getSharePerference(getApplicationContext()).getString("user", "");
         if (!TextUtils.isEmpty(json)) {
-            User user = GsonUtils.getInstance().json2Bean(json, User.class);
+            user = GsonUtils.getInstance().json2Bean(json, User.class);
             if (user != null) {
                 getUserInfo(user.getUserId());
             } else {
@@ -148,7 +146,7 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
 
         ViewUtils.inject(this);
 
-
+        getUser();
         //获取token
         String json = SpUtil.getSharePerference(getApplicationContext()).getString("user", "");
         User user = GsonUtils.getInstance().json2Bean(json, User.class);
@@ -158,7 +156,7 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
         setSupportActionBar(toolbar);
 
         if (userinfo.getAvatar() != null)
-            BitmapUtils.getInstance(getApplicationContext()).setAvatar(fab, DXLApi.BASE_URL + userinfo.getAvatar());
+            BitmapUtils.getInstance(getApplicationContext()).setAvatarWithoutReflect(fab, DXLApi.BASE_URL + userinfo.getAvatar());
 
 
         //照片墙
@@ -171,9 +169,11 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
         isMy = getIntent().getBooleanExtra("isMy", false);
         Log.i("isMy", isMy + "");
         ivWall.setOnClickListener(this);
+        btnAddFriend.setOnClickListener(this);
+        btnBookRoom.setOnClickListener(this);
         if (isMy) {
             btnSend.setVisibility(View.GONE);
-            fab.setOnClickListener(this);
+            btnAddFriend.setVisibility(View.GONE);
         } else {
             btnEdit.setVisibility(View.GONE);
         }
@@ -200,17 +200,31 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
     }
 
     private void dialog() {
+        String[] str;
+        if (isMy) {
+            str = new String[]{"从相册选择", "拍照选择", "查看大图"};
+        } else {
+            str = new String[]{"查看大图"};
+        }
         new AlertDialog.Builder(this).setTitle("个性背景墙").setIcon(
                 R.drawable.ic_launcher).setSingleChoiceItems(
-                new String[]{"从相册选择", "拍照选择"}, 0,
+                str, 0,
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         switch (which) {
                             case 0:
-                                intentOpenImage();
+                                if (isMy) {
+                                    intentOpenImage();
+                                } else {
+                                    bigImage();
+                                }
+
                                 break;
                             case 1:
                                 intentOpenCamera();
+                                break;
+                            case 2:
+                                bigImage();
                                 break;
                         }
                         dialog.dismiss();
@@ -251,19 +265,99 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
                 break;
 
             case R.id.ivWall:
-                if (TextUtils.isEmpty(userinfo.getPicWall()) && isMy == true) {
-                    dialog();
-                } else {
-                    intent = new Intent();
-                    intent.setClass(UserInfoDetailActivity.this, WebImageActivity.class);
-                    intent.putExtra("url", DXLApi.BASE_URL + userinfo.getPicWall());
-                    startActivity(intent);
-                }
-                break;
-            case R.id.fab:
                 dialog();
                 break;
+            case R.id.fab:
+//                dialog();
+                break;
+            case R.id.btnAddFriend:
+                //添加好友操作
+                if (isMy) {
+                    deleteFriend();
+                } else {
+                    addFriend();
+                }
+                break;
+            case R.id.btnBookRoom:
+                intoBookRoom();
+                break;
         }
+    }
+
+    private void intoBookRoom() {
+        Intent intent = new Intent();
+        intent.setClass(UserInfoDetailActivity.this, SearchBookActivity.class);
+        intent.putExtra("userid", userinfo.getUserId());
+        startActivity(intent);
+    }
+
+    private void addFriend() {
+        RequestParams params = new RequestParams();
+        params.addBodyParameter("action", "add_friend");
+        params.addBodyParameter("userid", String.valueOf(user.getUserId()));
+        params.addBodyParameter("friendid", String.valueOf(userinfo.getUserId()));
+        DXLHttpUtils.getHttpUtils().send(HttpRequest.HttpMethod.POST, DXLApi.getFriendsApi(), params, new RequestCallBack<String>() {
+            @Override
+            public void onSuccess(ResponseInfo<String> responseInfo) {
+                String result = responseInfo.result;
+                if ("friendid is null".equals(result)) {
+                    return;
+                }
+                if ("userid is null".equals(result)) {
+                    return;
+                }
+                if ("1".equals(result)) {
+                    Snackbar.make(btnAddFriend, "添加成功", Snackbar.LENGTH_SHORT).show();
+                } else {
+                    Snackbar.make(btnAddFriend, "添加失败", Snackbar.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(HttpException error, String msg) {
+                Snackbar.make(btnAddFriend, "服务器链接", Snackbar.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void deleteFriend() {
+        RequestParams params = new RequestParams();
+        params.addBodyParameter("action", "add_friend");
+        params.addBodyParameter("userid", String.valueOf(user.getUserId()));
+        params.addBodyParameter("friendid", String.valueOf(userinfo.getUserId()));
+        DXLHttpUtils.getHttpUtils().send(HttpRequest.HttpMethod.POST, DXLApi.getFriendsApi(), params, new RequestCallBack<String>() {
+            @Override
+            public void onSuccess(ResponseInfo<String> responseInfo) {
+                String result = responseInfo.result;
+                if ("friendid is null".equals(result)) {
+                    return;
+                }
+                if ("userid is null".equals(result)) {
+                    return;
+                }
+                if ("1".equals(result)) {
+                    Snackbar.make(btnAddFriend, "删除成功", Snackbar.LENGTH_SHORT).show();
+                } else {
+                    Snackbar.make(btnAddFriend, "删除失败", Snackbar.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(HttpException error, String msg) {
+                Snackbar.make(btnAddFriend, "服务器链接", Snackbar.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    /**
+     * 查看大图
+     */
+    private void bigImage() {
+        Intent intent;
+        intent = new Intent();
+        intent.setClass(UserInfoDetailActivity.this, WebImageActivity.class);
+        intent.putExtra("url", DXLApi.BASE_URL + userinfo.getPicWall());
+        startActivity(intent);
     }
 
     private void intentOpenImage() {
@@ -351,14 +445,14 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
                 public void onSuccess(ResponseInfo<String> responseInfo) {
                     Log.i(UserInfoDetailActivity.class.getSimpleName() + "responseInfo:", responseInfo.result);
                     MainActivity.updateUserInfo = true;
-                    Snackbar.make(ivWall,"修改成功",Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(ivWall, "修改成功", Snackbar.LENGTH_SHORT).show();
                     getUser();
                 }
 
                 @Override
                 public void onFailure(HttpException error, String msg) {
                     Log.i(UserInfoDetailActivity.class.getSimpleName() + "msg:", msg);
-                    Snackbar.make(ivWall,"网络异常，修改失败",Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(ivWall, "网络异常，修改失败", Snackbar.LENGTH_SHORT).show();
                 }
             });
         }

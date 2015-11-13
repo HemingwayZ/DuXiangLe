@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.lidroid.xutils.ViewUtils;
 import com.lidroid.xutils.view.annotation.ViewInject;
+import com.zhm.duxiangle.FriendsActivity;
 import com.zhm.duxiangle.LoginActivity;
 import com.zhm.duxiangle.R;
 import com.zhm.duxiangle.SearchBookActivity;
@@ -29,6 +30,7 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.MyView
     private Context mContext;
     private List<UserInfo> userInfoList;
     private User user;
+    private String from;
 
     public void getUser() {
         //获取用户信息
@@ -41,7 +43,6 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.MyView
             }
         }
     }
-
     /**
      * @param mContext     上下文
      * @param userInfoList 用户列表信息
@@ -49,6 +50,16 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.MyView
     public UserListAdapter(Context mContext, List<UserInfo> userInfoList) {
         this.mContext = mContext;
         this.userInfoList = userInfoList;
+    }
+
+    public UserListAdapter(Context mContext, List<UserInfo> userInfoList, String from) {
+        this.mContext = mContext;
+        this.userInfoList = userInfoList;
+        this.from = from;
+    }
+
+    public void setUserInfoList(List<UserInfo> list) {
+        this.userInfoList = list;
     }
 
     @Override
@@ -68,12 +79,15 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.MyView
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                Intent intent = new Intent();
-//                intent.setClass(mContext, UserInfoDetailActivity.class);
-//                intent.putExtra("userinfo", userInfo);
+//                Intent intent = new Intent(mContext, SearchBookActivity.class);
+//                intent.putExtra("userid", userInfo.getUserId());
+//                if (userInfo.getUserId() == user.getUserId()) {
+//                    intent.putExtra("isMy", true);
+//                }
 //                mContext.startActivity(intent);
-                Intent intent = new Intent(mContext, SearchBookActivity.class);
-                intent.putExtra("userid", userInfo.getUserId());
+                Intent intent = new Intent();
+                intent.setClass(mContext, UserInfoDetailActivity.class);
+                intent.putExtra("userinfo", userInfo);
                 if (userInfo.getUserId() == user.getUserId()) {
                     intent.putExtra("isMy", true);
                 }

@@ -32,7 +32,6 @@
             android:orientation="vertical">
 
 
-
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
@@ -66,6 +65,15 @@
 
             </android.support.design.widget.TextInputLayout>
 
+            <TextView
+                android:id="@+id/tvForgetPass"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:text="忘记密码"
+                android:textColor="@android:color/tertiary_text_light"
+                android:textCursorDrawable="@android:color/holo_red_light" />
+
             <Button
                 android:id="@+id/btnLogin"
                 style="?android:textAppearanceSmall"
@@ -95,6 +103,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="修改ip" />
+
             <Button
                 android:id="@+id/btnWeChatLogin"
                 android:layout_width="match_parent"

@@ -31,6 +31,12 @@ public class ConversationListActivity extends SlidingBackActivity {
         setContentView(R.layout.activity_conversation_list);
         TextView tvTitle = (TextView) findViewById(R.id.tvTitle);
         tvTitle.setText("消息列表");
+        findViewById(R.id.ibBack).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
         //获取token
         String json = SpUtil.getSharePerference(getApplicationContext()).getString("user", "");
         User user = GsonUtils.getInstance().json2Bean(json, User.class);

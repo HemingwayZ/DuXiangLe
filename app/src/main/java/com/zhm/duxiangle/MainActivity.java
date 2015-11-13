@@ -348,33 +348,37 @@ public class MainActivity extends AppCompatActivity
             startActivity(intent);
         } else if (id == R.id.nav_gallery) {
             Intent intent = new Intent();
-            intent.setClass(MainActivity.this, BookDetailActivity.class);
-            intent.putExtra("true", "isMy");
+            if (user == null) {
+                intent.setClass(MainActivity.this, LoginActivity.class);
+                startActivity(intent);
+                finish();
+                return true;
+            }
+            intent.setClass(MainActivity.this, FriendsActivity.class);
+            intent.putExtra("userid", String.valueOf(user.getUserId()));
             startActivity(intent);
             overridePendingTransition(R.anim.hm_base_slide_right_in,
                     0);
-            return false;
+            return true;
         } else if (id == R.id.nav_slideshow) {//消息
             //融云即时通讯
             startActivity(new Intent(MainActivity.this, ConversationListActivity.class));
-
-        } /*else if (id == R.id.nav_manage) {
-
-        }*/ else if (id == R.id.nav_share) {
+            return true;
+        } else if (id == R.id.nav_share) {
 //                startActivity(new Intent(MainActivity.this,MessageActivity.class));
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-//                    ShareApi.getInstance(getApplicationContext()).share2WeChatWithWebUrl("http://120.25.201.60/ZL/ZL.html");
-//                    ShareApi.getInstance(getApplicationContext()).share2WeChatWithImage(1);
+                    //1：朋友圈
                     ShareApi.getInstance(getApplicationContext()).wechatShare(1, "http://120.25.201.60/DuXiangLeServer/index/index.html");
-//                    wechatShare(1);
                 }
 
             }).start();
         } else if (id == R.id.nav_clean) {
             BitmapUtils.getInstance(getApplication()).cleanCache();
         } else if (id == R.id.nav_login) {
+            //消除本地缓存
+            SpUtil.cleanUser(SpUtil.getSharePerference(getApplicationContext()));
             Intent intent = new Intent();
             intent.setClass(MainActivity.this, LoginActivity.class);
             startActivity(intent);

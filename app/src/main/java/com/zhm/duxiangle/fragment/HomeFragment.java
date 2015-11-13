@@ -71,7 +71,6 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
-    private int lastVisibleItem;
     private User user;
 
     private Page<Book> bookPage;

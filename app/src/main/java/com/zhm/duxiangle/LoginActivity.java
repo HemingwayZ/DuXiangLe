@@ -108,6 +108,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     //用户头像
 //    @ViewInject(R.id.ivUser)
 //    private CircleImageView ivUser;
+    @ViewInject(R.id.tvForgetPass)
+    private TextView tvForgetPass;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,6 +142,27 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         tvRegister.setTextColor(Color.GRAY);
                         Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
                         startActivity(intent);
+                        break;
+                }
+                return true;
+            }
+        });
+
+        tvForgetPass.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        tvForgetPass.setTextColor(Color.RED);
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        tvForgetPass.setTextColor(Color.GRAY);
+                        Intent data = new Intent(Intent.ACTION_SENDTO);
+//                        data.setData(Uri.parse("183340093@qq.com"));
+                        data.putExtra(Intent.EXTRA_EMAIL, Uri.parse("183340093@qq.com"));
+                        data.putExtra(Intent.EXTRA_SUBJECT, "忘记密码");
+                        data.putExtra(Intent.EXTRA_TEXT, "内容");
+                        startActivity(Intent.createChooser(data, "邮箱发送"));
                         break;
                 }
                 return true;
@@ -396,7 +419,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         req.state = "wechat_sdk_demo_test";
         ShareApi.getInstance(getApplicationContext()).regToWx();
         boolean b = ShareApi.api.sendReq(req);
-        Log.i("Login",b+"");
+        Log.i("Login", b + "");
     }
 
     private interface ProfileQuery {

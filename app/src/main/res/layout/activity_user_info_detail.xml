@@ -26,9 +26,9 @@
             <com.flaviofaria.kenburnsview.KenBurnsView
                 android:id="@+id/ivWall"
                 android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:adjustViewBounds="true"
                 android:scaleType="fitXY"
-                android:layout_height="match_parent"
                 android:src="@drawable/book_cover_default" />
 
             <android.support.v7.widget.Toolbar
@@ -80,6 +80,20 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="编辑资料" />
+
+        <Button
+            android:id="@+id/btnAddFriend"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="加为好友" />
+
+        <Button
+            android:id="@+id/btnBookRoom"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="进入书房" />
     </LinearLayout>
 
 
