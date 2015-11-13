@@ -33,8 +33,14 @@ dependencies {
     compile files('D:/AsWorkSpace/DuXiangLe/libs/faceppofflinesdk.jar')
     compile files('D:/AsWorkSpace/DuXiangLe/libs/faceppsdk.jar')
     compile files('D:/AsWorkSpace/DuXiangLe/libs/wximg.jar')
-    compile files('D:/AsWorkSpace/DuXiangLe/libs/BaiduLBS_Android.jar')
     compile project(':IMKit')
     compile files('D:/AsWorkSpace/DuXiangLe/libs/libammsdk.jar')
     compile 'me.drakeet.materialdialog:library:1.2.3'
+    compile files('D:/AsWorkSpace/DuXiangLe/libs/baidulib/baidumapapi_cloud_v3_6_0.jar')
+    compile files('D:/AsWorkSpace/DuXiangLe/libs/baidulib/baidumapapi_search_v3_6_0.jar')
+    compile files('D:/AsWorkSpace/DuXiangLe/libs/baidulib/baidumapapi_base_v3_6_0.jar')
+    compile files('D:/AsWorkSpace/DuXiangLe/libs/baidulib/baidumapapi_map_v3_6_0.jar')
+    compile files('D:/AsWorkSpace/DuXiangLe/libs/baidulib/baidumapapi_radar_v3_6_0.jar')
+    compile files('D:/AsWorkSpace/DuXiangLe/libs/baidulib/baidumapapi_util_v3_6_0.jar')
+    compile files('D:/AsWorkSpace/DuXiangLe/libs/baidulib/locSDK_6.12.jar')
 }

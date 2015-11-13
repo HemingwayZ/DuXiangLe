@@ -288,7 +288,7 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
         Intent intent = new Intent();
         intent.setClass(UserInfoDetailActivity.this, SearchBookActivity.class);
         intent.putExtra("userid", userinfo.getUserId());
-        startActivity(intent);
+        this.startActivity(intent);
     }
 
     private void addFriend() {

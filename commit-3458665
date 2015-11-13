@@ -1,0 +1,100 @@
+From 3458665c047efee17dd9f4a4ee7ba3605489f277 Mon Sep 17 00:00:00 2001
+From: zhuanghm <183340093@qq.com>
+Date: Thu, 12 Nov 2015 12:41:53 +0800
+Subject: =?UTF-8?q?=E4=BF=AE=E5=A4=8D=E4=BA=86=E5=A4=B4=E5=83=8F=E4=B8=8A?=
+ =?UTF-8?q?=E4=BC=A0=E7=9A=84bug?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+
+diff --git a/app/src/main/java/com/zhm/duxiangle/EditUserInfoActivity.java b/app/src/main/java/com/zhm/duxiangle/EditUserInfoActivity.java
+index a481a84..9bd4040 100644
+--- a/app/src/main/java/com/zhm/duxiangle/EditUserInfoActivity.java
++++ b/app/src/main/java/com/zhm/duxiangle/EditUserInfoActivity.java
+@@ -159,45 +159,8 @@ public class EditUserInfoActivity extends SlidingBackActivity implements View.On
+                     return;
+                 }
+                 String path = BitmapUtils.getImageAbsolutePath(this,uri);
+-                Bitmap bitmap = BitmapUtils.getimage(Environment.getExternalStorageDirectory()+"/duxiangle_avatar.jpg");
++                Bitmap bitmap = BitmapUtils.getimage(path);
+                 ivUser.setImageBitmap(bitmap);
+-
+-//                InputStream is = null;
+-//                try {
+-//                    // 直接使用下面的方法会出现OOM异常
+-//                    // java.lang.OutOfMemoryError
+-//                    BitmapFactory.Options opts = new BitmapFactory.Options();
+-//                    opts.inJustDecodeBounds = true;// 设置只获取图片的边界，先不讲图片读入内存
+-//                    is = getContentResolver().openInputStream(uri);
+-//                    Bitmap bitmap = BitmapFactory.decodeStream(is, null, opts);
+-//
+-//                    // opts.outWidth = 200;
+-//                    // int height = opts.outHeight * 200 / opts.outWidth;
+-//                    // opts.outHeight = height;
+-//
+-//                    opts.inJustDecodeBounds = false;
+-//
+-//                    // 压缩图片为原来的1/4
+-//                    bitmap = BitmapUtils.compressImage(bitmap);
+-//
+-//                    bitmap = BitmapFactory.decodeStream(getContentResolver()
+-//                            .openInputStream(uri), null, opts);
+-//                    ivUser.setImageBitmap(bitmap);
+-//
+-//                } catch (FileNotFoundException e) {
+-//                    // TODO Auto-generated catch block
+-//                    e.printStackTrace();
+-//                } finally {
+-//                    if (is != null) {
+-//                        try {
+-//                            is.close();
+-//                        } catch (IOException e) {
+-//                            // TODO Auto-generated catch block
+-//                            e.printStackTrace();
+-//                        }
+-//                    }
+-//                }
+-//                uploadAvatar();
+                 break;
+         }
+         super.onActivityResult(requestCode, resultCode, data);
+@@ -216,7 +179,8 @@ public class EditUserInfoActivity extends SlidingBackActivity implements View.On
+         params.addBodyParameter("describ", userInfo.getDescrib());
+         if (uri != null) {
+             String path = BitmapUtils.getImageAbsolutePath(this, uri);
+-            File file = new File(Environment.getExternalStorageDirectory()+"duxiangle_avatar.jpg");
++            File file = new File(Environment.getExternalStorageDirectory()+"/duxiangle_avatar1.jpg");
++//            File file = new File(path);
+             if (file.exists())
+                 params.addBodyParameter("file", file);
+         }
+@@ -236,7 +200,7 @@ public class EditUserInfoActivity extends SlidingBackActivity implements View.On
+             @Override
+             public void onFailure(HttpException error, String msg) {
+                 showProgress(false);
+-                Snackbar.make(view, "修改失败，请联系庄海明", Snackbar.LENGTH_LONG)
++                Snackbar.make(view, "修改失败，请联系183340093@qq.com", Snackbar.LENGTH_LONG)
+                         .setAction("Action", null).show();
+ 
+             }
+diff --git a/app/src/main/java/com/zhm/duxiangle/utils/BitmapUtils.java b/app/src/main/java/com/zhm/duxiangle/utils/BitmapUtils.java
+index 53ecfcb..dcc342a 100644
+--- a/app/src/main/java/com/zhm/duxiangle/utils/BitmapUtils.java
++++ b/app/src/main/java/com/zhm/duxiangle/utils/BitmapUtils.java
+@@ -322,9 +322,12 @@ public class BitmapUtils {
+         FileOutputStream fos = null;
+         try {
+ 
+-            Log.i("Bitmap", Environment.getExternalStorageDirectory() + "/duxiangle_avatar.jpg");
+-            File file = new File(Environment.getExternalStorageDirectory()+"/duxiangle_avatar.jpg");
+-
++            Log.i("Bitmap_path", Environment.getExternalStorageDirectory() + "/duxiangle_avatar1.jpg");
++            File file = new File(Environment.getExternalStorageDirectory()+"/duxiangle_avatar1.jpg");
++            if(file.exists()){
++                Log.i("exists",file.exists()+"");
++                file.deleteOnExit();
++            }
+             if(!file.exists()){
+                 file.createNewFile();
+             }

@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/libs/baidulib/baidumapapi_base_v3_6_0.jar" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/libs/baidulib/baidumapapi_cloud_v3_6_0.jar" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/libs/baidulib/baidumapapi_map_v3_6_0.jar" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/libs/baidulib/baidumapapi_radar_v3_6_0.jar" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/libs/baidulib/baidumapapi_search_v3_6_0.jar" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/libs/baidulib/baidumapapi_util_v3_6_0.jar" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/libs/baidulib/locSDK_6.12.jar" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/libs/locSDK_6.12.jar" charset="GBK" />
     <file url="PROJECT" charset="UTF-8" />
   </component>
 </project>

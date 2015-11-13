@@ -43,6 +43,7 @@ public class ConversationListActivity extends SlidingBackActivity {
         if (user == null|| TextUtils.isEmpty(user.getToken())) {
             Intent intent = new Intent(ConversationListActivity.this, LoginActivity.class);
             startActivity(intent);
+            finish();
             return;
         }
         intent = getIntent();

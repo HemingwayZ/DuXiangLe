@@ -16,16 +16,22 @@ import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
+import com.baidu.mapapi.cloud.LocalSearchInfo;
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.BitmapDescriptor;
 import com.baidu.mapapi.map.BitmapDescriptorFactory;
 import com.baidu.mapapi.map.MapStatusUpdate;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
 import com.baidu.mapapi.map.MapView;
+import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.MyLocationConfiguration;
 import com.baidu.mapapi.map.MyLocationConfiguration.LocationMode;
 import com.baidu.mapapi.map.MyLocationData;
+import com.baidu.mapapi.map.Overlay;
+import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.radar.RadarNearbySearchOption;
+import com.google.zxing.client.result.GeoResultParser;
 
 import java.util.logging.LogRecord;
 
@@ -60,6 +66,7 @@ public class BaiduMapActivity extends AppCompatActivity {
 
         }
     };
+    private LatLng ll;
 
     // Press the back button in mobile phone
     @Override
@@ -83,11 +90,18 @@ public class BaiduMapActivity extends AppCompatActivity {
         requestLocButton = (Button) findViewById(R.id.button1);
         mCurrentMode = LocationMode.NORMAL;
         requestLocButton.setText("普通");
+
+
         OnClickListener btnClickListener = new OnClickListener() {
             public void onClick(View v) {
                 switch (mCurrentMode) {
                     case NORMAL:
                         requestLocButton.setText("跟随");
+                        LatLng llB = new LatLng(39.942821, 116.369199);
+                        MarkerOptions ooB = new MarkerOptions().position(llB).icon(BitmapDescriptorFactory
+                                .fromResource(R.drawable.btn1));
+                        ooB.animateType(MarkerOptions.MarkerAnimateType.drop);
+
                         mCurrentMode = LocationMode.FOLLOWING;
                         mBaiduMap
                                 .setMyLocationConfigeration(new MyLocationConfiguration(
@@ -101,6 +115,7 @@ public class BaiduMapActivity extends AppCompatActivity {
                                         mCurrentMode, true, mCurrentMarker));
                         break;
                     case FOLLOWING:
+                        initOverLay();
                         requestLocButton.setText("罗盘");
                         mCurrentMode = LocationMode.COMPASS;
                         mBaiduMap
@@ -115,30 +130,6 @@ public class BaiduMapActivity extends AppCompatActivity {
         };
         tvLocation = (TextView) findViewById(R.id.tvLocation);
         requestLocButton.setOnClickListener(btnClickListener);
-
-//        RadioGroup group = (RadioGroup) this.findViewById(R.id.radioGroup);
-//        radioButtonListener = new OnCheckedChangeListener() {
-//            @Override
-//            public void onCheckedChanged(RadioGroup group, int checkedId) {
-//                if (checkedId == R.id.defaulticon) {
-//                    // 传入null则，恢复默认图标
-//                    mCurrentMarker = null;
-//                    mBaiduMap
-//                            .setMyLocationConfigeration(new MyLocationConfiguration(
-//                                    mCurrentMode, true, null));
-//                }
-//                if (checkedId == R.id.customicon) {
-//                    // 修改为自定义marker
-//                    mCurrentMarker = BitmapDescriptorFactory
-//                            .fromResource(R.drawable.ic_launcher);
-//                    mBaiduMap
-//                            .setMyLocationConfigeration(new MyLocationConfiguration(
-//                                    mCurrentMode, true, mCurrentMarker));
-//                }
-//            }
-//        };
-
-//        group.setOnCheckedChangeListener(radioButtonListener);
 
         // 地图初始化
         mMapView = (MapView) findViewById(R.id.bmapView);
@@ -161,6 +152,23 @@ public class BaiduMapActivity extends AppCompatActivity {
         mBaiduMap
                 .setMyLocationConfigeration(new MyLocationConfiguration(
                         mCurrentMode, true, mCurrentMarker));
+
+    }
+
+    private void initOverLay() {
+        // add marker overlay
+        LatLng llA = new LatLng(ll.latitude, ll.longitude);
+        LatLng llB = new LatLng(39.942821, 116.369199);
+        LatLng llC = new LatLng(39.939723, 116.425541);
+        LatLng llD = new LatLng(39.906965, 116.401394);
+        MarkerOptions ooA = new MarkerOptions().position(llA).icon(BitmapDescriptorFactory
+                .fromResource(R.drawable.ic_info_black_24dp))
+                .zIndex(9).draggable(true);
+
+        // 掉下动画
+        ooA.animateType(MarkerOptions.MarkerAnimateType.drop);
+
+
     }
 
     /**
@@ -182,10 +190,10 @@ public class BaiduMapActivity extends AppCompatActivity {
             mBaiduMap.setMyLocationData(locData);
             if (isFirstLoc) {
                 isFirstLoc = false;
-                LatLng ll = new LatLng(location.getLatitude(),
+                ll = new LatLng(location.getLatitude(),
                         location.getLongitude());
 
-//                tvLocation.setText("" + ll.toString() + "    " + ll.latitude);
+                tvLocation.setText("" + ll.toString() + "    经度:" + ll.latitude+"  维度:"+ll.longitude);
                 MapStatusUpdate u = MapStatusUpdateFactory.newLatLng(ll);
                 mBaiduMap.animateMapStatus(u);
             }

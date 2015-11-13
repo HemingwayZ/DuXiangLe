@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/card_background"
+    android:orientation="vertical">
+
+    <include
+        layout="@layout/include_toorbar_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"></include>
+
+    <ScrollView
+        android:id="@+id/layout_scroll"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp">
+
+            <!--
+                 <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dip"
+                android:background="@drawable/cell_wt_normal"
+                android:orientation="vertical"
+                android:padding="10dip" >
+            -->
+
+            <TextView
+                android:id="@+id/text_view_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="30dp"
+                android:text="出发地：" />
+            <!-- </LinearLayout> -->
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/icon_province"
+                android:orientation="vertical"
+                android:padding="10dip">
+
+                <LinearLayout
+                    android:id="@+id/layout_start_with"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingTop="0dp">
+
+                    <Button
+                        android:id="@+id/btn_province"
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:layout_weight="1"
+                        android:background="@drawable/icon_province"
+                        android:text="省份"
+                        android:textColor="@color/lite_blue" />
+
+                    <Button
+                        android:id="@+id/btn_city"
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:layout_weight="1"
+                        android:background="@drawable/icon_province"
+                        android:text="城市"
+                        android:textColor="@color/lite_blue" />
+
+                    <Button
+                        android:id="@+id/btn_county"
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:layout_weight="1"
+                        android:background="@drawable/icon_province"
+                        android:text="区县"
+                        android:textColor="@color/lite_blue" />
+                </LinearLayout>
+
+                <com.zhm.duxiangle.view.MyGridView
+                    android:id="@+id/gridview_start_with0"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:horizontalSpacing="10dp"
+                    android:numColumns="3"
+                    android:stretchMode="columnWidth"
+                    android:verticalSpacing="10dp"
+                    android:visibility="gone" />
+
+                <com.zhm.duxiangle.view.MyGridView
+                    android:id="@+id/gridview_start_with1"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:horizontalSpacing="10dp"
+                    android:numColumns="3"
+                    android:stretchMode="columnWidth"
+                    android:verticalSpacing="10dp"
+                    android:visibility="gone" />
+
+                <com.zhm.duxiangle.view.MyGridView
+                    android:id="@+id/gridview_start_with2"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:horizontalSpacing="10dp"
+                    android:numColumns="3"
+                    android:stretchMode="columnWidth"
+                    android:verticalSpacing="10dp"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <!--
+                 <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dip"
+                android:background="@drawable/cell_wt_normal"
+                android:orientation="vertical"
+                android:padding="10dip" >
+            -->
+
+            <TextView
+                android:id="@+id/text_view_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="30dp"
+                android:text="目的地：" />
+            <!-- </LinearLayout> -->
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/icon_province"
+                android:orientation="vertical"
+                android:padding="10dip">
+
+                <LinearLayout
+                    android:id="@+id/layout_destination"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingTop="0dp">
+
+                    <Button
+                        android:id="@+id/btn_province1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:layout_weight="1"
+                        android:background="@drawable/icon_province"
+                        android:text="省份"
+                        android:textColor="@color/lite_blue" />
+
+                    <Button
+                        android:id="@+id/btn_city1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:layout_weight="1"
+                        android:background="@drawable/icon_province"
+                        android:text="城市"
+                        android:textColor="@color/lite_blue" />
+
+                    <Button
+                        android:id="@+id/btn_county1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:layout_weight="1"
+                        android:background="@drawable/icon_province"
+                        android:text="区县"
+                        android:textColor="@color/lite_blue" />
+                </LinearLayout>
+
+                <com.zhm.duxiangle.view.MyGridView
+                    android:id="@+id/gridview_destination0"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:horizontalSpacing="10dp"
+                    android:numColumns="3"
+                    android:stretchMode="columnWidth"
+                    android:verticalSpacing="10dp"
+                    android:visibility="gone" />
+
+                <com.zhm.duxiangle.view.MyGridView
+                    android:id="@+id/gridview_destination1"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:horizontalSpacing="10dp"
+                    android:numColumns="3"
+                    android:stretchMode="columnWidth"
+                    android:verticalSpacing="10dp"
+                    android:visibility="gone" />
+
+                <com.zhm.duxiangle.view.MyGridView
+                    android:id="@+id/gridview_destination2"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:horizontalSpacing="10dp"
+                    android:numColumns="3"
+                    android:stretchMode="columnWidth"
+                    android:verticalSpacing="10dp"
+                    android:visibility="gone" />
+
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

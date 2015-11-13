@@ -1,0 +1,127 @@
+From 743e276be6dcb2cee82703d683a5a00d354192c3 Mon Sep 17 00:00:00 2001
+From: zhuanghm <183340093@qq.com>
+Date: Thu, 12 Nov 2015 10:21:20 +0800
+Subject: =?UTF-8?q?=E4=BF=AE=E6=AD=A3=E4=BA=86=E5=BE=AE=E4=BF=A1=E5=88=86?=
+ =?UTF-8?q?=E4=BA=AB=E8=BF=94=E5=9B=9E=E7=BB=93=E6=9E=9C?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+
+diff --git a/app/build.gradle b/app/build.gradle
+index 2ae3b49..8c2fd55 100644
+--- a/app/build.gradle
++++ b/app/build.gradle
+@@ -9,8 +9,8 @@ android {
+         applicationId "com.zhm.duxiangle"
+         minSdkVersion 15
+         targetSdkVersion 23
+-        versionCode 1
+-        versionName "1.0"
++        versionCode 2
++        versionName "1.1"
+     }
+     buildTypes {
+         release {
+diff --git a/app/src/main/AndroidManifest.xml b/app/src/main/AndroidManifest.xml
+index 2c317dd..ba4f6d7 100644
+--- a/app/src/main/AndroidManifest.xml
++++ b/app/src/main/AndroidManifest.xml
+@@ -1,8 +1,6 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+-    package="com.zhm.duxiangle"
+-    android:versionCode="2"
+-    android:versionName="1.0.1">
++    package="com.zhm.duxiangle">
+ 
+     <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL" />
+ 
+@@ -146,7 +144,7 @@
+             android:theme="@style/AppTheme.NoActionBar" />
+         <activity
+             android:name=".wxapi.WXEntryActivity"
+-
++            android:exported="true"
+             android:windowSoftInputMode="adjustPan|adjustUnspecified|stateHidden" />
+         <activity android:name=".WebImageActivity" />
+         <activity
+diff --git a/app/src/main/java/com/zhm/duxiangle/ConversationActivity.java b/app/src/main/java/com/zhm/duxiangle/ConversationActivity.java
+index 6071297..c51122f 100644
+--- a/app/src/main/java/com/zhm/duxiangle/ConversationActivity.java
++++ b/app/src/main/java/com/zhm/duxiangle/ConversationActivity.java
+@@ -21,6 +21,8 @@ import com.zhm.duxiangle.utils.DXLHttpUtils;
+ import com.zhm.duxiangle.utils.GsonUtils;
+ import com.zhm.duxiangle.utils.SpUtil;
+ 
++import org.w3c.dom.Text;
++
+ import java.util.Locale;
+ 
+ import io.rong.imkit.RongIM;
+@@ -89,8 +91,8 @@ public class ConversationActivity extends SlidingBackActivity {
+                 }
+                 if (userinfo.getNickname() != null)
+                     tvTitle.setText("与 " + userinfo.getNickname() + " 聊天");
+-//                if (!TextUtils.isEmpty(userinfo.getAvatar()))
+-//                    RongIM.getInstance().refreshUserInfoCache(new io.rong.imlib.model.UserInfo(String.valueOf(userinfo.getUserId()), userinfo.getNickname(), Uri.parse(DXLApi.BASE_URL + userinfo.getAvatar())));
++                if (!TextUtils.isEmpty(userinfo.getAvatar()))
++                    RongIM.getInstance().refreshUserInfoCache(new io.rong.imlib.model.UserInfo(String.valueOf(userinfo.getUserId()), userinfo.getNickname(), Uri.parse(DXLApi.BASE_URL + userinfo.getAvatar())));
+ 
+             }
+ 
+@@ -106,8 +108,8 @@ public class ConversationActivity extends SlidingBackActivity {
+      */
+     private void getIntentDate(Intent intent) {
+         String mTargetId = intent.getData().getQueryParameter("targetId");
+-
+-        getUserInfo(Integer.valueOf(mTargetId));
++        if (!TextUtils.isEmpty(mTargetId))
++            getUserInfo(Integer.valueOf(mTargetId));
+         String mTargetIds = intent.getData().getQueryParameter("targetIds");
+         //intent.getData().getLastPathSegment();//获得当前会话类型
+         Conversation.ConversationType mConversationType = Conversation.ConversationType.valueOf(intent.getData().getLastPathSegment().toUpperCase(Locale.getDefault()));
+diff --git a/app/src/main/java/com/zhm/duxiangle/api/DXLApi.java b/app/src/main/java/com/zhm/duxiangle/api/DXLApi.java
+index c8312b6..9f66a58 100644
+--- a/app/src/main/java/com/zhm/duxiangle/api/DXLApi.java
++++ b/app/src/main/java/com/zhm/duxiangle/api/DXLApi.java
+@@ -6,11 +6,11 @@ package com.zhm.duxiangle.api;
+ public class DXLApi {
+     //login:http://localhost:8080/DuXiangLeServer/UserServlet?action=login
+     //192.168.253.1
+-//    public static String HOST = "192.168.23.1:8080";
+-    public static String HOST = "120.25.201.60";
++    public static String HOST = "192.168.23.1:8080";
++//    public static String HOST = "120.25.201.60";
+     public static String PORT = "";
+ 
+-    public static String BASE_URL = "http://" + HOST + PORT;
++    public static String BASE_URL = "http://" + HOST;
+ 
+     /**
+      * 获取登录的url
+diff --git a/app/src/main/java/com/zhm/duxiangle/utils/DXLHttpUtils.java b/app/src/main/java/com/zhm/duxiangle/utils/DXLHttpUtils.java
+index 270bf98..4a4bd35 100644
+--- a/app/src/main/java/com/zhm/duxiangle/utils/DXLHttpUtils.java
++++ b/app/src/main/java/com/zhm/duxiangle/utils/DXLHttpUtils.java
+@@ -8,7 +8,7 @@ import com.lidroid.xutils.HttpUtils;
+ public class DXLHttpUtils {
+     public static HttpUtils getHttpUtils() {
+         HttpUtils http = new HttpUtils();
+-        http.configTimeout(3000);
++        http.configTimeout(10*1000);
+         return http;
+     }
+ }
+diff --git a/app/src/main/java/com/zhm/duxiangle/wxapi/WXEntryActivity.java b/app/src/main/java/com/zhm/duxiangle/wxapi/WXEntryActivity.java
+index a950314..1eb09bd 100644
+--- a/app/src/main/java/com/zhm/duxiangle/wxapi/WXEntryActivity.java
++++ b/app/src/main/java/com/zhm/duxiangle/wxapi/WXEntryActivity.java
+@@ -85,6 +85,7 @@ public class WXEntryActivity extends AppCompatActivity implements IWXAPIEventHan
+                 ToastUtils.showToast(getApplicationContext(), "default" + baseResp.errCode);
+                 break;
+         }
++        finish();
+     }
+ 
+ 

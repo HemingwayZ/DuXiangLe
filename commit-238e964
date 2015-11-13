@@ -1,0 +1,1036 @@
+From 238e96421e9d94b0fa1e88e00a259ddb07acaf89 Mon Sep 17 00:00:00 2001
+From: zhuanghm <183340093@qq.com>
+Date: Thu, 12 Nov 2015 22:41:44 +0800
+Subject: =?UTF-8?q?=E5=A2=9E=E5=8A=A0=E4=BA=86=E5=A5=BD=E5=8F=8B=E5=88=97?=
+ =?UTF-8?q?=E8=A1=A8?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+
+diff --git a/app/app.iml b/app/app.iml
+index f4a9aa3..b73bbbc 100644
+--- a/app/app.iml
++++ b/app/app.iml
+@@ -75,6 +75,7 @@
+       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.android.support/design/23.0.1/jars" />
+       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.android.support/support-v4/23.0.1/jars" />
+       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.jiechic.library/xUtils/2.6.14/jars" />
++      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/me.drakeet.materialdialog/library/1.2.3/jars" />
+       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/incremental" />
+       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/jacoco" />
+       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/javaResources" />
+@@ -98,6 +99,7 @@
+     <orderEntry type="library" exported="" name="libammsdk" level="project" />
+     <orderEntry type="library" exported="" name="faceppsdk" level="project" />
+     <orderEntry type="library" exported="" name="faceppofflinesdk" level="project" />
++    <orderEntry type="library" exported="" name="library-1.2.3" level="project" />
+     <orderEntry type="library" exported="" name="xUtils-2.6.14" level="project" />
+     <orderEntry type="library" exported="" name="BaiduLBS_Android" level="project" />
+     <orderEntry type="library" exported="" name="support-v4-23.0.1" level="project" />
+diff --git a/app/build.gradle b/app/build.gradle
+index 8c2fd55..3fd1c37 100644
+--- a/app/build.gradle
++++ b/app/build.gradle
+@@ -36,4 +36,5 @@ dependencies {
+     compile files('D:/AsWorkSpace/DuXiangLe/libs/BaiduLBS_Android.jar')
+     compile project(':IMKit')
+     compile files('D:/AsWorkSpace/DuXiangLe/libs/libammsdk.jar')
++    compile 'me.drakeet.materialdialog:library:1.2.3'
+ }
+diff --git a/app/src/main/AndroidManifest.xml b/app/src/main/AndroidManifest.xml
+index ba4f6d7..a7e50e1 100644
+--- a/app/src/main/AndroidManifest.xml
++++ b/app/src/main/AndroidManifest.xml
+@@ -1,6 +1,6 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+-    package="com.zhm.duxiangle">
++    package="com.zhm.duxiangle" >
+ 
+     <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL" />
+ 
+@@ -58,7 +58,7 @@
+         android:icon="@mipmap/ic_launcher"
+         android:label="@string/app_name"
+         android:supportsRtl="true"
+-        android:theme="@style/AppTheme">
++        android:theme="@style/AppTheme" >
+ 
+         <!-- 百度地图定位apikey -->
+         <meta-data
+@@ -69,7 +69,7 @@
+             android:name=".MainActivity"
+             android:label="@string/app_name"
+             android:launchMode="singleTask"
+-            android:theme="@style/AppTheme.NoActionBar">
++            android:theme="@style/AppTheme.NoActionBar" >
+             <intent-filter>
+                 <action android:name="android.intent.action.MAIN" />
+ 
+@@ -105,7 +105,7 @@
+         <!-- 聊天 -->
+         <activity
+             android:name=".ConversationActivity"
+-            android:theme="@style/AppTheme.NoActionBar">
++            android:theme="@style/AppTheme.NoActionBar" >
+             <intent-filter>
+                 <action android:name="android.intent.action.VIEW" />
+ 
+@@ -122,7 +122,7 @@
+             android:name=".ConversationListActivity"
+             android:screenOrientation="portrait"
+             android:theme="@style/AppTheme.NoActionBar"
+-            android:windowSoftInputMode="stateHidden|adjustResize">
++            android:windowSoftInputMode="stateHidden|adjustResize" >
+             <intent-filter>
+                 <action android:name="android.intent.action.VIEW" />
+ 
+@@ -152,7 +152,9 @@
+             android:theme="@style/Transparent" />
+         <activity
+             android:name=".SearchBookActivity"
+-            android:theme="@style/AppTheme.NoActionBar"></activity>
++            android:theme="@style/AppTheme.NoActionBar" />
++        <activity android:name=".FriendsActivity" >
++        </activity>
+     </application>
+ 
+ </manifest>
+diff --git a/app/src/main/java/com/zhm/duxiangle/BaiduMapActivity.java b/app/src/main/java/com/zhm/duxiangle/BaiduMapActivity.java
+index e9c8c4a..c4cb971 100644
+--- a/app/src/main/java/com/zhm/duxiangle/BaiduMapActivity.java
++++ b/app/src/main/java/com/zhm/duxiangle/BaiduMapActivity.java
+@@ -54,7 +54,7 @@ public class BaiduMapActivity extends AppCompatActivity {
+             super.handleMessage(msg);
+             switch (msg.what) {
+                 case 1:
+-                    tvLocation.append((String) msg.obj + "s");
++                    tvLocation.setText("当前位置:"+(String) msg.obj);
+                     break;
+             }
+ 
+@@ -116,28 +116,29 @@ public class BaiduMapActivity extends AppCompatActivity {
+         tvLocation = (TextView) findViewById(R.id.tvLocation);
+         requestLocButton.setOnClickListener(btnClickListener);
+ 
+-        RadioGroup group = (RadioGroup) this.findViewById(R.id.radioGroup);
+-        radioButtonListener = new OnCheckedChangeListener() {
+-            @Override
+-            public void onCheckedChanged(RadioGroup group, int checkedId) {
+-                if (checkedId == R.id.defaulticon) {
+-                    // 传入null则，恢复默认图标
+-                    mCurrentMarker = null;
+-                    mBaiduMap
+-                            .setMyLocationConfigeration(new MyLocationConfiguration(
+-                                    mCurrentMode, true, null));
+-                }
+-                if (checkedId == R.id.customicon) {
+-                    // 修改为自定义marker
+-                    mCurrentMarker = BitmapDescriptorFactory
+-                            .fromResource(R.drawable.ic_info_black_24dp);
+-                    mBaiduMap
+-                            .setMyLocationConfigeration(new MyLocationConfiguration(
+-                                    mCurrentMode, true, mCurrentMarker));
+-                }
+-            }
+-        };
+-        group.setOnCheckedChangeListener(radioButtonListener);
++//        RadioGroup group = (RadioGroup) this.findViewById(R.id.radioGroup);
++//        radioButtonListener = new OnCheckedChangeListener() {
++//            @Override
++//            public void onCheckedChanged(RadioGroup group, int checkedId) {
++//                if (checkedId == R.id.defaulticon) {
++//                    // 传入null则，恢复默认图标
++//                    mCurrentMarker = null;
++//                    mBaiduMap
++//                            .setMyLocationConfigeration(new MyLocationConfiguration(
++//                                    mCurrentMode, true, null));
++//                }
++//                if (checkedId == R.id.customicon) {
++//                    // 修改为自定义marker
++//                    mCurrentMarker = BitmapDescriptorFactory
++//                            .fromResource(R.drawable.ic_launcher);
++//                    mBaiduMap
++//                            .setMyLocationConfigeration(new MyLocationConfiguration(
++//                                    mCurrentMode, true, mCurrentMarker));
++//                }
++//            }
++//        };
++
++//        group.setOnCheckedChangeListener(radioButtonListener);
+ 
+         // 地图初始化
+         mMapView = (MapView) findViewById(R.id.bmapView);
+@@ -154,6 +155,12 @@ public class BaiduMapActivity extends AppCompatActivity {
+         option.setIsNeedAddress(true);//反编译获得具体位置，只有网络定位才可以--重要！！！
+         mLocClient.setLocOption(option);
+         mLocClient.start();
++        // 修改为自定义marker
++        mCurrentMarker = BitmapDescriptorFactory
++                .fromResource(R.drawable.ic_launcher);
++        mBaiduMap
++                .setMyLocationConfigeration(new MyLocationConfiguration(
++                        mCurrentMode, true, mCurrentMarker));
+     }
+ 
+     /**
+@@ -178,7 +185,7 @@ public class BaiduMapActivity extends AppCompatActivity {
+                 LatLng ll = new LatLng(location.getLatitude(),
+                         location.getLongitude());
+ 
+-                tvLocation.setText("" + ll.toString() + "    " + ll.latitude);
++//                tvLocation.setText("" + ll.toString() + "    " + ll.latitude);
+                 MapStatusUpdate u = MapStatusUpdateFactory.newLatLng(ll);
+                 mBaiduMap.animateMapStatus(u);
+             }
+diff --git a/app/src/main/java/com/zhm/duxiangle/BookDetailActivity.java b/app/src/main/java/com/zhm/duxiangle/BookDetailActivity.java
+index df25f2c..a7e93e6 100644
+--- a/app/src/main/java/com/zhm/duxiangle/BookDetailActivity.java
++++ b/app/src/main/java/com/zhm/duxiangle/BookDetailActivity.java
+@@ -110,7 +110,6 @@ public class BookDetailActivity extends SlidingBackActivity {
+         isMy = getIntent().getBooleanExtra("isMy",false);
+         //获取用户信息
+         getUser();
+-
+         bookCover.setOnDragListener(new View.OnDragListener() {
+             @Override
+             public boolean onDrag(View v, DragEvent event) {
+diff --git a/app/src/main/java/com/zhm/duxiangle/EditUserInfoActivity.java b/app/src/main/java/com/zhm/duxiangle/EditUserInfoActivity.java
+index 9bd4040..cee936a 100644
+--- a/app/src/main/java/com/zhm/duxiangle/EditUserInfoActivity.java
++++ b/app/src/main/java/com/zhm/duxiangle/EditUserInfoActivity.java
+@@ -1,16 +1,13 @@
+ package com.zhm.duxiangle;
+ 
+-import android.content.ContentResolver;
+ import android.content.Intent;
+ import android.graphics.Bitmap;
+-import android.graphics.BitmapFactory;
+ import android.net.Uri;
+ import android.os.Bundle;
+ import android.os.Environment;
+ import android.support.design.widget.AppBarLayout;
+ import android.support.design.widget.FloatingActionButton;
+ import android.support.design.widget.Snackbar;
+-import android.support.v7.app.AppCompatActivity;
+ import android.support.v7.widget.Toolbar;
+ import android.text.TextUtils;
+ import android.util.Log;
+@@ -37,9 +34,6 @@ import com.zhm.duxiangle.utils.BitmapUtils;
+ import com.zhm.duxiangle.utils.DXLHttpUtils;
+ 
+ import java.io.File;
+-import java.io.FileNotFoundException;
+-import java.io.IOException;
+-import java.io.InputStream;
+ 
+ @ContentView(R.layout.activity_edit_user_info)
+ public class EditUserInfoActivity extends SlidingBackActivity implements View.OnClickListener {
+@@ -129,7 +123,7 @@ public class EditUserInfoActivity extends SlidingBackActivity implements View.On
+         String state = Environment.getExternalStorageState();
+         if (state.equals(Environment.MEDIA_MOUNTED)) {
+             Intent getImageByCamera = new Intent("android.media.action.IMAGE_CAPTURE");
+-            startActivityForResult(getImageByCamera, Constant.REQUEST_CODE_CAPTURE_CAMEIA);
++            startActivityForResult(getImageByCamera, Constant.REQUEST_CODE_CAPTURE_CAMERIA);
+         } else {
+             Toast.makeText(getApplicationContext(), "请确认已经插入SD卡", Toast.LENGTH_LONG).show();
+         }
+diff --git a/app/src/main/java/com/zhm/duxiangle/FriendsActivity.java b/app/src/main/java/com/zhm/duxiangle/FriendsActivity.java
+new file mode 100644
+index 0000000..f2b57e5
+--- /dev/null
++++ b/app/src/main/java/com/zhm/duxiangle/FriendsActivity.java
+@@ -0,0 +1,13 @@
++package com.zhm.duxiangle;
++
++import android.support.v7.app.AppCompatActivity;
++import android.os.Bundle;
++
++public class FriendsActivity extends AppCompatActivity {
++
++    @Override
++    protected void onCreate(Bundle savedInstanceState) {
++        super.onCreate(savedInstanceState);
++        setContentView(R.layout.activity_friends);
++    }
++}
+diff --git a/app/src/main/java/com/zhm/duxiangle/SearchBookActivity.java b/app/src/main/java/com/zhm/duxiangle/SearchBookActivity.java
+index 5ed4465..d630016 100644
+--- a/app/src/main/java/com/zhm/duxiangle/SearchBookActivity.java
++++ b/app/src/main/java/com/zhm/duxiangle/SearchBookActivity.java
+@@ -41,7 +41,7 @@ import java.util.List;
+ public class SearchBookActivity extends SlidingBackActivity implements View.OnClickListener, SwipeRefreshLayout.OnRefreshListener {
+ 
+     private int thispage = 0;
+-    private int rowperpage = 1;
++    private int rowperpage = 5;
+     private User user;
+     //搜索视图
+     @ViewInject(R.id.etSearch)
+@@ -64,14 +64,16 @@ public class SearchBookActivity extends SlidingBackActivity implements View.OnCl
+     private ImageButton ibBack;
+     @ViewInject(R.id.tvTitle)
+     private TextView tvTitle;
++    private String userid;
+ 
+     @Override
+     protected void onCreate(Bundle savedInstanceState) {
+         super.onCreate(savedInstanceState);
+         ViewUtils.inject(this);
+         ibBack.setOnClickListener(this);
+-        tvTitle.setText("搜索我的书库");
+-        getUser();
++        userid = String.valueOf(getIntent().getIntExtra("userid", 0));
++        tvTitle.setText("搜索书库");
++//        getUser();
+         pageBooks = new Page<>();
+         list = new ArrayList<>();
+         btnSearch.setOnClickListener(this);
+@@ -99,7 +101,7 @@ public class SearchBookActivity extends SlidingBackActivity implements View.OnCl
+                                 Snackbar.make(mSwipeLayout, "已到尾页", Snackbar.LENGTH_SHORT).show();
+                                 return;
+                             }
+-                            mSwipeLayout.setRefreshing(true);
++
+                             Log.i("LastItem", String.valueOf(layoutManager.findLastCompletelyVisibleItemPosition()));
+                             searchBooks(keywords, thispage, rowperpage);
+                         }
+@@ -116,6 +118,8 @@ public class SearchBookActivity extends SlidingBackActivity implements View.OnCl
+                 super.onScrolled(recyclerView, dx, dy);
+             }
+         });
++
++        searchBooks("", thispage, rowperpage);
+     }
+ 
+     public void getUser() {
+@@ -136,6 +140,7 @@ public class SearchBookActivity extends SlidingBackActivity implements View.OnCl
+     public void onClick(View v) {
+         switch (v.getId()) {
+             case R.id.btnSearch:
++                list.removeAll(list);
+                 keywords = etSearch.getText().toString().trim();
+                 mSwipeLayout.setRefreshing(true);
+                 thispage = 0;
+@@ -148,21 +153,25 @@ public class SearchBookActivity extends SlidingBackActivity implements View.OnCl
+     }
+ 
+     private void searchBooks(String keywords, int _thispage, int _rowperpage) {
++        mSwipeLayout.setRefreshing(true);
+         RequestParams params = new RequestParams();
+         params.addBodyParameter("action", "searchbook");
+         params.addBodyParameter("keywords", keywords);
+-        params.addBodyParameter("userid", String.valueOf(user.getUserId()));
++        params.addBodyParameter("userid", userid);
+         params.addBodyParameter("thispage", String.valueOf(_thispage));
+         params.addBodyParameter("rowperpage", String.valueOf(_rowperpage));
+         DXLHttpUtils.getHttpUtils().send(HttpRequest.HttpMethod.POST, DXLApi.bookApi(), params, new RequestCallBack<String>() {
+             @Override
+             public void onSuccess(ResponseInfo<String> responseInfo) {
++                mSwipeLayout.setRefreshing(false);
+                 String result = responseInfo.result;
+                 Log.i("Result:", result);
+                 if ("action is null".equals(result)) {
++                    Snackbar.make(btnSearch, result, Snackbar.LENGTH_SHORT).show();
+                     return;
+                 }
+                 if ("userid is null".equals(result)) {
++                    Snackbar.make(btnSearch, result, Snackbar.LENGTH_SHORT).show();
+                     return;
+                 }
+                 pageBooks = GsonUtils.getInstance().getPageBooks(result);
+@@ -177,9 +186,7 @@ public class SearchBookActivity extends SlidingBackActivity implements View.OnCl
+                         adapter.notifyDataSetChanged();
+                     }
+                 } else {
+-
+                 }
+-                mSwipeLayout.setRefreshing(false);
+             }
+ 
+             @Override
+@@ -192,17 +199,6 @@ public class SearchBookActivity extends SlidingBackActivity implements View.OnCl
+ 
+     @Override
+     public void onRefresh() {
+-        new Thread(new Runnable() {
+-            @Override
+-            public void run() {
+-                try {
+-                    Thread.sleep(1000);
+-                } catch (InterruptedException e) {
+-                    e.printStackTrace();
+-                }
+-                mSwipeLayout.setRefreshing(false);
+-            }
+-        }).start();
+-
++        mSwipeLayout.setRefreshing(false);
+     }
+ }
+diff --git a/app/src/main/java/com/zhm/duxiangle/UserInfoDetailActivity.java b/app/src/main/java/com/zhm/duxiangle/UserInfoDetailActivity.java
+index 767392c..4d55ab4 100644
+--- a/app/src/main/java/com/zhm/duxiangle/UserInfoDetailActivity.java
++++ b/app/src/main/java/com/zhm/duxiangle/UserInfoDetailActivity.java
+@@ -1,33 +1,28 @@
+ package com.zhm.duxiangle;
+ 
+ import android.content.ContentResolver;
+-import android.content.ContentUris;
+-import android.content.Context;
++import android.content.ContentValues;
++import android.content.DialogInterface;
+ import android.content.Intent;
+-import android.database.Cursor;
+ import android.graphics.Bitmap;
+ import android.graphics.BitmapFactory;
+ import android.net.Uri;
+ import android.os.Bundle;
+ import android.os.Environment;
+-import android.provider.DocumentsContract;
+ import android.provider.MediaStore;
+ import android.support.design.widget.CollapsingToolbarLayout;
+-import android.support.design.widget.FloatingActionButton;
+ import android.support.design.widget.Snackbar;
+-import android.support.v7.app.AppCompatActivity;
++import android.support.v7.app.AlertDialog;
+ import android.support.v7.widget.Toolbar;
+ import android.text.TextUtils;
+ import android.util.Log;
+ import android.view.View;
+ import android.widget.Button;
+-import android.widget.EditText;
+ import android.widget.ImageButton;
+ import android.widget.ImageView;
+ import android.widget.TextView;
+ import android.widget.Toast;
+ 
+-import com.lidroid.xutils.HttpUtils;
+ import com.lidroid.xutils.ViewUtils;
+ import com.lidroid.xutils.exception.HttpException;
+ import com.lidroid.xutils.http.RequestParams;
+@@ -51,7 +46,6 @@ import java.io.IOException;
+ import java.io.InputStream;
+ 
+ import io.rong.imkit.RongIM;
+-import io.rong.imlib.RongIMClient;
+ 
+ @ContentView(R.layout.activity_user_info_detail)
+ public class UserInfoDetailActivity extends SlidingBackActivity implements View.OnClickListener {
+@@ -85,7 +79,8 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
+ 
+     //悬浮按钮
+     @ViewInject(R.id.fab)
+-    private FloatingActionButton fab;
++    private ImageView fab;
++    private boolean isMy;
+ 
+     @Override
+     protected void onStart() {
+@@ -164,14 +159,7 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
+ 
+         if (userinfo.getAvatar() != null)
+             BitmapUtils.getInstance(getApplicationContext()).setAvatar(fab, DXLApi.BASE_URL + userinfo.getAvatar());
+-        fab.setOnClickListener(new View.OnClickListener() {
+-            @Override
+-            public void onClick(final View view) {
+-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+-                        .setAction("Action", null).show();
+-                enterConversation(view);
+-            }
+-        });
++
+ 
+         //照片墙
+         if (!TextUtils.isEmpty(userinfo.getPicWall())) {
+@@ -180,12 +168,13 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
+ 
+         btnSend.setOnClickListener(this);
+         btnEdit.setOnClickListener(this);
+-        boolean isMy = getIntent().getBooleanExtra("isMy",false);
+-        Log.i("isMy",isMy+"");
+-        if(isMy){
++        isMy = getIntent().getBooleanExtra("isMy", false);
++        Log.i("isMy", isMy + "");
++        ivWall.setOnClickListener(this);
++        if (isMy) {
+             btnSend.setVisibility(View.GONE);
+-            ivWall.setOnClickListener(this);
+-        }else{
++            fab.setOnClickListener(this);
++        } else {
+             btnEdit.setVisibility(View.GONE);
+         }
+ 
+@@ -210,6 +199,31 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
+         }
+     }
+ 
++    private void dialog() {
++        new AlertDialog.Builder(this).setTitle("个性背景墙").setIcon(
++                R.drawable.ic_launcher).setSingleChoiceItems(
++                new String[]{"从相册选择", "拍照选择"}, 0,
++                new DialogInterface.OnClickListener() {
++                    public void onClick(DialogInterface dialog, int which) {
++                        switch (which) {
++                            case 0:
++                                intentOpenImage();
++                                break;
++                            case 1:
++                                intentOpenCamera();
++                                break;
++                        }
++                        dialog.dismiss();
++                    }
++                })
++                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
++                    @Override
++                    public void onClick(DialogInterface dialog, int which) {
++                        dialog.dismiss();
++                    }
++                }).show();
++    }
++
+     private void initData(Intent intent) {
+         userinfo = (UserInfo) intent.getSerializableExtra("userinfo");
+         if (userinfo != null) {
+@@ -237,7 +251,17 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
+                 break;
+ 
+             case R.id.ivWall:
+-                intentOpenImage();
++                if (TextUtils.isEmpty(userinfo.getPicWall()) && isMy == true) {
++                    dialog();
++                } else {
++                    intent = new Intent();
++                    intent.setClass(UserInfoDetailActivity.this, WebImageActivity.class);
++                    intent.putExtra("url", DXLApi.BASE_URL + userinfo.getPicWall());
++                    startActivity(intent);
++                }
++                break;
++            case R.id.fab:
++                dialog();
+                 break;
+         }
+     }
+@@ -250,57 +274,61 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
+         startActivityForResult(intent, Constant.REQUEST_CODE_MEDIA);
+     }
+ 
++    private void intentOpenCamera() {
++        String state = Environment.getExternalStorageState();
++        if (state.equals(Environment.MEDIA_MOUNTED)) {
++            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
++            uri = Uri.fromFile(new File(Environment.getExternalStorageDirectory() + "/duxiangle_ivWall.jpg"));
++            intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
++            intent.putExtra("return-data", true);
++            /***
++             * 需要说明一下，以下操作使用照相机拍照，拍照后的图片会存放在相册中的
++             * 这里使用的这种方式有一个好处就是获取的图片是拍照后的原图
++             * 如果不实用ContentValues存放照片路径的话
++             * ，拍照后获取的图片为缩略图不清晰
++             */
++//            Uri photoUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, new ContentValues());
++//            intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, photoUri);
++            startActivityForResult(intent, Constant.REQUEST_CODE_CAPTURE_CAMERIA);
++        } else {
++            Toast.makeText(getApplicationContext(), "请确认已经插入SD卡", Toast.LENGTH_LONG).show();
++        }
++    }
++
+     Uri uri;
+ 
+     @Override
+     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+-        if (resultCode != RESULT_OK || data == null) {
++        if (resultCode != RESULT_OK) {
++            Log.i("data:", "null" + RESULT_OK);
+             return;
+         }
++//        if(uri==null){
++//            Bundle bundle = data.getExtras();
++//            Bitmap bitmap = (Bitmap) bundle.get("data");
++//            uri = Uri.parse(MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, null, null));
++//        }
+ 
+         switch (requestCode) {
+             case Constant.REQUEST_CODE_MEDIA:
+-                ContentResolver resolver = getContentResolver();
+-
++                if (data == null) {
++                    return;
++                }
+                 uri = data.getData();
+                 if (uri == null) {
++                    Log.i("uri", "uri为null");
+                     return;
+                 }
+-                InputStream is = null;
+-                try {
+-                    // 直接使用下面的方法会出现OOM异常
+-                    // java.lang.OutOfMemoryError
+-                    BitmapFactory.Options opts = new BitmapFactory.Options();
+-                    opts.inJustDecodeBounds = true;// 设置只获取图片的边界，先不讲图片读入内存
+-                    is = getContentResolver().openInputStream(uri);
+-                    Bitmap bitmap = BitmapFactory.decodeStream(is, null, opts);
+-
+-                    // opts.outWidth = 200;
+-                    // int height = opts.outHeight * 200 / opts.outWidth;
+-                    // opts.outHeight = height;
+-
+-                    opts.inJustDecodeBounds = false;
+-
+-                    // 压缩图片为原来的1/4
+-                    opts.inSampleSize = 4;// 图片缩小为原来的1/8
+-
+-                    bitmap = BitmapFactory.decodeStream(getContentResolver()
+-                            .openInputStream(uri), null, opts);
+-                    ivWall.setImageBitmap(bitmap);
+-
+-                } catch (FileNotFoundException e) {
+-                    // TODO Auto-generated catch block
+-                    e.printStackTrace();
+-                } finally {
+-                    if (is != null) {
+-                        try {
+-                            is.close();
+-                        } catch (IOException e) {
+-                            // TODO Auto-generated catch block
+-                            e.printStackTrace();
+-                        }
+-                    }
+-                }
++                String path = BitmapUtils.getImageAbsolutePath(this, uri);
++                Log.i("path:", path);
++                Bitmap bitmap = BitmapUtils.getimage(path);
++                ivWall.setImageBitmap(bitmap);
++                uploadPicWall();
++                break;
++            case Constant.REQUEST_CODE_CAPTURE_CAMERIA:
++                String path1 = BitmapUtils.getImageAbsolutePath(this, uri);
++                Bitmap bitmap1 = BitmapUtils.getimage(path1);
++                ivWall.setImageBitmap(bitmap1);
+                 uploadPicWall();
+                 break;
+         }
+@@ -323,11 +351,14 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
+                 public void onSuccess(ResponseInfo<String> responseInfo) {
+                     Log.i(UserInfoDetailActivity.class.getSimpleName() + "responseInfo:", responseInfo.result);
+                     MainActivity.updateUserInfo = true;
++                    Snackbar.make(ivWall,"修改成功",Snackbar.LENGTH_SHORT).show();
++                    getUser();
+                 }
+ 
+                 @Override
+                 public void onFailure(HttpException error, String msg) {
+                     Log.i(UserInfoDetailActivity.class.getSimpleName() + "msg:", msg);
++                    Snackbar.make(ivWall,"网络异常，修改失败",Snackbar.LENGTH_SHORT).show();
+                 }
+             });
+         }
+@@ -337,7 +368,7 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
+         String state = Environment.getExternalStorageState();
+         if (state.equals(Environment.MEDIA_MOUNTED)) {
+             Intent getImageByCamera = new Intent("android.media.action.IMAGE_CAPTURE");
+-            startActivityForResult(getImageByCamera, Constant.REQUEST_CODE_CAPTURE_CAMEIA);
++            startActivityForResult(getImageByCamera, Constant.REQUEST_CODE_CAPTURE_CAMERIA);
+         } else {
+             Toast.makeText(getApplicationContext(), "请确认已经插入SD卡", Toast.LENGTH_LONG).show();
+         }
+diff --git a/app/src/main/java/com/zhm/duxiangle/adapter/UserListAdapter.java b/app/src/main/java/com/zhm/duxiangle/adapter/UserListAdapter.java
+index 71c7d60..b5e278f 100644
+--- a/app/src/main/java/com/zhm/duxiangle/adapter/UserListAdapter.java
++++ b/app/src/main/java/com/zhm/duxiangle/adapter/UserListAdapter.java
+@@ -12,17 +12,35 @@ import android.widget.TextView;
+ 
+ import com.lidroid.xutils.ViewUtils;
+ import com.lidroid.xutils.view.annotation.ViewInject;
++import com.zhm.duxiangle.LoginActivity;
+ import com.zhm.duxiangle.R;
++import com.zhm.duxiangle.SearchBookActivity;
+ import com.zhm.duxiangle.UserInfoDetailActivity;
+ import com.zhm.duxiangle.api.DXLApi;
++import com.zhm.duxiangle.bean.User;
+ import com.zhm.duxiangle.bean.UserInfo;
+ import com.zhm.duxiangle.utils.BitmapUtils;
++import com.zhm.duxiangle.utils.GsonUtils;
++import com.zhm.duxiangle.utils.SpUtil;
+ 
+ import java.util.List;
+ 
+-public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.MyViewHolder> implements View.OnClickListener {
++public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.MyViewHolder> {
+     private Context mContext;
+     private List<UserInfo> userInfoList;
++    private User user;
++
++    public void getUser() {
++        //获取用户信息
++        user = new User();
++        String json = SpUtil.getSharePerference(mContext).getString("user", "");
++        if (!TextUtils.isEmpty(json)) {
++            user = GsonUtils.getInstance().json2Bean(json, User.class);
++            if (user != null) {
++            } else {
++            }
++        }
++    }
+ 
+     /**
+      * @param mContext     上下文
+@@ -36,7 +54,6 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.MyView
+     @Override
+     public UserListAdapter.MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+         View view = LayoutInflater.from(mContext).inflate(R.layout.fragment_user_list_item, null);
+-        view.setOnClickListener(this);
+         return new MyViewHolder(view);
+     }
+ 
+@@ -44,16 +61,35 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.MyView
+     public void onBindViewHolder(UserListAdapter.MyViewHolder holder, int position) {
+         final UserInfo userInfo = userInfoList.get(position);
+         if (!TextUtils.isEmpty(userInfo.getAvatar())) {
+-            BitmapUtils.getInstance(mContext).setAvatar(holder.ivUser, DXLApi.BASE_URL+userInfo.getAvatar(), null);
++            BitmapUtils.getInstance(mContext).setAvatar(holder.ivUser, DXLApi.BASE_URL + userInfo.getAvatar(), null);
+         }
+         holder.tvNickname.setText(userInfo.getNickname());
+         holder.tvDesc.setText(userInfo.getDescrib());
+         holder.itemView.setOnClickListener(new View.OnClickListener() {
+             @Override
+             public void onClick(View v) {
++//                Intent intent = new Intent();
++//                intent.setClass(mContext, UserInfoDetailActivity.class);
++//                intent.putExtra("userinfo", userInfo);
++//                mContext.startActivity(intent);
++                Intent intent = new Intent(mContext, SearchBookActivity.class);
++                intent.putExtra("userid", userInfo.getUserId());
++                if (userInfo.getUserId() == user.getUserId()) {
++                    intent.putExtra("isMy", true);
++                }
++                mContext.startActivity(intent);
++            }
++        });
++
++        holder.ivUser.setOnClickListener(new View.OnClickListener() {
++            @Override
++            public void onClick(View v) {
+                 Intent intent = new Intent();
+                 intent.setClass(mContext, UserInfoDetailActivity.class);
+                 intent.putExtra("userinfo", userInfo);
++                if (userInfo.getUserId() == user.getUserId()) {
++                    intent.putExtra("isMy", true);
++                }
+                 mContext.startActivity(intent);
+             }
+         });
+@@ -64,17 +100,6 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.MyView
+         return userInfoList.size();
+     }
+ 
+-    @Override
+-    public void onClick(View v) {
+-//        switch (v.getId()) {
+-//            case R.layout.fragment_user_list_item:
+-        Intent intent = new Intent();
+-        intent.setClass(mContext, UserInfoDetailActivity.class);
+-        mContext.startActivity(intent);
+-//                break;
+-//        }
+-    }
+-
+     class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+         @ViewInject(R.id.ivUser)
+         ImageView ivUser;
+@@ -86,6 +111,7 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.MyView
+         public MyViewHolder(View itemView) {
+             super(itemView);
+             ViewUtils.inject(this, itemView);
++            getUser();
+ 
+         }
+ 
+diff --git a/app/src/main/java/com/zhm/duxiangle/api/DXLApi.java b/app/src/main/java/com/zhm/duxiangle/api/DXLApi.java
+index 9f66a58..fe1bc69 100644
+--- a/app/src/main/java/com/zhm/duxiangle/api/DXLApi.java
++++ b/app/src/main/java/com/zhm/duxiangle/api/DXLApi.java
+@@ -6,8 +6,8 @@ package com.zhm.duxiangle.api;
+ public class DXLApi {
+     //login:http://localhost:8080/DuXiangLeServer/UserServlet?action=login
+     //192.168.253.1
+-    public static String HOST = "192.168.23.1:8080";
+-//    public static String HOST = "120.25.201.60";
++//    public static String HOST = "192.168.23.1:8080";
++    public static String HOST = "120.25.201.60";
+     public static String PORT = "";
+ 
+     public static String BASE_URL = "http://" + HOST;
+@@ -28,7 +28,6 @@ public class DXLApi {
+         return "http://" + HOST + PORT + "/DuXiangLeServer/UserInfoServlet";
+     }
+ 
+-
+     //http://localhost:8080/DuXiangLeServer/FileUploadServlet
+     public static String getFileUpLoad() {
+         return "http://" + HOST + PORT + "/DuXiangLeServer/FileUploadServlet";
+@@ -51,4 +50,10 @@ public class DXLApi {
+ 
+         return "http://" + HOST + PORT + "/DuXiangLeServer/UpdatePicWallServlet";
+     }
++
++    //http://localhost:8080/DuXiangLeServer/FriendsServlet?action=get_friends&userid=4
++    //好友相关的api
++    public static String getFriendsApi() {
++        return "http://" + HOST + PORT + "/DuXiangLeServer/FriendsServlet";
++    }
+ }
+diff --git a/app/src/main/java/com/zhm/duxiangle/bean/Constant.java b/app/src/main/java/com/zhm/duxiangle/bean/Constant.java
+index cc3efc1..6f056bc 100644
+--- a/app/src/main/java/com/zhm/duxiangle/bean/Constant.java
++++ b/app/src/main/java/com/zhm/duxiangle/bean/Constant.java
+@@ -13,7 +13,7 @@ public class Constant {
+     //从相册获取照片
+     public static final int REQUEST_CODE_MEDIA = 3;
+ 
+-    public static final int REQUEST_CODE_CAPTURE_CAMEIA = 4;
++    public static final int REQUEST_CODE_CAPTURE_CAMERIA = 4;
+ 
+     //微信id
+     public static final String APP_ID_WECHAT="wxcb5e68f7c7a3f78a";
+diff --git a/app/src/main/java/com/zhm/duxiangle/fragment/HomeFragment.java b/app/src/main/java/com/zhm/duxiangle/fragment/HomeFragment.java
+index 2d50813..9124b66 100644
+--- a/app/src/main/java/com/zhm/duxiangle/fragment/HomeFragment.java
++++ b/app/src/main/java/com/zhm/duxiangle/fragment/HomeFragment.java
+@@ -324,6 +324,7 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
+             @Override
+             public void onClick(View v) {
+                 Intent intent = new Intent(getActivity(), SearchBookActivity.class);
++                intent.putExtra("userid",user.getUserId());
+                 startActivity(intent);
+             }
+         });
+diff --git a/app/src/main/java/com/zhm/duxiangle/wxapi/WXEntryActivity.java b/app/src/main/java/com/zhm/duxiangle/wxapi/WXEntryActivity.java
+index 1eb09bd..8a5c675 100644
+--- a/app/src/main/java/com/zhm/duxiangle/wxapi/WXEntryActivity.java
++++ b/app/src/main/java/com/zhm/duxiangle/wxapi/WXEntryActivity.java
+@@ -52,37 +52,33 @@ public class WXEntryActivity extends AppCompatActivity implements IWXAPIEventHan
+ //                tvContent.setText(baseResp.errStr + "--translaction" + baseResp.transaction + "--openid" + baseResp.openId + "--- checkargs[]" + baseResp.checkArgs());
+ 
+                 Log.i(TAG, "分享成功");
+-                ToastUtils.showToast(getApplicationContext(), "OK" + baseResp.errCode);
++                ToastUtils.showToast(getApplicationContext(), "分享成功");
+ //                ToastUtils.showToast();
+                 break;
+             case BaseResp.ErrCode.ERR_USER_CANCEL:
+                 //分享取消
+ //                tvContent.setText(baseResp.errStr);
+                 Log.i(TAG, "分享取消");
+-                ToastUtils.showToast(getApplicationContext(), "分享取消" + baseResp.errCode);
++                ToastUtils.showToast(getApplicationContext(), "分享失败");
+                 break;
+             case BaseResp.ErrCode.ERR_AUTH_DENIED:
+                 Log.i(TAG, "分享拒绝");
+ //                tvContent.setText(baseResp.errStr);
+-                ToastUtils.showToast(getApplicationContext(), "OK" + baseResp.errCode);
++                ToastUtils.showToast(getApplicationContext(), "分享失败");
+                 //分享拒绝
+                 break;
+             case BaseResp.ErrCode.ERR_SENT_FAILED:
+ //                tvContent.setText(baseResp.errStr);
+                 Log.i(TAG, "ERR_SENT_FAILED");
+-                ToastUtils.showToast(getApplicationContext(), "ERR_SENT_FAILED  " + baseResp.errCode);
++                ToastUtils.showToast(getApplicationContext(), "分享失败  ");
+                 break;
+             case BaseResp.ErrCode.ERR_UNSUPPORT:
+                 Log.i(TAG, "ERR_UNSUPPORT");
+-                ToastUtils.showToast(getApplicationContext(), "ERR_UNSUPPORT  " + baseResp.errCode);
+-                break;
+-            case BaseResp.ErrCode.ERR_COMM:
+-                Log.i(TAG, "default");
+-                ToastUtils.showToast(getApplicationContext(), "default" + baseResp.errCode);
++                ToastUtils.showToast(getApplicationContext(), "分享失败  ");
+                 break;
+             default:
+                 Log.i(TAG, "default");
+-                ToastUtils.showToast(getApplicationContext(), "default" + baseResp.errCode);
++                ToastUtils.showToast(getApplicationContext(), "分享失败");
+                 break;
+         }
+         finish();
+diff --git a/app/src/main/res/layout/activity_baidu_map.xml b/app/src/main/res/layout/activity_baidu_map.xml
+index 043559a..08f68bf 100644
+--- a/app/src/main/res/layout/activity_baidu_map.xml
++++ b/app/src/main/res/layout/activity_baidu_map.xml
+@@ -22,7 +22,7 @@
+             android:layout_height="fill_parent" />
+ 
+ 
+-        <LinearLayout
++       <!-- <LinearLayout
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_alignParentRight="true"
+@@ -54,7 +54,7 @@
+                     android:text="自定义图标"
+                     android:textColor="@color/cardview_light_background"></RadioButton>
+             </RadioGroup>
+-        </LinearLayout>
++        </LinearLayout>-->
+ 
+         <Button
+             android:id="@+id/button1"
+@@ -67,7 +67,15 @@
+ 
+         <TextView
+             android:id="@+id/tvLocation"
++            android:gravity="bottom"
++            android:text="当前位置"
++            android:background="#50FFFFFF"
++            android:textSize="17sp"
+             android:layout_width="wrap_content"
+-            android:layout_height="wrap_content" />
++            android:layout_height="wrap_content"
++            android:layout_alignParentBottom="true"
++            android:layout_alignParentLeft="true"
++            android:layout_alignParentStart="true"
++            android:layout_marginBottom="111dp" />
+     </RelativeLayout>
+ </LinearLayout>
+diff --git a/app/src/main/res/layout/activity_friends.xml b/app/src/main/res/layout/activity_friends.xml
+new file mode 100644
+index 0000000..901d328
+--- /dev/null
++++ b/app/src/main/res/layout/activity_friends.xml
+@@ -0,0 +1,10 @@
++<?xml version="1.0" encoding="utf-8"?>
++<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
++    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
++    android:paddingRight="@dimen/activity_horizontal_margin"
++    android:paddingTop="@dimen/activity_vertical_margin"
++    android:paddingBottom="@dimen/activity_vertical_margin"
++    tools:context="com.zhm.duxiangle.FriendsActivity">
++
++</RelativeLayout>
+diff --git a/app/src/main/res/layout/activity_user_info_detail.xml b/app/src/main/res/layout/activity_user_info_detail.xml
+index b25396d..e978359 100644
+--- a/app/src/main/res/layout/activity_user_info_detail.xml
++++ b/app/src/main/res/layout/activity_user_info_detail.xml
+@@ -23,10 +23,11 @@
+             app:contentScrim="?attr/colorPrimary"
+             app:layout_scrollFlags="scroll|exitUntilCollapsed">
+             <!--照片墙-->
+-            <ImageView
++            <com.flaviofaria.kenburnsview.KenBurnsView
+                 android:id="@+id/ivWall"
+                 android:layout_width="match_parent"
+                 android:adjustViewBounds="true"
++                android:scaleType="fitXY"
+                 android:layout_height="match_parent"
+                 android:src="@drawable/book_cover_default" />
+ 
+@@ -51,10 +52,10 @@
+     <include layout="@layout/content_user_info_detail" />
+ 
+ 
+-    <android.support.design.widget.FloatingActionButton
++    <com.zhm.duxiangle.view.CircleImageView
+         android:id="@+id/fab"
+-        android:layout_width="wrap_content"
+-        android:layout_height="wrap_content"
++        android:layout_width="60dp"
++        android:layout_height="60dp"
+         android:layout_margin="@dimen/fab_margin"
+         android:src="@android:drawable/ic_dialog_email"
+         app:layout_anchor="@id/app_bar"
+diff --git a/app/src/main/res/layout/content_edit_user_info.xml b/app/src/main/res/layout/content_edit_user_info.xml
+index 11b2908..46adcec 100644
+--- a/app/src/main/res/layout/content_edit_user_info.xml
++++ b/app/src/main/res/layout/content_edit_user_info.xml
+@@ -28,7 +28,7 @@
+         <TextView
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+-            android:text="昵称:" />
++            android:text="我的昵称:" />
+ 
+         <EditText
+             android:id="@+id/etNickname"
+@@ -47,7 +47,7 @@
+ 
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+-            android:text="时间" />
++            android:text="个性签名" />
+ 
+         <EditText
+             android:id="@+id/etCreated"
+@@ -64,7 +64,7 @@
+         <TextView
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+-            android:text="描述:" />
++            android:text="个人描述:" />
+ 
+         <EditText
+             android:id="@+id/etDesc"
+diff --git a/app/src/main/res/layout/content_user_info_detail.xml b/app/src/main/res/layout/content_user_info_detail.xml
+index fe460cc..a8d203a 100644
+--- a/app/src/main/res/layout/content_user_info_detail.xml
++++ b/app/src/main/res/layout/content_user_info_detail.xml
+@@ -52,7 +52,7 @@
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:layout_marginLeft="22dp"
+-                android:text="创建时间:" />
++                android:text="个性签名:" />
+ 
+             <TextView
+                 android:id="@+id/etCreated"
+diff --git a/app/src/main/res/layout/fragment_user_list.xml b/app/src/main/res/layout/fragment_user_list.xml
+index e580f60..259eb32 100644
+--- a/app/src/main/res/layout/fragment_user_list.xml
++++ b/app/src/main/res/layout/fragment_user_list.xml
+@@ -13,6 +13,7 @@
+             android:id="@+id/recycler_userlist"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
++            android:descendantFocusability="blocksDescendants"
+             android:scrollbars="vertical" />
+     </android.support.v4.widget.SwipeRefreshLayout>
+ 
+diff --git a/app/src/main/res/layout/fragment_user_list_item.xml b/app/src/main/res/layout/fragment_user_list_item.xml
+index 4849e28..8f6e10b 100644
+--- a/app/src/main/res/layout/fragment_user_list_item.xml
++++ b/app/src/main/res/layout/fragment_user_list_item.xml
+@@ -21,6 +21,8 @@
+                 android:layout_width="50dp"
+                 android:layout_height="50dp"
+                 android:layout_gravity="center_horizontal"
++                android:clickable="true"
++                android:focusable="false"
+                 android:src="@drawable/book_cover_default" />
+ 
+             <TextView
+diff --git a/app/src/main/res/layout/utils_toast.xml b/app/src/main/res/layout/utils_toast.xml
+index 87b5889..a9d3861 100644
+--- a/app/src/main/res/layout/utils_toast.xml
++++ b/app/src/main/res/layout/utils_toast.xml
+@@ -3,7 +3,7 @@
+     android:id="@+id/toast_layout"
+     android:layout_width="200dip"
+     android:layout_height="fill_parent"
+-    android:background="#111111"
++    android:background="@color/colorPrimary"
+     android:orientation="vertical">
+ 
+     <TextView
+@@ -18,7 +18,7 @@
+     <LinearLayout
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+-        android:background="#999999"
++        android:background="@color/lite_blue"
+         android:orientation="horizontal">
+ 
+         <ImageView

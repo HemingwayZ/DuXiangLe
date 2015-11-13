@@ -1,5 +1,7 @@
 package com.zhm.duxiangle;
 
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -13,6 +15,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -292,8 +295,35 @@ public class MainActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            new AlertDialog.Builder(this).setTitle("是否退出").setIcon(
+                    R.drawable.ic_launcher).setPositiveButton("确认", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    finish();
+                }
+            }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            }).show();
         }
+
+    }
+
+    private void dialog() {
+        new AlertDialog.Builder(this).setTitle("是否退出").setIcon(
+                R.drawable.ic_launcher).setPositiveButton("确认", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        }).show();
     }
 
     @Override
@@ -384,6 +414,12 @@ public class MainActivity extends AppCompatActivity
             startActivity(intent);
             SpUtil.cleanUser(SpUtil.getSharePerference(getApplicationContext()));
             finish();
+        } else if (id == R.id.nav_aboutus) {
+            Intent intent = new Intent();
+            intent.setClass(MainActivity.this, AboutUsActivity.class);
+            startActivity(intent);
+
+            return true;
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

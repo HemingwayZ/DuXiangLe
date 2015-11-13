@@ -93,18 +93,24 @@
     </content>
     <orderEntry type="jdk" jdkName="Android API 23 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" exported="" name="faceppsdk" level="project" />
+    <orderEntry type="library" exported="" name="faceppofflinesdk" level="project" />
+    <orderEntry type="library" exported="" name="baidumapapi_cloud_v3_6_0" level="project" />
+    <orderEntry type="library" exported="" name="library-1.2.3" level="project" />
+    <orderEntry type="library" exported="" name="baidumapapi_radar_v3_6_0" level="project" />
+    <orderEntry type="library" exported="" name="baidumapapi_util_v3_6_0" level="project" />
+    <orderEntry type="library" exported="" name="support-v4-23.0.1" level="project" />
+    <orderEntry type="library" exported="" name="locSDK_6.12" level="project" />
+    <orderEntry type="library" exported="" name="baidumapapi_base_v3_6_0" level="project" />
     <orderEntry type="library" exported="" name="design-23.0.1" level="project" />
     <orderEntry type="library" exported="" name="wximg" level="project" />
     <orderEntry type="library" exported="" name="appcompat-v7-23.0.1" level="project" />
     <orderEntry type="library" exported="" name="libammsdk" level="project" />
-    <orderEntry type="library" exported="" name="faceppsdk" level="project" />
-    <orderEntry type="library" exported="" name="faceppofflinesdk" level="project" />
-    <orderEntry type="library" exported="" name="library-1.2.3" level="project" />
     <orderEntry type="library" exported="" name="xUtils-2.6.14" level="project" />
-    <orderEntry type="library" exported="" name="BaiduLBS_Android" level="project" />
-    <orderEntry type="library" exported="" name="support-v4-23.0.1" level="project" />
-    <orderEntry type="library" exported="" name="support-annotations-23.0.1" level="project" />
+    <orderEntry type="library" exported="" name="baidumapapi_search_v3_6_0" level="project" />
+    <orderEntry type="library" exported="" name="baidumapapi_map_v3_6_0" level="project" />
     <orderEntry type="library" exported="" name="gson-2.4" level="project" />
+    <orderEntry type="library" exported="" name="support-annotations-23.0.1" level="project" />
     <orderEntry type="module" module-name="IMKit" exported="" />
     <orderEntry type="module" module-name="kenburnsview_lib" exported="" />
     <orderEntry type="module" module-name="zxing_lib" exported="" />
