@@ -3,11 +3,14 @@ package com.zhm.duxiangle;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -26,9 +29,15 @@ import com.lidroid.xutils.view.annotation.ViewInject;
 import com.zhm.duxiangle.api.DXLApi;
 import com.zhm.duxiangle.api.ShareApi;
 import com.zhm.duxiangle.bean.Book;
+import com.zhm.duxiangle.bean.User;
 import com.zhm.duxiangle.utils.DXLHttpUtils;
 import com.zhm.duxiangle.utils.GsonUtils;
+import com.zhm.duxiangle.utils.SpUtil;
 import com.zhm.duxiangle.utils.ToastUtils;
+
+import io.rong.imkit.RongIM;
+import io.rong.imlib.RongIMClient;
+import io.rong.message.RichContentMessage;
 
 @ContentView(R.layout.activity_book_operator)
 public class BookOperatorActivity extends Activity implements View.OnClickListener {
@@ -44,6 +53,22 @@ public class BookOperatorActivity extends Activity implements View.OnClickListen
     //
     @ViewInject(R.id.tvBack)
     private TextView tvBack;
+    private User user;
+    private boolean isMy = false;
+
+    public void getUser() {
+        //获取用户信息
+        String json = SpUtil.getSharePerference(getApplicationContext()).getString("user", "");
+        if (!TextUtils.isEmpty(json)) {
+            user = GsonUtils.getInstance().json2Bean(json, User.class);
+            if (user != null) {
+            } else {
+                Intent intent = new Intent(BookOperatorActivity.this, LoginActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,13 +76,8 @@ public class BookOperatorActivity extends Activity implements View.OnClickListen
         super.onCreate(savedInstanceState);
         overridePendingTransition(R.anim.activity_enter_from_bottom, 0);
         ViewUtils.inject(this);
+        getUser();
 
-        boolean isMy = getIntent().getBooleanExtra("isMy",false);
-        if (isMy) {
-            btnAdd.setVisibility(View.GONE);
-        } else {
-            btnDelete.setVisibility(View.GONE);
-        }
         book = (Book) getIntent().getSerializableExtra("book");
         //设置监听事件
         btnAdd.setOnClickListener(this);
@@ -65,6 +85,14 @@ public class BookOperatorActivity extends Activity implements View.OnClickListen
         btnShare.setOnClickListener(this);
 
         tvBack.setOnClickListener(this);
+        isMy = getIntent().getBooleanExtra("isMy", false);
+        if (isMy) {
+            btnAdd.setVisibility(View.GONE);
+            btnDelete.setVisibility(View.VISIBLE);
+        } else {
+            btnAdd.setVisibility(View.VISIBLE);
+            btnDelete.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -96,6 +124,9 @@ public class BookOperatorActivity extends Activity implements View.OnClickListen
                 break;
             case R.id.btnAdd://增加
                 saveBookToNet(btnAdd);
+
+                RichContentMessage message = new RichContentMessage("title","content","url");
+
                 break;
             case R.id.btnDelete://删除
                 Dialog dialog = new AlertDialog.Builder(this).setIcon(
@@ -135,6 +166,7 @@ public class BookOperatorActivity extends Activity implements View.OnClickListen
                 String result = responseInfo.result;
                 if ("1".equals(result)) {
                     ToastUtils.showToast(getApplicationContext(), "删除成功");
+                    finish();
                 } else {
                     ToastUtils.showToast(getApplicationContext(), "删除失败");
                 }
@@ -142,7 +174,7 @@ public class BookOperatorActivity extends Activity implements View.OnClickListen
 
             @Override
             public void onFailure(HttpException error, String msg) {
-
+                ToastUtils.showToast(getApplicationContext(), "服务器链接失败");
             }
         });
     }
@@ -159,16 +191,17 @@ public class BookOperatorActivity extends Activity implements View.OnClickListen
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
                 String result = responseInfo.result;
-                if (!"failed".equals(result)) {
-                    ToastUtils.showToast(getApplicationContext(), result);
+                if ("failed".equals(result)) {
+                    ToastUtils.showToast(getApplicationContext(), "书籍已存在,请勿重复添加");
                 } else {
-                    ToastUtils.showToast(getApplicationContext(), result);
+                    ToastUtils.showToast(getApplicationContext(), "添加成功");
+                    finish();
                 }
             }
 
             @Override
             public void onFailure(HttpException error, String msg) {
-                ToastUtils.showToast(getApplicationContext(), "链接服务器失败");
+                ToastUtils.showToast(getApplicationContext(), "服务器链接失败");
             }
         });
     }

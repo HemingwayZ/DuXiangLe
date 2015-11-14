@@ -1,5 +1,6 @@
 package com.zhm.duxiangle;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
@@ -20,15 +21,21 @@ import com.zhm.duxiangle.utils.BitmapUtils;
 import com.zhm.duxiangle.utils.DXLHttpUtils;
 import com.zhm.duxiangle.utils.GsonUtils;
 import com.zhm.duxiangle.utils.SpUtil;
+import com.zhm.duxiangle.utils.ToastUtils;
 
 import org.w3c.dom.Text;
 
 import java.util.Locale;
 
+import io.rong.imkit.RongContext;
 import io.rong.imkit.RongIM;
 import io.rong.imkit.fragment.ConversationFragment;
+import io.rong.imkit.widget.provider.CameraInputProvider;
+import io.rong.imkit.widget.provider.InputProvider;
+import io.rong.imkit.widget.provider.LocationInputProvider;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
+import io.rong.imlib.model.Message;
 import io.rong.imlib.model.UserInfo;
 
 public class ConversationActivity extends SlidingBackActivity {
@@ -152,6 +159,41 @@ public class ConversationActivity extends SlidingBackActivity {
 //            }
 //
 //        }, true);
+
+        RongIM.ConversationBehaviorListener listener = new RongIM.ConversationBehaviorListener() {
+            @Override
+            public boolean onUserPortraitClick(Context context, Conversation.ConversationType conversationType, UserInfo userInfo) {
+                Intent intent = new Intent(ConversationActivity.this, UserInfoDetailActivity.class);
+                intent.putExtra("userinfo", userinfo);
+                startActivity(intent);
+                return true;
+            }
+
+            @Override
+            public boolean onUserPortraitLongClick(Context context, Conversation.ConversationType conversationType, UserInfo userInfo) {
+                Intent intent = new Intent(ConversationActivity.this, UserInfoDetailActivity.class);
+                intent.putExtra("userinfo", userinfo);
+                startActivity(intent);
+                return true;
+            }
+
+            @Override
+            public boolean onMessageClick(Context context, View view, Message message) {
+                ToastUtils.showToast(ConversationActivity.this, message.getExtra());
+                return true;
+            }
+
+            @Override
+            public boolean onMessageLinkClick(Context context, String s) {
+                return false;
+            }
+
+            @Override
+            public boolean onMessageLongClick(Context context, View view, Message message) {
+                return false;
+            }
+        };
+
         fragment.setUri(uri);
     }
 

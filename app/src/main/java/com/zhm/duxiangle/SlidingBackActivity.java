@@ -5,8 +5,12 @@ import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 
+import com.zhm.duxiangle.bean.User;
+import com.zhm.duxiangle.utils.GsonUtils;
+import com.zhm.duxiangle.utils.SpUtil;
 import com.zhm.duxiangle.view.SlidingBackLayout;
 
 /**
@@ -18,6 +22,30 @@ import com.zhm.duxiangle.view.SlidingBackLayout;
  */
 public class SlidingBackActivity extends AppCompatActivity {
     protected SlidingBackLayout layout;
+    public User user;
+
+    /**
+     * 获取用户
+     */
+    private void getUser() {
+        //获取用户信息
+        String json = SpUtil.getSharePerference(getApplicationContext()).getString("user", "");
+        if (!TextUtils.isEmpty(json)) {
+            user = GsonUtils.getInstance().json2Bean(json, User.class);
+            if (user != null) {
+            } else {
+                Intent intent = new Intent(SlidingBackActivity.this, LoginActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        getUser();
+        super.onStart();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

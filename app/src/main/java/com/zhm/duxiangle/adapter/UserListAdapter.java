@@ -79,12 +79,6 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.MyView
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                Intent intent = new Intent(mContext, SearchBookActivity.class);
-//                intent.putExtra("userid", userInfo.getUserId());
-//                if (userInfo.getUserId() == user.getUserId()) {
-//                    intent.putExtra("isMy", true);
-//                }
-//                mContext.startActivity(intent);
                 Intent intent = new Intent();
                 intent.setClass(mContext, UserInfoDetailActivity.class);
                 intent.putExtra("userinfo", userInfo);
@@ -133,7 +127,6 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.MyView
         public void onClick(View v) {
             switch (v.getId()) {
                 case R.layout.fragment_user_list_item:
-
                     break;
             }
         }

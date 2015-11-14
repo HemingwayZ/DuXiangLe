@@ -1,10 +1,12 @@
 package com.zhm.duxiangle;
 
+import android.net.Uri;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.ImageButton;
@@ -31,8 +33,11 @@ import com.zhm.duxiangle.utils.ToastUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.rong.imkit.RongIM;
+
 @ContentView(R.layout.activity_friends)
 public class FriendsActivity extends SlidingBackActivity implements SwipeRefreshLayout.OnRefreshListener {
+    public static boolean isUpdateList = false;
     private LinearLayoutManager layoutManager;
     @ViewInject(R.id.swipeRefreshLayout)
     private SwipeRefreshLayout mSwipeLayout;
@@ -105,6 +110,14 @@ public class FriendsActivity extends SlidingBackActivity implements SwipeRefresh
                     tvContent.setText("还木有好友");
                 }
                 if (adapter != null && friendsInfo != null) {
+                    for (com.zhm.duxiangle.bean.UserInfo userinfo : friendsInfo) {
+                        if (userinfo != null) {
+                            if (TextUtils.isEmpty(userinfo.getAvatar())) {
+                                userinfo.setAvatar("");
+                            }
+                            RongIM.getInstance().refreshUserInfoCache(new io.rong.imlib.model.UserInfo(String.valueOf(userinfo.getUserId()), userinfo.getNickname(), Uri.parse(DXLApi.BASE_URL + userinfo.getAvatar())));
+                        }
+                    }
                     adapter.setUserInfoList(friendsInfo);
                     adapter.notifyDataSetChanged();
                 }
@@ -117,6 +130,15 @@ public class FriendsActivity extends SlidingBackActivity implements SwipeRefresh
                 tvContent.setText("网络链接失败");
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        if (isUpdateList == true) {
+            getFriendsFromNet();
+            isUpdateList = false;
+        }
+        super.onResume();
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.zhm.duxiangle.adapter;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,8 +14,12 @@ import com.lidroid.xutils.ViewUtils;
 import com.lidroid.xutils.view.annotation.ViewInject;
 import com.zhm.duxiangle.BookDetailActivity;
 import com.zhm.duxiangle.R;
+import com.zhm.duxiangle.SearchBookActivity;
 import com.zhm.duxiangle.bean.Book;
+import com.zhm.duxiangle.bean.User;
 import com.zhm.duxiangle.utils.BitmapUtils;
+import com.zhm.duxiangle.utils.GsonUtils;
+import com.zhm.duxiangle.utils.SpUtil;
 
 import java.util.List;
 
@@ -24,6 +29,7 @@ import java.util.List;
 public class HomeRecycleViewAdapter extends RecyclerView.Adapter<HomeRecycleViewAdapter.MyViewHolder> {
     private List<Book> mData;
     private Context mContext;
+    private User user;
 
     public void setBooks(List<Book> books) {
         mData = books;
@@ -42,6 +48,18 @@ public class HomeRecycleViewAdapter extends RecyclerView.Adapter<HomeRecycleView
         return holder;
     }
 
+    public void getUser() {
+        //获取用户信息
+        user = new User();
+        String json = SpUtil.getSharePerference(mContext).getString("user", "");
+        if (!TextUtils.isEmpty(json)) {
+            user = GsonUtils.getInstance().json2Bean(json, User.class);
+            if (user != null) {
+            } else {
+            }
+        }
+    }
+
     @Override
     public void onBindViewHolder(HomeRecycleViewAdapter.MyViewHolder holder, final int position) {
         BitmapUtils.getInstance(mContext).setAvatarWithoutReflect(holder.ivBookCover, mData.get(position).getImage());
@@ -54,7 +72,11 @@ public class HomeRecycleViewAdapter extends RecyclerView.Adapter<HomeRecycleView
                 Intent intent = new Intent();
                 intent.setClass(mContext, BookDetailActivity.class);
                 intent.putExtra("book", mData.get(position));
-                intent.putExtra("isMy", true);
+                if (mContext instanceof SearchBookActivity) {
+
+                } else {
+                    intent.putExtra("isMy", true);
+                }
                 mContext.startActivity(intent);
             }
         });

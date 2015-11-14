@@ -60,6 +60,8 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
     private Button btnAddFriend;
     @ViewInject(R.id.btnBookRoom)
     private Button btnBookRoom;
+    @ViewInject(R.id.btnRemoveFriend)
+    private Button btnRemoveFriend;
     //资料部分
     @ViewInject(R.id.etNickname)
     private TextView etNickname;
@@ -71,7 +73,6 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
     //照片墙
     @ViewInject(R.id.ivWall)
     private ImageView ivWall;
-    String Token = "TgvtMFddoNkHDeWcaXtKWwB9ft/fZ3RIRK/GfxqI/3AS+vgXGRPNaiQ6XcHmxeendjCnD8jE8K6z8kfj1J8WUA==";//test userid=2
 
 
     //悬浮按钮
@@ -79,6 +80,7 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
     private ImageView fab;
     private boolean isMy;
     private User user;
+    private boolean bIsMyFriend;
 
     @Override
     protected void onStart() {
@@ -90,18 +92,26 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
     protected void onResume() {
         if (MainActivity.updateUserInfo == true) {
             getUser();
+            if (user != null) {
+                getUserInfo(user.getUserId());
+            }
         }
         super.onResume();
     }
 
+    /**
+     * 获取用户
+     */
     private void getUser() {
         //获取用户信息
         String json = SpUtil.getSharePerference(getApplicationContext()).getString("user", "");
         if (!TextUtils.isEmpty(json)) {
             user = GsonUtils.getInstance().json2Bean(json, User.class);
             if (user != null) {
-                getUserInfo(user.getUserId());
             } else {
+                Intent intent = new Intent(UserInfoDetailActivity.this, LoginActivity.class);
+                startActivity(intent);
+                finish();
             }
         }
     }
@@ -147,36 +157,10 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
         ViewUtils.inject(this);
 
         getUser();
-        //获取token
-        String json = SpUtil.getSharePerference(getApplicationContext()).getString("user", "");
-        User user = GsonUtils.getInstance().json2Bean(json, User.class);
-        Token = user.getToken();
-
         initData(getIntent());
+        isMyFriend();
         setSupportActionBar(toolbar);
 
-        if (userinfo.getAvatar() != null)
-            BitmapUtils.getInstance(getApplicationContext()).setAvatarWithoutReflect(fab, DXLApi.BASE_URL + userinfo.getAvatar());
-
-
-        //照片墙
-        if (!TextUtils.isEmpty(userinfo.getPicWall())) {
-            BitmapUtils.getInstance(getApplicationContext()).setAvatarWithoutReflect(ivWall, DXLApi.BASE_URL + userinfo.getPicWall());
-        }
-
-        btnSend.setOnClickListener(this);
-        btnEdit.setOnClickListener(this);
-        isMy = getIntent().getBooleanExtra("isMy", false);
-        Log.i("isMy", isMy + "");
-        ivWall.setOnClickListener(this);
-        btnAddFriend.setOnClickListener(this);
-        btnBookRoom.setOnClickListener(this);
-        if (isMy) {
-            btnSend.setVisibility(View.GONE);
-            btnAddFriend.setVisibility(View.GONE);
-        } else {
-            btnEdit.setVisibility(View.GONE);
-        }
 
     }
 
@@ -240,11 +224,34 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
 
     private void initData(Intent intent) {
         userinfo = (UserInfo) intent.getSerializableExtra("userinfo");
+        isMy = getIntent().getBooleanExtra("isMy", false);
+        if (userinfo.getUserId() == user.getUserId()) {
+            isMy = true;
+        }
         if (userinfo != null) {
             etCreated.setText(userinfo.getCreated());
             etNickname.setText(userinfo.getNickname());
             etDesc.setText(userinfo.getDescrib());
             collapsingToolbarLayout.setTitle(userinfo.getNickname());
+            if (userinfo.getAvatar() != null) {
+                //头像
+                BitmapUtils.getInstance(getApplicationContext()).setAvatarWithoutReflect(fab, DXLApi.BASE_URL + userinfo.getAvatar());
+            }
+            if (!TextUtils.isEmpty(userinfo.getPicWall())) {
+                //照片墙
+                BitmapUtils.getInstance(getApplicationContext()).setAvatarWithoutReflect(ivWall, DXLApi.BASE_URL + userinfo.getPicWall());
+            }
+            btnSend.setOnClickListener(this);
+            btnEdit.setOnClickListener(this);
+            btnAddFriend.setOnClickListener(this);
+            btnRemoveFriend.setOnClickListener(this);
+            btnBookRoom.setOnClickListener(this);
+            ivWall.setOnClickListener(this);
+            if (isMy) {
+                btnSend.setVisibility(View.GONE);
+            } else {
+                btnEdit.setVisibility(View.GONE);
+            }
         }
     }
 
@@ -256,14 +263,22 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
                 onBackPressed();
                 break;
             case R.id.btnSend:
-                enterConversation(v);
+                if (bIsMyFriend) {
+                    enterConversation(v);
+                } else {
+                    Snackbar.make(btnSend, "请先添加用户为好友", Snackbar.LENGTH_SHORT).setAction("添加", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            addFriend();
+                        }
+                    }).show();
+                }
                 break;
             case R.id.btnEdit:
                 intent = new Intent(UserInfoDetailActivity.this, EditUserInfoActivity.class);
                 intent.putExtra("userinfo", userinfo);
                 startActivity(intent);
                 break;
-
             case R.id.ivWall:
                 dialog();
                 break;
@@ -272,11 +287,11 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
                 break;
             case R.id.btnAddFriend:
                 //添加好友操作
-                if (isMy) {
-                    deleteFriend();
-                } else {
-                    addFriend();
-                }
+                addFriend();
+                break;
+            case R.id.btnRemoveFriend:
+                //删除好友操作
+                removeFriend();
                 break;
             case R.id.btnBookRoom:
                 intoBookRoom();
@@ -307,7 +322,9 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
                     return;
                 }
                 if ("1".equals(result)) {
+                    FriendsActivity.isUpdateList = true;
                     Snackbar.make(btnAddFriend, "添加成功", Snackbar.LENGTH_SHORT).show();
+                    isMyFriend();
                 } else {
                     Snackbar.make(btnAddFriend, "添加失败", Snackbar.LENGTH_SHORT).show();
                 }
@@ -320,9 +337,9 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
         });
     }
 
-    private void deleteFriend() {
+    private void removeFriend() {
         RequestParams params = new RequestParams();
-        params.addBodyParameter("action", "add_friend");
+        params.addBodyParameter("action", "remove_friend");
         params.addBodyParameter("userid", String.valueOf(user.getUserId()));
         params.addBodyParameter("friendid", String.valueOf(userinfo.getUserId()));
         DXLHttpUtils.getHttpUtils().send(HttpRequest.HttpMethod.POST, DXLApi.getFriendsApi(), params, new RequestCallBack<String>() {
@@ -335,10 +352,50 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
                 if ("userid is null".equals(result)) {
                     return;
                 }
-                if ("1".equals(result)) {
+                if ("true".equals(result)) {
                     Snackbar.make(btnAddFriend, "删除成功", Snackbar.LENGTH_SHORT).show();
+                    isMyFriend();
+                    FriendsActivity.isUpdateList = true;
                 } else {
                     Snackbar.make(btnAddFriend, "删除失败", Snackbar.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(HttpException error, String msg) {
+                Snackbar.make(btnAddFriend, "服务器链接", Snackbar.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    //判断是否为我的好友
+    private void isMyFriend() {
+        RequestParams params = new RequestParams();
+        params.addBodyParameter("action", "is_my_friend");
+        params.addBodyParameter("userid", String.valueOf(user.getUserId()));
+        params.addBodyParameter("friendid", String.valueOf(userinfo.getUserId()));
+        DXLHttpUtils.getHttpUtils().send(HttpRequest.HttpMethod.POST, DXLApi.getFriendsApi(), params, new RequestCallBack<String>() {
+            @Override
+            public void onSuccess(ResponseInfo<String> responseInfo) {
+                String result = responseInfo.result;
+                if ("friendid is null".equals(result)) {
+                    return;
+                }
+                if ("userid is null".equals(result)) {
+                    return;
+                }
+                if ("true".equals(result)) {
+                    bIsMyFriend = true;
+                    btnAddFriend.setVisibility(View.GONE);
+                    btnRemoveFriend.setVisibility(View.VISIBLE);
+                } else {
+                    bIsMyFriend = false;
+                    btnAddFriend.setVisibility(View.VISIBLE);
+                    btnRemoveFriend.setVisibility(View.GONE);
+                }
+                if (isMy) {
+                    btnAddFriend.setVisibility(View.GONE);
+                    btnRemoveFriend.setVisibility(View.GONE);
                 }
             }
 
@@ -375,14 +432,6 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
             uri = Uri.fromFile(new File(Environment.getExternalStorageDirectory() + "/duxiangle_ivWall.jpg"));
             intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
             intent.putExtra("return-data", true);
-            /***
-             * 需要说明一下，以下操作使用照相机拍照，拍照后的图片会存放在相册中的
-             * 这里使用的这种方式有一个好处就是获取的图片是拍照后的原图
-             * 如果不实用ContentValues存放照片路径的话
-             * ，拍照后获取的图片为缩略图不清晰
-             */
-//            Uri photoUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, new ContentValues());
-//            intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, photoUri);
             startActivityForResult(intent, Constant.REQUEST_CODE_CAPTURE_CAMERIA);
         } else {
             Toast.makeText(getApplicationContext(), "请确认已经插入SD卡", Toast.LENGTH_LONG).show();
@@ -402,7 +451,6 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
 //            Bitmap bitmap = (Bitmap) bundle.get("data");
 //            uri = Uri.parse(MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, null, null));
 //        }
-
         switch (requestCode) {
             case Constant.REQUEST_CODE_MEDIA:
                 if (data == null) {

@@ -17,7 +17,8 @@ public class WebImageActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_web_image);
-        String url = "http://120.25.201.60/DuXiangLeServer/index/index.html";
+//        String url = "http://120.25.201.60/DuXiangLeServer/index/index.html";
+        String url = getIntent().getStringExtra("url");
         final WebView webView = (WebView) findViewById(R.id.webView);
         webView.getSettings().setBuiltInZoomControls(true);
         // 设置支持缩放

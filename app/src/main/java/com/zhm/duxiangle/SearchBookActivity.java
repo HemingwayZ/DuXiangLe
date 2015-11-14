@@ -72,6 +72,7 @@ public class SearchBookActivity extends SlidingBackActivity implements View.OnCl
         ViewUtils.inject(this);
         ibBack.setOnClickListener(this);
         userid = String.valueOf(getIntent().getIntExtra("userid", 0));
+
         tvTitle.setText("搜索书库");
 //        getUser();
         pageBooks = new Page<>();
@@ -128,6 +129,7 @@ public class SearchBookActivity extends SlidingBackActivity implements View.OnCl
         if (!TextUtils.isEmpty(json)) {
             user = GsonUtils.getInstance().json2Bean(json, User.class);
             if (user != null) {
+
             } else {
                 Intent intent = new Intent(SearchBookActivity.this, LoginActivity.class);
                 startActivity(intent);

@@ -81,7 +81,7 @@ public class SlidingBackLayout extends FrameLayout {
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         // 处理ViewPager冲突问题
         ViewPager mViewPager = getTouchViewPager(mViewPagers, ev);
-        Log.i(TAG, "mViewPager = " + mViewPager);
+//        Log.i(TAG, "mViewPager = " + mViewPager);
 
         if (mViewPager != null && mViewPager.getCurrentItem() != 0) {
             return super.onInterceptTouchEvent(ev);

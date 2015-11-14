@@ -8,13 +8,16 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.zhm.duxiangle.api.ShareApi;
+
 public class AboutUsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        ShareApi.getInstance(AboutUsActivity.this).regToWx();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_about_us);
-        String url = getIntent().getStringExtra("url");
+        final String url = "http://120.25.201.60/DuXiangLeServer/index/index.html";
         final WebView webView = (WebView) findViewById(R.id.webView);
         webView.getSettings().setBuiltInZoomControls(true);
         // 设置支持缩放
@@ -36,16 +39,10 @@ public class AboutUsActivity extends AppCompatActivity {
             }
         });
 
-        findViewById(R.id.btnSmall).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                webView.getSettings().setLayoutAlgorithm(WebSettings.LayoutAlgorithm.SINGLE_COLUMN);
-            }
-        });
         findViewById(R.id.btnBig).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                webView.getSettings().setLayoutAlgorithm(WebSettings.LayoutAlgorithm.NARROW_COLUMNS);
+                ShareApi.getInstance(AboutUsActivity.this).wechatShare(1, url);
             }
         });
     }
