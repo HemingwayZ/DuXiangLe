@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 
 import com.zhm.duxiangle.bean.User;
 import com.zhm.duxiangle.utils.GsonUtils;
@@ -67,4 +69,11 @@ public class SlidingBackActivity extends AppCompatActivity {
         overridePendingTransition(0, R.anim.hm_base_slide_right_out);
     }
 
+    public void hide(View v) {
+        InputMethodManager imm = (InputMethodManager) getApplication().getSystemService(getApplication().INPUT_METHOD_SERVICE);
+//                　　//显示键盘
+//                　　imm.showSoftInput(editText, 0);
+        //隐藏键盘
+        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+    }
 }

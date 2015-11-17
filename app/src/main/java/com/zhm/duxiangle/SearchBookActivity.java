@@ -142,6 +142,7 @@ public class SearchBookActivity extends SlidingBackActivity implements View.OnCl
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btnSearch:
+                hide(v);
                 list.removeAll(list);
                 keywords = etSearch.getText().toString().trim();
                 mSwipeLayout.setRefreshing(true);

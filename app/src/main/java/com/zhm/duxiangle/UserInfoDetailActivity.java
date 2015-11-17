@@ -121,7 +121,7 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
         RequestParams params = new RequestParams();
         params.addBodyParameter("action", "userinfo");
         params.addBodyParameter("userid", String.valueOf(userId));
-        DXLHttpUtils.getHttpUtils().send(HttpRequest.HttpMethod.POST, DXLApi.getUserListByPage(), params, new RequestCallBack<String>() {
+        DXLHttpUtils.getHttpUtils().send(HttpRequest.HttpMethod.POST, DXLApi.getUserInfoApi(), params, new RequestCallBack<String>() {
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
                 String result = responseInfo.result;
@@ -284,6 +284,7 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
                 break;
             case R.id.fab:
 //                dialog();
+                openBigAvatar();
                 break;
             case R.id.btnAddFriend:
                 //添加好友操作
@@ -297,6 +298,13 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
                 intoBookRoom();
                 break;
         }
+    }
+
+    private void openBigAvatar() {
+        Intent intent = new Intent();
+        intent.setClass(UserInfoDetailActivity.this,WebImageActivity.class);
+        intent.putExtra("url",userinfo.getAvatar());
+        startActivity(intent);
     }
 
     private void intoBookRoom() {

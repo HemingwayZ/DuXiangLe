@@ -3,7 +3,6 @@ package com.zhm.duxiangle;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -17,23 +16,15 @@ import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
 import com.zhm.duxiangle.api.DXLApi;
 import com.zhm.duxiangle.bean.User;
-import com.zhm.duxiangle.utils.BitmapUtils;
 import com.zhm.duxiangle.utils.DXLHttpUtils;
 import com.zhm.duxiangle.utils.GsonUtils;
 import com.zhm.duxiangle.utils.SpUtil;
 import com.zhm.duxiangle.utils.ToastUtils;
 
-import org.w3c.dom.Text;
-
 import java.util.Locale;
 
-import io.rong.imkit.RongContext;
 import io.rong.imkit.RongIM;
 import io.rong.imkit.fragment.ConversationFragment;
-import io.rong.imkit.widget.provider.CameraInputProvider;
-import io.rong.imkit.widget.provider.InputProvider;
-import io.rong.imkit.widget.provider.LocationInputProvider;
-import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.UserInfo;
@@ -80,7 +71,7 @@ public class ConversationActivity extends SlidingBackActivity {
         RequestParams params = new RequestParams();
         params.addBodyParameter("action", "userinfo");
         params.addBodyParameter("userid", String.valueOf(userId));
-        DXLHttpUtils.getHttpUtils().send(HttpRequest.HttpMethod.POST, DXLApi.getUserListByPage(), params, new RequestCallBack<String>() {
+        DXLHttpUtils.getHttpUtils().send(HttpRequest.HttpMethod.POST, DXLApi.getUserInfoApi(), params, new RequestCallBack<String>() {
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
                 String result = responseInfo.result;

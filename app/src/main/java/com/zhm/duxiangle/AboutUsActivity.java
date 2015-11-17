@@ -8,6 +8,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.zhm.duxiangle.api.DXLApi;
 import com.zhm.duxiangle.api.ShareApi;
 
 public class AboutUsActivity extends AppCompatActivity {
@@ -17,7 +18,7 @@ public class AboutUsActivity extends AppCompatActivity {
         ShareApi.getInstance(AboutUsActivity.this).regToWx();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_about_us);
-        final String url = "http://120.25.201.60/DuXiangLeServer/index/index.html";
+        final String url = DXLApi.BASE_URL+"/DuXiangLeServer/index/index.html";
         final WebView webView = (WebView) findViewById(R.id.webView);
         webView.getSettings().setBuiltInZoomControls(true);
         // 设置支持缩放

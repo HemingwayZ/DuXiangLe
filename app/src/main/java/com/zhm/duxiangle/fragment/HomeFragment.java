@@ -17,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import com.lidroid.xutils.DbUtils;
@@ -134,8 +135,8 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     @ViewInject(R.id.book_cover)
     private ImageView ivBookCover;
 
-    @ViewInject(R.id.btnSearch)
-    private Button btnSearch;
+    @ViewInject(R.id.ibSearch)
+    private ImageButton ibSearch;
     //未登录状态
     @ViewInject(R.id.isLogin)
     private ImageView isLogin;
@@ -319,11 +320,11 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                 super.onScrolled(recyclerView, dx, dy);
             }
         });
-        btnSearch.setOnClickListener(new View.OnClickListener() {
+        ibSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), SearchBookActivity.class);
-                intent.putExtra("userid",user.getUserId());
+                intent.putExtra("userid", user.getUserId());
                 startActivity(intent);
             }
         });

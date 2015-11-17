@@ -15,6 +15,7 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import com.lidroid.xutils.ViewUtils;
@@ -26,6 +27,7 @@ import com.lidroid.xutils.http.client.HttpRequest;
 import com.lidroid.xutils.view.annotation.ViewInject;
 import com.zhm.duxiangle.LoginActivity;
 import com.zhm.duxiangle.R;
+import com.zhm.duxiangle.SearchUserActivity;
 import com.zhm.duxiangle.adapter.UserListAdapter;
 import com.zhm.duxiangle.api.DXLApi;
 import com.zhm.duxiangle.bean.Constant;
@@ -58,6 +60,9 @@ public class UserListFragment extends Fragment implements SwipeRefreshLayout.OnR
     private String mParam1;
     private String mParam2;
     View view;
+    //搜索
+    @ViewInject(R.id.ibSearch)
+    private ImageButton ibSearch;
 
     @ViewInject(R.id.swipeRefreshLayout_userlist)
     SwipeRefreshLayout mSwipeLayout;
@@ -150,7 +155,7 @@ public class UserListFragment extends Fragment implements SwipeRefreshLayout.OnR
         params.addBodyParameter("action", action);
         params.addBodyParameter("thispage", String.valueOf(_thispage));
         params.addBodyParameter("rowperpage", String.valueOf(_rowperpage));
-        DXLHttpUtils.getHttpUtils().send(HttpRequest.HttpMethod.POST, DXLApi.getUserListByPage(), params, new RequestCallBack<String>() {
+        DXLHttpUtils.getHttpUtils().send(HttpRequest.HttpMethod.POST, DXLApi.getUserInfoApi(), params, new RequestCallBack<String>() {
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
 
@@ -202,7 +207,14 @@ public class UserListFragment extends Fragment implements SwipeRefreshLayout.OnR
         view = inflater.inflate(R.layout.fragment_user_list, container, false);
         ViewUtils.inject(this, view);
 
-
+        ibSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.setClass(getActivity(), SearchUserActivity.class);
+                startActivity(intent);
+            }
+        });
         //三设置下拉刷新监听事件和进度条
         mSwipeLayout.setOnRefreshListener(this);
         mSwipeLayout.setColorSchemeResources(android.R.color.holo_blue_light, android.R.color.holo_red_light, android.R.color.holo_orange_light, android.R.color.holo_green_light);

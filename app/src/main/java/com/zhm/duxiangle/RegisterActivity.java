@@ -5,7 +5,9 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -31,10 +33,14 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.lidroid.xutils.HttpUtils;
 import com.lidroid.xutils.ViewUtils;
+import com.lidroid.xutils.bitmap.BitmapDisplayConfig;
+import com.lidroid.xutils.bitmap.callback.BitmapLoadCallBack;
+import com.lidroid.xutils.bitmap.callback.BitmapLoadFrom;
 import com.lidroid.xutils.exception.HttpException;
 import com.lidroid.xutils.http.RequestParams;
 import com.lidroid.xutils.http.ResponseInfo;
@@ -43,12 +49,15 @@ import com.lidroid.xutils.http.client.HttpRequest;
 import com.lidroid.xutils.view.annotation.ContentView;
 import com.lidroid.xutils.view.annotation.ViewInject;
 import com.zhm.duxiangle.api.DXLApi;
+import com.zhm.duxiangle.bean.IdentifyingCode;
 import com.zhm.duxiangle.bean.RongYun;
 import com.zhm.duxiangle.bean.SdkHttpResult;
 import com.zhm.duxiangle.bean.User;
+import com.zhm.duxiangle.utils.BitmapUtils;
 import com.zhm.duxiangle.utils.DXLHttpUtils;
 import com.zhm.duxiangle.utils.GsonUtils;
 import com.zhm.duxiangle.utils.SpUtil;
+import com.zhm.duxiangle.utils.ToastUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,7 +82,10 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
     private static final String[] DUMMY_CREDENTIALS = new String[]{
             "foo@example.com:hello", "bar@example.com:world"
     };
-
+    @ViewInject(R.id.ivCheckCode)
+    private ImageView ivCheckCode;
+    @ViewInject(R.id.etCheckCode)
+    private EditText etCheckCode;
     // UI references.
     @ViewInject(R.id.email)
     private AutoCompleteTextView mEmailView;
@@ -89,6 +101,7 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
     private Button btnRegister;
     @ViewInject(R.id.tvLogin)
     private TextView tvLogin;
+    private String identifyingCode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -134,13 +147,29 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
         });
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+
+        getCheckCodeFromNet();
+        ivCheckCode.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getCheckCodeFromNet();
+            }
+        });
+    }
+
+    private void getCheckCodeFromNet() {
+
+        IdentifyingCode code = new IdentifyingCode();
+
+        ivCheckCode.setImageBitmap(code.createBitmap());
+        identifyingCode = code.getIdentifyingCode();
+
     }
 
     private void populateAutoComplete() {
         if (!mayRequestContacts()) {
             return;
         }
-
         getLoaderManager().initLoader(0, null, this);
     }
 
@@ -195,9 +224,24 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
         String email = mEmailView.getText().toString().trim();
         String password = mPasswordView.getText().toString().trim();
         String strConfirmPassowrd = confirmPassword.getText().toString().trim();
+//        String etCheckCode = etCheckCode
+        String strChechCode = etCheckCode.getText().toString().trim();
         boolean cancel = false;
+
         View focusView = null;
         // Check for a valid password, if the user entered one.
+        if (TextUtils.isEmpty(strChechCode)) {
+            etCheckCode.setError(getString(R.string.error_field_required));
+            focusView=etCheckCode;
+            cancel = true;
+        }
+        if (!strChechCode.toLowerCase().equals(identifyingCode.toLowerCase())) {
+            etCheckCode.setError(getString(R.string.error_invalid_password));
+            Log.i("code", identifyingCode);
+            Log.i("strChechCode",strChechCode);
+            focusView=etCheckCode;
+            cancel = true;
+        }
         if (TextUtils.isEmpty(password)) {
             mPasswordView.setError(getString(R.string.error_field_required));
             focusView = mPasswordView;
@@ -392,8 +436,10 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
                     Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
                     intent.putExtra("user", user);
                     startActivity(intent);
+                    finish();
                 }
             }
+
             @Override
             public void onFailure(HttpException error, String msg) {
 

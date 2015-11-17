@@ -1,12 +1,9 @@
 package com.zhm.duxiangle;
 
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -30,7 +27,6 @@ import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.gson.reflect.TypeToken;
 import com.google.zxing.client.android.CaptureActivity;
 import com.google.zxing.client.android.Intents;
 import com.lidroid.xutils.ViewUtils;
@@ -42,15 +38,10 @@ import com.lidroid.xutils.http.client.HttpRequest;
 import com.lidroid.xutils.view.annotation.ContentView;
 import com.lidroid.xutils.view.annotation.ViewInject;
 import com.tencent.mm.sdk.modelmsg.SendMessageToWX;
-import com.tencent.mm.sdk.modelmsg.WXImageObject;
 import com.tencent.mm.sdk.modelmsg.WXMediaMessage;
-import com.tencent.mm.sdk.modelmsg.WXTextObject;
 import com.tencent.mm.sdk.modelmsg.WXWebpageObject;
-import com.tencent.mm.sdk.openapi.IWXAPI;
-import com.tencent.mm.sdk.openapi.WXAPIFactory;
 import com.zhm.duxiangle.api.DXLApi;
 import com.zhm.duxiangle.api.ShareApi;
-import com.zhm.duxiangle.bean.Constant;
 import com.zhm.duxiangle.bean.User;
 import com.zhm.duxiangle.bean.UserInfo;
 import com.zhm.duxiangle.fragment.FindFragment;
@@ -62,7 +53,6 @@ import com.zhm.duxiangle.utils.GsonUtils;
 import com.zhm.duxiangle.utils.SpUtil;
 import com.zhm.duxiangle.utils.ToastUtils;
 
-import java.net.URL;
 import java.util.ArrayList;
 
 import io.rong.imkit.RongIM;
@@ -161,7 +151,7 @@ public class MainActivity extends AppCompatActivity
         RequestParams params = new RequestParams();
         params.addBodyParameter("action", "userinfo");
         params.addBodyParameter("userid", String.valueOf(userId));
-        DXLHttpUtils.getHttpUtils().send(HttpRequest.HttpMethod.POST, DXLApi.getUserListByPage(), params, new RequestCallBack<String>() {
+        DXLHttpUtils.getHttpUtils().send(HttpRequest.HttpMethod.POST, DXLApi.getUserInfoApi(), params, new RequestCallBack<String>() {
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
                 String result = responseInfo.result;

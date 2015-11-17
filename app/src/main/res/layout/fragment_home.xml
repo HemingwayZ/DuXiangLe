@@ -18,20 +18,14 @@
         android:layout_height="wrap_content">
 
 
-        <EditText
-            android:id="@+id/etSearch"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.8"
-            android:focusable="false"
-            android:hint="搜索书名" />
 
-        <Button
-            android:id="@+id/btnSearch"
-            android:layout_width="0dp"
+        <ImageButton
+            android:id="@+id/ibSearch"
+            android:background="@null"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="0.2"
-            android:text="搜索" />
+            android:src="@drawable/icon_search" />
+
     </LinearLayout>
 
     <android.support.v4.widget.SwipeRefreshLayout

@@ -43,6 +43,7 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.MyView
             }
         }
     }
+
     /**
      * @param mContext     上下文
      * @param userInfoList 用户列表信息
@@ -72,7 +73,7 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.MyView
     public void onBindViewHolder(UserListAdapter.MyViewHolder holder, int position) {
         final UserInfo userInfo = userInfoList.get(position);
         if (!TextUtils.isEmpty(userInfo.getAvatar())) {
-            BitmapUtils.getInstance(mContext).setAvatar(holder.ivUser, DXLApi.BASE_URL + userInfo.getAvatar(), null);
+            BitmapUtils.getInstance(mContext).setAvatarWithoutReflect(holder.ivUser, DXLApi.BASE_URL + userInfo.getAvatar());
         }
         holder.tvNickname.setText(userInfo.getNickname());
         holder.tvDesc.setText(userInfo.getDescrib());

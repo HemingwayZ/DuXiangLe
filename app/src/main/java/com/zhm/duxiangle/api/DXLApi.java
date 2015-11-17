@@ -7,7 +7,7 @@ public class DXLApi {
     //login:http://localhost:8080/DuXiangLeServer/UserServlet?action=login
     //192.168.253.1
     public static String HOST = "192.168.23.1:8080";
-//    public static String HOST = "120.25.201.60";
+    //    public static String HOST = "120.25.201.60";
     public static String PORT = "";
 
     public static String BASE_URL = "http://" + HOST;
@@ -24,7 +24,7 @@ public class DXLApi {
 
     //获取用户列表
     //http://localhost:8080/DuXiangLeServer/UserInfoServlet?action=userinfopage
-    public static String getUserListByPage() {
+    public static String getUserInfoApi() {
         return "http://" + HOST + PORT + "/DuXiangLeServer/UserInfoServlet";
     }
 
@@ -57,4 +57,9 @@ public class DXLApi {
         return "http://" + HOST + PORT + "/DuXiangLeServer/FriendsServlet";
     }
     //http://localhost:8080/DuXiangLeServer/FriendsServlet?action=get_friends_info&userid=4
+
+    public static String getCheckCodeApi() {
+        return BASE_URL + "/DuXiangLeServer/PictureCheckCodeServlet";
+    }
+
 }
