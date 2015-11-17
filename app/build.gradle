@@ -34,6 +34,7 @@ dependencies {
     compile files('D:/AsWorkSpace/DuXiangLe/libs/faceppsdk.jar')
     compile files('D:/AsWorkSpace/DuXiangLe/libs/wximg.jar')
     compile project(':IMKit')
+    compile project(':weiboSDK')
     compile files('D:/AsWorkSpace/DuXiangLe/libs/libammsdk.jar')
     compile 'me.drakeet.materialdialog:library:1.2.3'
     compile files('D:/AsWorkSpace/DuXiangLe/libs/baidulib/baidumapapi_cloud_v3_6_0.jar')

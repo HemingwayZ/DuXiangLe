@@ -8,6 +8,7 @@
       <module fileurl="file://$PROJECT_DIR$/libs/kenburnsview_lib/kenburnsview_lib.iml" filepath="$PROJECT_DIR$/libs/kenburnsview_lib/kenburnsview_lib.iml" />
       <module fileurl="file://$PROJECT_DIR$/libs/libs.iml" filepath="$PROJECT_DIR$/libs/libs.iml" />
       <module fileurl="file://$PROJECT_DIR$/shareSDK/shareSDK.iml" filepath="$PROJECT_DIR$/shareSDK/shareSDK.iml" />
+      <module fileurl="file://$PROJECT_DIR$/weiboSDK/weiboSDK.iml" filepath="$PROJECT_DIR$/weiboSDK/weiboSDK.iml" />
       <module fileurl="file://$PROJECT_DIR$/libs/xutils_lib/xutils_lib.iml" filepath="$PROJECT_DIR$/libs/xutils_lib/xutils_lib.iml" />
       <module fileurl="file://$PROJECT_DIR$/libs/zxing_lib/zxing_lib.iml" filepath="$PROJECT_DIR$/libs/zxing_lib/zxing_lib.iml" />
     </modules>
