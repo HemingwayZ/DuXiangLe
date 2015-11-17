@@ -1,13 +1,16 @@
 package com.zhm.duxiangle;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
@@ -119,16 +122,47 @@ public class EditUserInfoActivity extends SlidingBackActivity implements View.On
         startActivityForResult(intent, Constant.REQUEST_CODE_MEDIA);
     }
 
-    protected void getImageFromCamera() {
+    private void intentOpenCamera() {
         String state = Environment.getExternalStorageState();
         if (state.equals(Environment.MEDIA_MOUNTED)) {
-            Intent getImageByCamera = new Intent("android.media.action.IMAGE_CAPTURE");
-            startActivityForResult(getImageByCamera, Constant.REQUEST_CODE_CAPTURE_CAMERIA);
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            uri = Uri.fromFile(new File(Environment.getExternalStorageDirectory() + "/duxiangle_avatar.jpg"));
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+            intent.putExtra("return-data", true);
+            startActivityForResult(intent, Constant.REQUEST_CODE_CAPTURE_CAMERIA);
         } else {
             Toast.makeText(getApplicationContext(), "请确认已经插入SD卡", Toast.LENGTH_LONG).show();
         }
     }
-
+    private void dialog() {
+        String[] str;
+            str = new String[]{"从相册选择", "拍照选择", "查看大图"};
+        new AlertDialog.Builder(this).setTitle("个性背景墙").setIcon(
+                R.drawable.ic_launcher).setSingleChoiceItems(
+                str, 0,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case 0:
+                                intentOpenImage();
+                                break;
+                            case 1:
+                                intentOpenCamera();
+                                break;
+                            case 2:
+                                bigImage();
+                                break;
+                        }
+                        dialog.dismiss();
+                    }
+                })
+                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                }).show();
+    }
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -136,25 +170,44 @@ public class EditUserInfoActivity extends SlidingBackActivity implements View.On
                 onBackPressed();
                 break;
             case R.id.ivUser:
-                intentOpenImage();
+//                intentOpenImage();
+                dialog();
                 break;
         }
     }
-
+    private void bigImage() {
+        Intent intent;
+        intent = new Intent();
+        intent.setClass(EditUserInfoActivity.this, WebImageActivity.class);
+        intent.putExtra("url", DXLApi.BASE_URL + userInfo.getAvatar());
+        startActivity(intent);
+    }
     @Override
     protected void onActivityResult(final int requestCode, int resultCode, Intent data) {
-        if (resultCode != RESULT_OK || data == null) {
+        if (resultCode != RESULT_OK) {
+            Log.i("data:", "null" + RESULT_OK);
             return;
         }
         switch (requestCode) {
             case Constant.REQUEST_CODE_MEDIA:
-                uri = data.getData();
-                if (uri == null) {
+                if (data == null) {
                     return;
                 }
-                String path = BitmapUtils.getImageAbsolutePath(this,uri);
+                uri = data.getData();
+                if (uri == null) {
+                    Log.i("uri", "uri为null");
+                    return;
+                }
+                String path = BitmapUtils.getImageAbsolutePath(this, uri);
+                Log.i("path:", path);
                 Bitmap bitmap = BitmapUtils.getimage(path);
                 ivUser.setImageBitmap(bitmap);
+                break;
+            case Constant.REQUEST_CODE_CAPTURE_CAMERIA:
+                String path1 = BitmapUtils.getImageAbsolutePath(this, uri);
+                Log.i(EditUserInfoActivity.class.getSimpleName(),path1);
+                Bitmap bitmap1 = BitmapUtils.getimage(path1);
+                ivUser.setImageBitmap(bitmap1);
                 break;
         }
         super.onActivityResult(requestCode, resultCode, data);
@@ -173,7 +226,7 @@ public class EditUserInfoActivity extends SlidingBackActivity implements View.On
         params.addBodyParameter("describ", userInfo.getDescrib());
         if (uri != null) {
             String path = BitmapUtils.getImageAbsolutePath(this, uri);
-            File file = new File(Environment.getExternalStorageDirectory()+"/duxiangle_avatar1.jpg");
+            File file = new File(path);
 //            File file = new File(path);
             if (file.exists())
                 params.addBodyParameter("file", file);

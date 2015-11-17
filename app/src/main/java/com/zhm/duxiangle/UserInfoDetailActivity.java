@@ -160,7 +160,7 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
         initData(getIntent());
         isMyFriend();
         setSupportActionBar(toolbar);
-
+        fab.setOnClickListener(this);
 
     }
 
@@ -303,7 +303,7 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
     private void openBigAvatar() {
         Intent intent = new Intent();
         intent.setClass(UserInfoDetailActivity.this,WebImageActivity.class);
-        intent.putExtra("url",userinfo.getAvatar());
+        intent.putExtra("url", DXLApi.BASE_URL+userinfo.getAvatar());
         startActivity(intent);
     }
 

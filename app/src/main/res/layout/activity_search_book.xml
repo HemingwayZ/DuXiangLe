@@ -19,6 +19,7 @@
         <EditText
             android:id="@+id/etSearch"
             android:layout_width="0dp"
+            android:singleLine="true"
             android:layout_height="wrap_content"
             android:layout_weight="0.8"
             android:hint="搜索书名" />

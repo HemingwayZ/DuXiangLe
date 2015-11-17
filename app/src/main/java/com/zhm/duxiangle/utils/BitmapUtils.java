@@ -111,8 +111,8 @@ public class BitmapUtils {
      * @return
      */
     public Bitmap setAvatar(ImageView container, String url, final Toolbar toolbar) {
-        if(TextUtils.isEmpty(url)){
-            return  null;
+        if (TextUtils.isEmpty(url)) {
+            return null;
         }
         if (null == bitmapUtils) {
             bitmapUtils = new com.lidroid.xutils.BitmapUtils(mContext);
@@ -134,8 +134,8 @@ public class BitmapUtils {
     }
 
     public Bitmap setAvatar(ImageView container, String url) {
-        if(TextUtils.isEmpty(url)){
-            return  null;
+        if (TextUtils.isEmpty(url)) {
+            return null;
         }
         if (null == bitmapUtils) {
             bitmapUtils = new com.lidroid.xutils.BitmapUtils(mContext);
@@ -154,9 +154,10 @@ public class BitmapUtils {
         });
         return null;
     }
+
     public Bitmap setAvatarWithoutReflect(ImageView container, String url) {
-        if(TextUtils.isEmpty(url)){
-            return  null;
+        if (TextUtils.isEmpty(url)) {
+            return null;
         }
         if (null == bitmapUtils) {
             bitmapUtils = new com.lidroid.xutils.BitmapUtils(mContext);
@@ -205,8 +206,8 @@ public class BitmapUtils {
     }
 
 
-
     //根据url获取图片的绝对路径
+
     /**
      * 根据Uri获取图片绝对路径，解决Android4.4以上版本Uri转换
      *
@@ -310,11 +311,14 @@ public class BitmapUtils {
 
 
     public static Bitmap compressImage(Bitmap image) {
-
+        if (image == null) {
+            Log.e("compressImage", "null");
+            return null;
+        }
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         image.compress(Bitmap.CompressFormat.JPEG, 100, baos);//质量压缩方法，这里100表示不压缩，把压缩后的数据存放到baos中
         int options = 100;
-        while ( baos.toByteArray().length / 1024>100) {	//循环判断如果压缩后图片是否大于100kb,大于继续压缩
+        while (baos.toByteArray().length / 1024 > 100) {    //循环判断如果压缩后图片是否大于100kb,大于继续压缩
             baos.reset();//重置baos即清空baos
             image.compress(Bitmap.CompressFormat.JPEG, options, baos);//这里压缩options%，把压缩后的数据存放到baos中
             options -= 10;//每次都减少10
@@ -323,12 +327,12 @@ public class BitmapUtils {
         try {
 
             Log.i("Bitmap_path", Environment.getExternalStorageDirectory() + "/duxiangle_avatar1.jpg");
-            File file = new File(Environment.getExternalStorageDirectory()+"/duxiangle_avatar1.jpg");
-            if(file.exists()){
-                Log.i("exists",file.exists()+"");
+            File file = new File(Environment.getExternalStorageDirectory() + "/duxiangle_avatar1.jpg");
+            if (file.exists()) {
+                Log.i("exists", file.exists() + "");
                 file.deleteOnExit();
             }
-            if(!file.exists()){
+            if (!file.exists()) {
                 file.createNewFile();
             }
             fos = new FileOutputStream(file);
@@ -343,11 +347,15 @@ public class BitmapUtils {
         return bitmap;
     }
 
-    public static  Bitmap getimage(String srcPath) {
+    public static Bitmap getimage(String srcPath) {
+        if(srcPath.isEmpty()){
+            Log.i(BitmapUtils.class.getSimpleName(),"path is null");
+            return null;
+        }
         BitmapFactory.Options newOpts = new BitmapFactory.Options();
         //开始读入图片，此时把options.inJustDecodeBounds 设回true了
         newOpts.inJustDecodeBounds = true;
-        Bitmap bitmap = BitmapFactory.decodeFile(srcPath,newOpts);//此时返回bm为空
+        Bitmap bitmap = BitmapFactory.decodeFile(srcPath, newOpts);//此时返回bm为空
 
         newOpts.inJustDecodeBounds = false;
         int w = newOpts.outWidth;
