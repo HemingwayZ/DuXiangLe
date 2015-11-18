@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 
 import com.zhm.duxiangle.bean.User;
@@ -45,7 +46,7 @@ public class SlidingBackActivity extends AppCompatActivity {
 
     @Override
     protected void onStart() {
-        getUser();
+
         super.onStart();
     }
 
@@ -53,7 +54,9 @@ public class SlidingBackActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         overridePendingTransition(R.anim.hm_base_slide_right_in,
                 0);
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
         super.onCreate(savedInstanceState);
+        getUser();
         //1需要继承AppCompatActivity
         //2需要将背景弄成透明
         getWindow().setBackgroundDrawable(new ColorDrawable(0));

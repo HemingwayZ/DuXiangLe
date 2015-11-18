@@ -21,7 +21,15 @@ public class DXLApi {
 
         return "http://" + HOST + PORT + "/DuXiangLeServer/UserServlet";
     }
+    /**
+     * 获取登录的url
+     *
+     * @return
+     */
+    public static String getAuthApi() {
 
+        return "http://" + HOST + PORT + "/DuXiangLeServer/AuthServlet";
+    }
     //获取用户列表
     //http://localhost:8080/DuXiangLeServer/UserInfoServlet?action=userinfopage
     public static String getUserInfoApi() {

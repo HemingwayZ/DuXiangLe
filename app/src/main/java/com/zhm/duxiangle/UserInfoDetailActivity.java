@@ -140,7 +140,13 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
                 etCreated.setText(userinfo.getCreated());
                 etDesc.setText(userinfo.getDescrib());
                 collapsingToolbarLayout.setTitle(userinfo.getNickname());
-                BitmapUtils.getInstance(getApplicationContext()).setAvatarWithoutReflect(fab, DXLApi.BASE_URL + userinfo.getAvatar());
+                if (userinfo.getAvatar() != null) {
+                    if (userinfo.getAvatar().startsWith("http")) {
+                        BitmapUtils.getInstance(getApplicationContext()).setAvatarWithoutReflect(fab, userinfo.getAvatar());
+                    } else {
+                        BitmapUtils.getInstance(getApplicationContext()).setAvatarWithoutReflect(fab, DXLApi.BASE_URL + userinfo.getAvatar());
+                    }
+                }
             }
 
             @Override
@@ -222,6 +228,21 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
                 }).show();
     }
 
+    private void dialogCheck(String title) {
+        new AlertDialog.Builder(this).setTitle("是否删除好友").setIcon(
+                R.drawable.ic_launcher).setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                removeFriend();
+            }
+        }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        }).show();
+    }
+
     private void initData(Intent intent) {
         userinfo = (UserInfo) intent.getSerializableExtra("userinfo");
         isMy = getIntent().getBooleanExtra("isMy", false);
@@ -234,8 +255,11 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
             etDesc.setText(userinfo.getDescrib());
             collapsingToolbarLayout.setTitle(userinfo.getNickname());
             if (userinfo.getAvatar() != null) {
-                //头像
-                BitmapUtils.getInstance(getApplicationContext()).setAvatarWithoutReflect(fab, DXLApi.BASE_URL + userinfo.getAvatar());
+                if (userinfo.getAvatar().startsWith("http")) {
+                    BitmapUtils.getInstance(getApplicationContext()).setAvatarWithoutReflect(fab, userinfo.getAvatar());
+                } else {
+                    BitmapUtils.getInstance(getApplicationContext()).setAvatarWithoutReflect(fab, DXLApi.BASE_URL + userinfo.getAvatar());
+                }
             }
             if (!TextUtils.isEmpty(userinfo.getPicWall())) {
                 //照片墙
@@ -292,7 +316,18 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
                 break;
             case R.id.btnRemoveFriend:
                 //删除好友操作
-                removeFriend();
+                new AlertDialog.Builder(this).setTitle("是否删除好友").setIcon(
+                        R.drawable.ic_launcher).setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        removeFriend();
+                    }
+                }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                }).show();
                 break;
             case R.id.btnBookRoom:
                 intoBookRoom();
@@ -302,8 +337,14 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
 
     private void openBigAvatar() {
         Intent intent = new Intent();
-        intent.setClass(UserInfoDetailActivity.this,WebImageActivity.class);
-        intent.putExtra("url", DXLApi.BASE_URL+userinfo.getAvatar());
+        intent.setClass(UserInfoDetailActivity.this, WebImageActivity.class);
+        if (userinfo.getAvatar() != null) {
+            if (userinfo.getAvatar().startsWith("http")) {
+                intent.putExtra("url", userinfo.getAvatar());
+            } else {
+                intent.putExtra("url", DXLApi.BASE_URL + userinfo.getAvatar());
+            }
+        }
         startActivity(intent);
     }
 

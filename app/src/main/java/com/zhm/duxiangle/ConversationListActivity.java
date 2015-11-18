@@ -117,7 +117,11 @@ public class ConversationListActivity extends SlidingBackActivity {
                             if (TextUtils.isEmpty(userinfo.getAvatar())) {
                                 userinfo.setAvatar("");
                             }
-                            RongIM.getInstance().refreshUserInfoCache(new io.rong.imlib.model.UserInfo(String.valueOf(userinfo.getUserId()), userinfo.getNickname(), Uri.parse(DXLApi.BASE_URL + userinfo.getAvatar())));
+                            if (userinfo.getAvatar().startsWith("http")) {
+                                RongIM.getInstance().refreshUserInfoCache(new io.rong.imlib.model.UserInfo(String.valueOf(userinfo.getUserId()), userinfo.getNickname(), Uri.parse(userinfo.getAvatar())));
+                            } else {
+                                RongIM.getInstance().refreshUserInfoCache(new io.rong.imlib.model.UserInfo(String.valueOf(userinfo.getUserId()), userinfo.getNickname(), Uri.parse(DXLApi.BASE_URL + userinfo.getAvatar())));
+                            }
                         }
                     }
                 }

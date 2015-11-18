@@ -28,6 +28,9 @@ public class GsonUtils {
     }
 
     public <T> T json2Bean(String json, Class<T> tClass) {
+        if(json==null){
+            return null;
+        }
         //gson源码已经对json空值进行判断
         if (null == gson) {
             gson = new Gson();

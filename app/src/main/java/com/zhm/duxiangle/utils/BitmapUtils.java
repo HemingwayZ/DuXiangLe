@@ -166,7 +166,7 @@ public class BitmapUtils {
         bitmapUtils.display(container, url, new BitmapLoadCallBack<ImageView>() {
             @Override
             public void onLoading(ImageView container, String uri, BitmapDisplayConfig config, long total, long current) {
-                container.setBackgroundResource(R.drawable.ic_launcher);
+                container.setImageResource(R.drawable.ic_launcher);
                 super.onLoading(container, uri, config, total, current);
             }
 
@@ -177,7 +177,7 @@ public class BitmapUtils {
 
             @Override
             public void onLoadFailed(ImageView container, String uri, Drawable drawable) {
-                container.setImageResource(R.drawable.book_cover_default);
+                container.setImageResource(R.drawable.ic_launcher);
             }
         });
         return null;

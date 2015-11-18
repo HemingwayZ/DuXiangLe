@@ -173,7 +173,11 @@ public class MainActivity extends AppCompatActivity
                 tvUsername.setText(userinfo.getNickname());
                 tvDesc.setText(userinfo.getDescrib());
                 if (userinfo.getAvatar() != null)
-                    BitmapUtils.getInstance(getApplicationContext()).setAvatarWithoutReflect(ivUser, DXLApi.BASE_URL + userinfo.getAvatar());
+                    if (user != null && user.getOpenid() != null) {
+                        BitmapUtils.getInstance(getApplicationContext()).setAvatarWithoutReflect(ivUser, userinfo.getAvatar());
+                    } else {
+                        BitmapUtils.getInstance(getApplicationContext()).setAvatarWithoutReflect(ivUser, DXLApi.BASE_URL + userinfo.getAvatar());
+                    }
             }
 
             @Override
@@ -225,9 +229,11 @@ public class MainActivity extends AppCompatActivity
                              * @param userInfo 需要更新的用户缓存数据。
                              */
                             if (!TextUtils.isEmpty(userinfo.getAvatar()))// host null --url拼接导致的host为null
-
-                                RongIM.getInstance().refreshUserInfoCache(new io.rong.imlib.model.UserInfo(userId, userinfo.getNickname(), Uri.parse(DXLApi.BASE_URL + userinfo.getAvatar())));
-
+                                if (userinfo.getAvatar().startsWith("http")) {
+                                    RongIM.getInstance().refreshUserInfoCache(new io.rong.imlib.model.UserInfo(String.valueOf(userinfo.getUserId()), userinfo.getNickname(), Uri.parse(userinfo.getAvatar())));
+                                } else {
+                                    RongIM.getInstance().refreshUserInfoCache(new io.rong.imlib.model.UserInfo(String.valueOf(userinfo.getUserId()), userinfo.getNickname(), Uri.parse(DXLApi.BASE_URL + userinfo.getAvatar())));
+                                }
                         } else {
                         }
                         //回话列表

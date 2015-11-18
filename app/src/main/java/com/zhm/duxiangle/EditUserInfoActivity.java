@@ -32,9 +32,12 @@ import com.lidroid.xutils.view.annotation.ContentView;
 import com.lidroid.xutils.view.annotation.ViewInject;
 import com.zhm.duxiangle.api.DXLApi;
 import com.zhm.duxiangle.bean.Constant;
+import com.zhm.duxiangle.bean.User;
 import com.zhm.duxiangle.bean.UserInfo;
 import com.zhm.duxiangle.utils.BitmapUtils;
 import com.zhm.duxiangle.utils.DXLHttpUtils;
+import com.zhm.duxiangle.utils.GsonUtils;
+import com.zhm.duxiangle.utils.SpUtil;
 
 import java.io.File;
 
@@ -70,6 +73,27 @@ public class EditUserInfoActivity extends SlidingBackActivity implements View.On
     Uri uri;
 
     @Override
+    protected void onStart() {
+
+        super.onStart();
+    }
+    /**
+     * 获取用户
+     */
+    private void getUser() {
+        //获取用户信息
+        String json = SpUtil.getSharePerference(getApplicationContext()).getString("user", "");
+        if (!TextUtils.isEmpty(json)) {
+            user = GsonUtils.getInstance().json2Bean(json, User.class);
+            if (user != null) {
+            } else {
+                Intent intent = new Intent(EditUserInfoActivity.this, LoginActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        }
+    }
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ViewUtils.inject(this);
@@ -95,7 +119,12 @@ public class EditUserInfoActivity extends SlidingBackActivity implements View.On
         etCreated.setText(userInfo.getCreated());
         etDesc.setText(userInfo.getDescrib());
         if (!TextUtils.isEmpty(userInfo.getAvatar())) {
-            BitmapUtils.getInstance(getApplicationContext()).setAvatarWithoutReflect(ivUser, DXLApi.BASE_URL + userInfo.getAvatar());
+            if (userInfo.getAvatar().startsWith("http")) {
+                BitmapUtils.getInstance(getApplicationContext()).setAvatarWithoutReflect(ivUser, userInfo.getAvatar());
+            } else {
+                BitmapUtils.getInstance(getApplicationContext()).setAvatarWithoutReflect(ivUser, DXLApi.BASE_URL + userInfo.getAvatar());
+            }
+
         }
     }
 
@@ -134,9 +163,10 @@ public class EditUserInfoActivity extends SlidingBackActivity implements View.On
             Toast.makeText(getApplicationContext(), "请确认已经插入SD卡", Toast.LENGTH_LONG).show();
         }
     }
+
     private void dialog() {
         String[] str;
-            str = new String[]{"从相册选择", "拍照选择", "查看大图"};
+        str = new String[]{"从相册选择", "拍照选择", "查看大图"};
         new AlertDialog.Builder(this).setTitle("个性背景墙").setIcon(
                 R.drawable.ic_launcher).setSingleChoiceItems(
                 str, 0,
@@ -163,6 +193,7 @@ public class EditUserInfoActivity extends SlidingBackActivity implements View.On
                     }
                 }).show();
     }
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -175,6 +206,7 @@ public class EditUserInfoActivity extends SlidingBackActivity implements View.On
                 break;
         }
     }
+
     private void bigImage() {
         Intent intent;
         intent = new Intent();
@@ -182,6 +214,7 @@ public class EditUserInfoActivity extends SlidingBackActivity implements View.On
         intent.putExtra("url", DXLApi.BASE_URL + userInfo.getAvatar());
         startActivity(intent);
     }
+
     @Override
     protected void onActivityResult(final int requestCode, int resultCode, Intent data) {
         if (resultCode != RESULT_OK) {
@@ -205,7 +238,7 @@ public class EditUserInfoActivity extends SlidingBackActivity implements View.On
                 break;
             case Constant.REQUEST_CODE_CAPTURE_CAMERIA:
                 String path1 = BitmapUtils.getImageAbsolutePath(this, uri);
-                Log.i(EditUserInfoActivity.class.getSimpleName(),path1);
+                Log.i(EditUserInfoActivity.class.getSimpleName(), path1);
                 Bitmap bitmap1 = BitmapUtils.getimage(path1);
                 ivUser.setImageBitmap(bitmap1);
                 break;
