@@ -37,11 +37,16 @@ import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
 import com.lidroid.xutils.view.annotation.ContentView;
 import com.lidroid.xutils.view.annotation.ViewInject;
+import com.tencent.connect.share.QQShare;
 import com.tencent.mm.sdk.modelmsg.SendMessageToWX;
 import com.tencent.mm.sdk.modelmsg.WXMediaMessage;
 import com.tencent.mm.sdk.modelmsg.WXWebpageObject;
+import com.tencent.tauth.IUiListener;
+import com.tencent.tauth.Tencent;
+import com.tencent.tauth.UiError;
 import com.zhm.duxiangle.api.DXLApi;
 import com.zhm.duxiangle.api.ShareApi;
+import com.zhm.duxiangle.bean.Constant;
 import com.zhm.duxiangle.bean.User;
 import com.zhm.duxiangle.bean.UserInfo;
 import com.zhm.duxiangle.fragment.FindFragment;
@@ -62,7 +67,7 @@ import io.rong.imlib.RongIMClient;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
     public static boolean updateUserInfo = false;
-    private int REQUEST_CODE = 200;
+    public final int REQUEST_CODE = 200;
     @ViewInject(R.id.toolbar)
     private Toolbar toolbar;
     @ViewInject(R.id.fabScan)
@@ -84,6 +89,7 @@ public class MainActivity extends AppCompatActivity
     //用户信息
     private UserInfo userinfo;
     private User user;
+    private Tencent mTencent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -392,14 +398,8 @@ public class MainActivity extends AppCompatActivity
             return true;
         } else if (id == R.id.nav_share) {
 //                startActivity(new Intent(MainActivity.this,MessageActivity.class));
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    //1：朋友圈
-                    ShareApi.getInstance(getApplicationContext()).wechatShare(1, "http://120.25.201.60/DuXiangLeServer/index/index.html");
-                }
+            dialogShare();
 
-            }).start();
         } else if (id == R.id.nav_clean) {
             BitmapUtils.getInstance(getApplication()).cleanCache();
         } else if (id == R.id.nav_login) {
@@ -442,12 +442,20 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (null != mTencent)
+            mTencent.onActivityResult(requestCode, resultCode, data);
         if (resultCode != RESULT_OK || null == data) {
             return;
         }
-        //扫描结果 data带有扫描结果集
-        data.setClass(MainActivity.this, BookDetailActivity.class);
-        startActivity(data);
+        switch (requestCode) {
+            case REQUEST_CODE:
+                //扫描结果 data带有扫描结果集
+                data.setClass(MainActivity.this, BookDetailActivity.class);
+                startActivity(data);
+                break;
+        }
+
+
         super.onActivityResult(requestCode, resultCode, data);
     }
 
@@ -491,5 +499,75 @@ public class MainActivity extends AppCompatActivity
                 break;
             default:
         }
+    }
+
+    private void dialogShare() {
+        String[] str;
+        str = new String[]{"分享到微信", "分享到qq"};
+        new android.app.AlertDialog.Builder(this).setTitle("分享").setIcon(
+                R.drawable.ic_launcher).setSingleChoiceItems(
+                str, 0,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case 0:
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        //1：朋友圈
+                                        ShareApi.getInstance(getApplicationContext()).wechatShare(1, DXLApi.getIndexApi());
+                                    }
+
+                                }).start();
+                                break;
+                            case 1:
+                                qqShare();
+                                break;
+                        }
+                        dialog.dismiss();
+                    }
+                })
+                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                }).show();
+    }
+
+    //qq分享
+    public void qqShare() {
+        mTencent = Tencent.createInstance(Constant.QQ_APP_ID, MainActivity.this);
+        Bundle bundle = new Bundle();
+        //这条分享消息被好友点击后的跳转URL。
+        bundle.putString(QQShare.SHARE_TO_QQ_TARGET_URL, DXLApi.getIndexApi());
+        //分享的标题。注：PARAM_TITLE、PARAM_IMAGE_URL、PARAM_	SUMMARY不能全为空，最少必须有一个是有值的。
+        bundle.putString(QQShare.SHARE_TO_QQ_TITLE, "读享乐");
+        //分享的图片URL
+        bundle.putString(QQShare.SHARE_TO_QQ_IMAGE_URL,
+                userinfo.getAvatar());
+        //分享的消息摘要，最长50个字
+        bundle.putString(QQShare.SHARE_TO_QQ_SUMMARY, "zhuanghm");
+        //手Q客户端顶部，替换“返回”按钮文字，如果为空，用返回代替
+        bundle.putString(QQShare.SHARE_TO_QQ_APP_NAME, "读享乐");
+        ////标识该消息的来源应用，值为应用名称+AppId。
+        //        bundle.putString(QQShare.,"星期几" + Constant.QQ_APP_ID);
+
+        mTencent.shareToQQ(this, bundle, new IUiListener() {
+            @Override
+            public void onComplete(Object o) {
+                ToastUtils.showToast(getApplicationContext(), "QQ分享完成");
+            }
+
+            @Override
+            public void onError(UiError uiError) {
+
+            }
+
+            @Override
+            public void onCancel() {
+
+            }
+        });
     }
 }

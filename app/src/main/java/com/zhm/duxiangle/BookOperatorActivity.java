@@ -3,20 +3,14 @@ package com.zhm.duxiangle;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.lidroid.xutils.ViewUtils;
 import com.lidroid.xutils.exception.HttpException;
@@ -26,17 +20,20 @@ import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
 import com.lidroid.xutils.view.annotation.ContentView;
 import com.lidroid.xutils.view.annotation.ViewInject;
+import com.tencent.connect.share.QQShare;
+import com.tencent.tauth.IUiListener;
+import com.tencent.tauth.Tencent;
+import com.tencent.tauth.UiError;
 import com.zhm.duxiangle.api.DXLApi;
 import com.zhm.duxiangle.api.ShareApi;
 import com.zhm.duxiangle.bean.Book;
+import com.zhm.duxiangle.bean.Constant;
 import com.zhm.duxiangle.bean.User;
 import com.zhm.duxiangle.utils.DXLHttpUtils;
 import com.zhm.duxiangle.utils.GsonUtils;
 import com.zhm.duxiangle.utils.SpUtil;
 import com.zhm.duxiangle.utils.ToastUtils;
 
-import io.rong.imkit.RongIM;
-import io.rong.imlib.RongIMClient;
 import io.rong.message.RichContentMessage;
 
 @ContentView(R.layout.activity_book_operator)
@@ -55,6 +52,7 @@ public class BookOperatorActivity extends Activity implements View.OnClickListen
     private TextView tvBack;
     private User user;
     private boolean isMy = false;
+    private Tencent mTencent;
 
     public void getUser() {
         //获取用户信息
@@ -114,18 +112,13 @@ public class BookOperatorActivity extends Activity implements View.OnClickListen
         }
         switch (v.getId()) {
             case R.id.btnShare://分享
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        ShareApi.getInstance(getApplicationContext()).wechatShareToBook(1, book.getAlt(), book.getTitle(), book.getImage(), book.getSummary());
-                    }
-                }).start();
 
+               dialog();
                 break;
             case R.id.btnAdd://增加
                 saveBookToNet(btnAdd);
 
-                RichContentMessage message = new RichContentMessage("title","content","url");
+                RichContentMessage message = new RichContentMessage("title", "content", "url");
 
                 break;
             case R.id.btnDelete://删除
@@ -204,5 +197,77 @@ public class BookOperatorActivity extends Activity implements View.OnClickListen
                 ToastUtils.showToast(getApplicationContext(), "服务器链接失败");
             }
         });
+    }
+    private void dialog() {
+        String[] str;
+            str = new String[]{"分享到微信", "分享到qq"};
+        new android.app.AlertDialog.Builder(this).setTitle("分享").setIcon(
+                R.drawable.ic_launcher).setSingleChoiceItems(
+                str, 0,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case 0:
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        ShareApi.getInstance(getApplicationContext()).wechatShareToBook(1, book.getAlt(), book.getTitle(), book.getImage(), book.getSummary());
+                                    }
+                                }).start();
+                                break;
+                            case 1:
+                                qqShare();
+                                break;
+                        }
+                        dialog.dismiss();
+                    }
+                })
+                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                }).show();
+    }
+
+    //qq分享
+    public void qqShare() {
+        mTencent = Tencent.createInstance(Constant.QQ_APP_ID, BookOperatorActivity.this);
+        Bundle bundle = new Bundle();
+        //这条分享消息被好友点击后的跳转URL。
+        bundle.putString(QQShare.SHARE_TO_QQ_TARGET_URL, book.getAlt());
+        //分享的标题。注：PARAM_TITLE、PARAM_IMAGE_URL、PARAM_	SUMMARY不能全为空，最少必须有一个是有值的。
+        bundle.putString(QQShare.SHARE_TO_QQ_TITLE, book.getTitle());
+        //分享的图片URL
+        bundle.putString(QQShare.SHARE_TO_QQ_IMAGE_URL,
+                book.getImage());
+        //分享的消息摘要，最长50个字
+        bundle.putString(QQShare.SHARE_TO_QQ_SUMMARY, book.getStrAuthor());
+        //手Q客户端顶部，替换“返回”按钮文字，如果为空，用返回代替
+        bundle.putString(QQShare.SHARE_TO_QQ_APP_NAME, book.getTitle());
+        ////标识该消息的来源应用，值为应用名称+AppId。
+        //        bundle.putString(QQShare.,"星期几" + Constant.QQ_APP_ID);
+
+        mTencent.shareToQQ(this, bundle, new IUiListener() {
+            @Override
+            public void onComplete(Object o) {
+                ToastUtils.showToast(getApplicationContext(),"QQ分享完成");
+            }
+
+            @Override
+            public void onError(UiError uiError) {
+
+            }
+
+            @Override
+            public void onCancel() {
+
+            }
+        });
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (null != mTencent)
+            mTencent.onActivityResult(requestCode, resultCode, data);
     }
 }

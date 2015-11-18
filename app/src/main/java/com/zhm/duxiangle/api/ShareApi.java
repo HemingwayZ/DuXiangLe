@@ -137,4 +137,8 @@ public class ShareApi {
     private String buildTransaction(final String type) {
         return (type == null) ? String.valueOf(System.currentTimeMillis()) : type + System.currentTimeMillis();
     }
+
+
+
+
 }

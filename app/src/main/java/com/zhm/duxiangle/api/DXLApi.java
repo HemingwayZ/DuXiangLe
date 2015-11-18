@@ -69,5 +69,7 @@ public class DXLApi {
     public static String getCheckCodeApi() {
         return BASE_URL + "/DuXiangLeServer/PictureCheckCodeServlet";
     }
-
+    public static String getIndexApi(){
+        return "http://120.25.201.60/DuXiangLeServer/index/index.html";
+    }
 }

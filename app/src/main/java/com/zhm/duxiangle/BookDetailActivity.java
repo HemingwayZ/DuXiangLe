@@ -87,9 +87,6 @@ public class BookDetailActivity extends SlidingBackActivity {
     // 进度条
     @ViewInject(R.id.progressBar_bookDetail)
     private ProgressBar progressBar;
-    //悬浮按钮2
-    @ViewInject(R.id.fabShare2)
-    private FloatingActionButton fabShare2;
 
     //后退
     @ViewInject(R.id.ibBack)
@@ -158,27 +155,6 @@ public class BookDetailActivity extends SlidingBackActivity {
             }
         });
 
-        appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
-            @Override
-            public void onOffsetChanged(AppBarLayout appBarLayout, int i) {
-                LogUtils.i(BookDetailActivity.this, "--i:" + i);
-                LogUtils.i(BookDetailActivity.this, "--getTotalScrollRange:" + appBarLayout.getTotalScrollRange());
-
-                if (i == -appBarLayout.getTotalScrollRange()) {
-                    //这段代码修改是隐藏头部的操作
-                    fabShare2.setVisibility(View.VISIBLE);
-//                    toolbar.setLogo(bookCover.getDrawable());
-                } else {
-                    if (book != null) {
-//                        toolbar.setLogo(null);
-                    }
-                }
-                if (i > -132) {
-                    fabShare2.setVisibility(View.GONE);
-//                    toolbar.setLogo(null);
-                }
-            }
-        });
         book = (Book) getIntent().getSerializableExtra("book");
         if (null == book) {
             getBookInfoByScan();
