@@ -111,8 +111,8 @@
     <orderEntry type="library" exported="" name="open_sdk_r5509" level="project" />
     <orderEntry type="library" exported="" name="baidumapapi_map_v3_6_0" level="project" />
     <orderEntry type="library" exported="" name="baidumapapi_search_v3_6_0" level="project" />
-    <orderEntry type="library" exported="" name="gson-2.4" level="project" />
     <orderEntry type="library" exported="" name="support-annotations-23.0.1" level="project" />
+    <orderEntry type="library" exported="" name="gson-2.4" level="project" />
     <orderEntry type="module" module-name="weiboSDK" exported="" />
     <orderEntry type="module" module-name="IMKit" exported="" />
     <orderEntry type="module" module-name="kenburnsview_lib" exported="" />

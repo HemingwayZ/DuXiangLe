@@ -24,11 +24,14 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.ImageView;
 
+import com.lidroid.xutils.bitmap.BitmapCacheListener;
 import com.lidroid.xutils.bitmap.BitmapDisplayConfig;
 import com.lidroid.xutils.bitmap.callback.BitmapLoadCallBack;
 import com.lidroid.xutils.bitmap.callback.BitmapLoadFrom;
+import com.lidroid.xutils.bitmap.core.BitmapSize;
 import com.zhm.duxiangle.R;
 import com.zhm.duxiangle.api.DXLApi;
+import com.zhm.duxiangle.bean.Constant;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
@@ -117,7 +120,7 @@ public class BitmapUtils {
         if (null == bitmapUtils) {
             bitmapUtils = new com.lidroid.xutils.BitmapUtils(mContext);
         }
-
+        bitmapUtils.configDefaultConnectTimeout(10*1000);
         bitmapUtils.display(container, url, new BitmapLoadCallBack<ImageView>() {
             @Override
             public void onLoadCompleted(ImageView container, String uri, Bitmap bitmap, BitmapDisplayConfig config, BitmapLoadFrom from) {
@@ -140,7 +143,7 @@ public class BitmapUtils {
         if (null == bitmapUtils) {
             bitmapUtils = new com.lidroid.xutils.BitmapUtils(mContext);
         }
-
+        bitmapUtils.configDefaultConnectTimeout(10*1000);
         bitmapUtils.display(container, url, new BitmapLoadCallBack<ImageView>() {
             @Override
             public void onLoadCompleted(ImageView container, String uri, Bitmap bitmap, BitmapDisplayConfig config, BitmapLoadFrom from) {
@@ -163,9 +166,17 @@ public class BitmapUtils {
             bitmapUtils = new com.lidroid.xutils.BitmapUtils(mContext);
         }
 
+        bitmapUtils.configDefaultBitmapMaxSize(BitmapSize.ZERO);
         bitmapUtils.display(container, url, new BitmapLoadCallBack<ImageView>() {
             @Override
+            public void onLoadStarted(ImageView container, String uri, BitmapDisplayConfig config) {
+//                Log.i("BitmapUtils current","zhm-start : " + uri+"--start/");
+                super.onLoadStarted(container, uri, config);
+            }
+
+            @Override
             public void onLoading(ImageView container, String uri, BitmapDisplayConfig config, long total, long current) {
+                Log.i("BitmapUtils current","zhm-current : " + current+"/"+total);
                 container.setImageResource(R.drawable.ic_launcher);
                 super.onLoading(container, uri, config, total, current);
             }
@@ -182,7 +193,33 @@ public class BitmapUtils {
         });
         return null;
     }
+    public Bitmap setAvatarWithoutReflect2(ImageView container, String url) {
+        if (TextUtils.isEmpty(url)) {
+            return null;
+        }
+        if (null == bitmapUtils) {
+            bitmapUtils = new com.lidroid.xutils.BitmapUtils(mContext);
+        }
+        bitmapUtils.display(container, url, new BitmapLoadCallBack<ImageView>() {
+            @Override
+            public void onLoading(ImageView container, String uri, BitmapDisplayConfig config, long total, long current) {
+                container.setImageResource(R.drawable.ic_launcher);
+                super.onLoading(container, uri, config, total, current);
+            }
 
+            @Override
+            public void onLoadCompleted(ImageView container, String uri, Bitmap bitmap, BitmapDisplayConfig config, BitmapLoadFrom from) {
+                container.setImageBitmap(bitmap);
+
+            }
+
+            @Override
+            public void onLoadFailed(ImageView container, String uri, Drawable drawable) {
+                container.setImageResource(R.drawable.ic_launcher);
+            }
+        });
+        return null;
+    }
     public boolean cleanCache() {
         bitmapUtils.clearCache();
         return true;
@@ -326,8 +363,8 @@ public class BitmapUtils {
         FileOutputStream fos = null;
         try {
 
-            Log.i("Bitmap_path", Environment.getExternalStorageDirectory() + "/duxiangle_avatar1.jpg");
-            File file = new File(Environment.getExternalStorageDirectory() + "/duxiangle_avatar1.jpg");
+            Log.i("Bitmap_path", Constant.compressPath);
+            File file = new File( Constant.compressPath);
             if (file.exists()) {
                 Log.i("exists", file.exists() + "");
                 file.deleteOnExit();
@@ -341,6 +378,25 @@ public class BitmapUtils {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+        ByteArrayInputStream isBm = new ByteArrayInputStream(baos.toByteArray());//把压缩后的数据baos存放到ByteArrayInputStream中
+        Bitmap bitmap = BitmapFactory.decodeStream(isBm, null, null);//把ByteArrayInputStream数据生成图片
+        return bitmap;
+    }
+
+
+    public static Bitmap compressImageWithoutDownload(Bitmap image) {
+        if (image == null) {
+            Log.e("compressImage", "null");
+            return null;
+        }
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        image.compress(Bitmap.CompressFormat.JPEG, 100, baos);//质量压缩方法，这里100表示不压缩，把压缩后的数据存放到baos中
+        int options = 100;
+        while (baos.toByteArray().length / 1024 > 100) {    //循环判断如果压缩后图片是否大于100kb,大于继续压缩
+            baos.reset();//重置baos即清空baos
+            image.compress(Bitmap.CompressFormat.JPEG, options, baos);//这里压缩options%，把压缩后的数据存放到baos中
+            options -= 20;//每次都减少10
         }
         ByteArrayInputStream isBm = new ByteArrayInputStream(baos.toByteArray());//把压缩后的数据baos存放到ByteArrayInputStream中
         Bitmap bitmap = BitmapFactory.decodeStream(isBm, null, null);//把ByteArrayInputStream数据生成图片

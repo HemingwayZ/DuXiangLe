@@ -261,6 +261,7 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
                     BitmapUtils.getInstance(getApplicationContext()).setAvatarWithoutReflect(fab, DXLApi.BASE_URL + userinfo.getAvatar());
                 }
             }
+
             if (!TextUtils.isEmpty(userinfo.getPicWall())) {
                 //照片墙
                 BitmapUtils.getInstance(getApplicationContext()).setAvatarWithoutReflect(ivWall, DXLApi.BASE_URL + userinfo.getPicWall());
@@ -478,7 +479,7 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
         String state = Environment.getExternalStorageState();
         if (state.equals(Environment.MEDIA_MOUNTED)) {
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            uri = Uri.fromFile(new File(Environment.getExternalStorageDirectory() + "/duxiangle_ivWall.jpg"));
+            uri = Uri.fromFile(new File(Constant.compressPath));
             intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
             intent.putExtra("return-data", true);
             startActivityForResult(intent, Constant.REQUEST_CODE_CAPTURE_CAMERIA);
@@ -531,8 +532,8 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
      * 修改照片墙的照片
      */
     private void uploadPicWall() {
-        String path = BitmapUtils.getImageAbsolutePath(this, uri);
-        File file = new File(path);
+//        String path = BitmapUtils.getImageAbsolutePath(this, uri);
+        final File file = new File( Constant.compressPath);
         if (file.exists()) {
             RequestParams params = new RequestParams();
             params.addBodyParameter("file", file);
@@ -540,6 +541,9 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
             DXLHttpUtils.getHttpUtils().send(HttpRequest.HttpMethod.POST, DXLApi.getUpdatePicWallApi(), params, new RequestCallBack<String>() {
                 @Override
                 public void onSuccess(ResponseInfo<String> responseInfo) {
+                    if(file.exists()){
+                        file.delete();
+                    }
                     Log.i(UserInfoDetailActivity.class.getSimpleName() + "responseInfo:", responseInfo.result);
                     MainActivity.updateUserInfo = true;
                     Snackbar.make(ivWall, "修改成功", Snackbar.LENGTH_SHORT).show();

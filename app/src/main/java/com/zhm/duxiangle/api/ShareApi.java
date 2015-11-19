@@ -90,7 +90,7 @@ public class ShareApi {
         webpage.webpageUrl = url;
         WXMediaMessage msg = new WXMediaMessage(webpage);
         msg.title = "读享乐";
-        msg.description = "Be Happy everyday";
+        msg.description = "读享乐";
         //这里替换一张自己工程里的图片资源
         Bitmap thumb = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.ic_launcher);
         msg.setThumbImage(thumb);

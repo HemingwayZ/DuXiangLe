@@ -74,9 +74,9 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.MyView
         final UserInfo userInfo = userInfoList.get(position);
         if (!TextUtils.isEmpty(userInfo.getAvatar())) {
             if (userInfo.getAvatar().startsWith("http")) {
-                BitmapUtils.getInstance(mContext).setAvatarWithoutReflect(holder.ivUser, userInfo.getAvatar());
+                BitmapUtils.getInstance(mContext).setAvatarWithoutReflect2(holder.ivUser, userInfo.getAvatar());
             } else {
-                BitmapUtils.getInstance(mContext).setAvatarWithoutReflect(holder.ivUser, DXLApi.BASE_URL + userInfo.getAvatar());
+                BitmapUtils.getInstance(mContext).setAvatarWithoutReflect2(holder.ivUser, DXLApi.BASE_URL + userInfo.getAvatar());
             }
         }
         holder.tvNickname.setText(userInfo.getNickname());

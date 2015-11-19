@@ -77,6 +77,7 @@ public class EditUserInfoActivity extends SlidingBackActivity implements View.On
 
         super.onStart();
     }
+
     /**
      * 获取用户
      */
@@ -93,6 +94,7 @@ public class EditUserInfoActivity extends SlidingBackActivity implements View.On
             }
         }
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -155,7 +157,7 @@ public class EditUserInfoActivity extends SlidingBackActivity implements View.On
         String state = Environment.getExternalStorageState();
         if (state.equals(Environment.MEDIA_MOUNTED)) {
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            uri = Uri.fromFile(new File(Environment.getExternalStorageDirectory() + "/duxiangle_avatar.jpg"));
+            uri = Uri.fromFile(new File(Constant.compressPath));
             intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
             intent.putExtra("return-data", true);
             startActivityForResult(intent, Constant.REQUEST_CODE_CAPTURE_CAMERIA);
@@ -257,17 +259,17 @@ public class EditUserInfoActivity extends SlidingBackActivity implements View.On
         params.addBodyParameter("nickname", userInfo.getNickname());
         params.addBodyParameter("created", userInfo.getCreated());
         params.addBodyParameter("describ", userInfo.getDescrib());
-        if (uri != null) {
-            String path = BitmapUtils.getImageAbsolutePath(this, uri);
-            File file = new File(path);
-//            File file = new File(path);
-            if (file.exists())
-                params.addBodyParameter("file", file);
-        }
+//            String path = BitmapUtils.getImageAbsolutePath(this, uri);
+        final File file = new File(Constant.compressPath);
+        if (file.exists())
+            params.addBodyParameter("file", file);
         Log.i("userid:", userInfo.getUserId() + "");
         DXLHttpUtils.getHttpUtils().send(HttpRequest.HttpMethod.POST, DXLApi.getUpdateUserInfoApi(), params, new RequestCallBack<String>() {
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
+                if (file.exists()) {
+                    file.delete();
+                }
                 showProgress(false);
                 String result = responseInfo.result;
                 Log.i(EditUserInfoActivity.class.getSimpleName(), result);

@@ -1,5 +1,7 @@
 package com.zhm.duxiangle.bean;
 
+import android.os.Environment;
+
 /**
  * 常数
  * Created by zhuanghm on 2015/11/3.
@@ -50,6 +52,8 @@ public class Constant {
         public static final String STitle = "showmsg_title";
         public static final String SMessage = "showmsg_message";
         public static final String BAThumbData = "showmsg_thumb_data";
-
     }
+
+    //图片压缩路径
+    public static String compressPath = Environment.getExternalStorageDirectory() + "/duxiangle_compress.jpg";
 }

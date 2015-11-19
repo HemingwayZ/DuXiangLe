@@ -91,6 +91,7 @@
                 android:text="没有账号，点击注册"
                 android:textColor="@android:color/tertiary_text_light"
                 android:textCursorDrawable="@android:color/holo_red_light" />
+<!--
 
             <EditText
                 android:id="@+id/etIp"
@@ -103,18 +104,30 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="修改ip" />
+-->
 
-            <Button
-                android:id="@+id/btnWBLogin"
+            <LinearLayout
                 android:layout_width="match_parent"
+                android:layout_marginTop="50dp"
                 android:layout_height="wrap_content"
-                android:text="微博登录" />
+                android:gravity="center"
+                android:orientation="horizontal">
 
-            <Button
-                android:id="@+id/btnQQLogin"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="QQ登录" />
+                <Button
+                    android:id="@+id/btnWBLogin"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/xml_btn_login_by_sina" />
+
+                <Button
+                    android:layout_marginLeft="50dp"
+                    android:id="@+id/btnQQLogin"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/xml_btn_login_by_qq" />
+            </LinearLayout>
         </LinearLayout>
     </ScrollView>
 

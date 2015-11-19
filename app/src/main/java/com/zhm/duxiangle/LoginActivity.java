@@ -6,15 +6,11 @@ import android.annotation.TargetApi;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.os.Handler;
-import android.os.Message;
-import android.os.SystemClock;
-import android.provider.SyncStateContract;
 
+import com.sina.weibo.sdk.net.RequestListener;
+import com.sina.weibo.sdk.openapi.UsersAPI;
 import com.tencent.connect.UserInfo;
-import com.tencent.connect.auth.QQAuth;
 import com.tencent.connect.common.Constants;
 
 import android.support.annotation.NonNull;
@@ -37,7 +33,6 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -62,15 +57,11 @@ import com.sina.weibo.sdk.auth.Oauth2AccessToken;
 import com.sina.weibo.sdk.auth.WeiboAuthListener;
 import com.sina.weibo.sdk.auth.sso.SsoHandler;
 import com.sina.weibo.sdk.exception.WeiboException;
-import com.tencent.mm.sdk.modelmsg.SendAuth;
 import com.tencent.tauth.IRequestListener;
 import com.tencent.tauth.IUiListener;
 import com.tencent.tauth.Tencent;
 import com.tencent.tauth.UiError;
-import com.zhm.duxiangle.QQ.BaseUIListener;
-import com.zhm.duxiangle.QQ.Util;
 import com.zhm.duxiangle.api.DXLApi;
-import com.zhm.duxiangle.api.ShareApi;
 import com.zhm.duxiangle.bean.Constant;
 import com.zhm.duxiangle.bean.QQAuthBean;
 import com.zhm.duxiangle.bean.QQUserInfo;
@@ -129,10 +120,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     //登录按钮
     @ViewInject(R.id.btnLogin)
     private Button btnLogin;
-    @ViewInject(R.id.btnSetIp)
-    private Button btnSetIp;
-    @ViewInject(R.id.etIp)
-    private EditText etIp;
+//    @ViewInject(R.id.btnSetIp)
+//    private Button btnSetIp;
+//    @ViewInject(R.id.etIp)
+//    private EditText etIp;
     //注册按钮
     @ViewInject(R.id.tvRegister)
     private TextView tvRegister;
@@ -149,6 +140,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private Oauth2AccessToken mAccessToken;
     private Tencent tencent;
     private IUiListener listener;
+    private SsoHandler mSsoHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -160,7 +152,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         populateAutoComplete();
         // 1.4版本:此处需新增参数，传入应用程序的全局context，可通过activity的getApplicationContext方法获取
         tencent = Tencent.createInstance(Constant.QQ_APP_ID, this.getApplicationContext());//初始化qq对象
-        btnSetIp.setOnClickListener(this);
+//        btnSetIp.setOnClickListener(this);
 //        ivUser.setOnClickListener(this);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -439,13 +431,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             case R.id.btnLogin:
                 attemptLogin();
                 break;
-            case R.id.btnSetIp:
-                String strIp = etIp.getText().toString().trim();
-                if (!TextUtils.isEmpty(strIp)) {
-                    DXLApi.HOST = strIp;
-                    btnSetIp.setText(DXLApi.HOST);
-                }
-                break;
+//            case R.id.btnSetIp:
+//                String strIp = etIp.getText().toString().trim();
+//                if (!TextUtils.isEmpty(strIp)) {
+//                    DXLApi.HOST = strIp;
+//                    btnSetIp.setText(DXLApi.HOST);
+//                }
+//                break;
             case R.id.btnWBLogin:
                 wBLogin();
                 break;
@@ -499,20 +491,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             initOpenidAndToken(jsonObject);
 
             AuthLoginByQQ(qqAuthBean);
-
-//            JSONObject jsonObject1 = null;
-//            try {
-//                jsonObject1 = tencent.request(Constants.GRAPH_BASE, null, Constants.HTTP_GET);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            } catch (JSONException e) {
-//                e.printStackTrace();
-//            } catch (com.tencent.open.utils.HttpUtils.NetworkUnavailableException e) {
-//                e.printStackTrace();
-//            } catch (com.tencent.open.utils.HttpUtils.HttpStatusException e) {
-//                e.printStackTrace();
-//            }
-//            LogUtils.i(LoginActivity.this, "zhm--  " + jsonObject1.toString());
         }
 
 
@@ -569,8 +547,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      */
     private void wBLogin() {
         AuthInfo mAuthInfo = new AuthInfo(LoginActivity.this, Constant.SINA_APP_KEY, Constant.SINA_REDIRECT_URL, Constant.SINA_SCOPE);
-        SsoHandler handler = new SsoHandler(LoginActivity.this, mAuthInfo);
-        handler.authorize(new AuthListener());
+        mSsoHandler = new SsoHandler(LoginActivity.this, mAuthInfo);
+        mSsoHandler.authorize(new AuthListener());
     }
 
     /**
@@ -582,13 +560,17 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      */
     class AuthListener implements WeiboAuthListener {
 
+        private UsersAPI mUsersAPI;
+
         @Override
         public void onComplete(Bundle values) {
             // 从 Bundle 中解析 Token
             mAccessToken = Oauth2AccessToken.parseAccessToken(values);
+            LogUtils.i(LoginActivity.this, "zhm-- sina " + mAccessToken.toString());
             //从这里获取用户输入的 电话号码信息
             String phoneNum = mAccessToken.getPhoneNum();
             if (mAccessToken.isSessionValid()) {
+                updateWBUserInfo(mAccessToken);
                 // 显示 Token
 //                updateTokenView(false);
 
@@ -608,8 +590,52 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 }
                 Toast.makeText(LoginActivity.this, message, Toast.LENGTH_LONG).show();
             }
-            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-            startActivity(intent);
+        }
+
+        private void updateWBUserInfo(Oauth2AccessToken mAccessToken) {
+            mAccessToken.getUid();
+            mUsersAPI = new UsersAPI(LoginActivity.this, Constant.SINA_APP_KEY, mAccessToken);
+            RequestListener mListener = new RequestListener() {
+                @Override
+                public void onComplete(final String response) {
+                    if (!TextUtils.isEmpty(response)) {
+                        // 调用 User#parse 将JSON串解析成User对象
+                        com.sina.weibo.sdk.openapi.models.User wbUser = com.sina.weibo.sdk.openapi.models.User.parse(response);
+                        LogUtils.i(LoginActivity.this, "zhm--wb  " + wbUser.toString());
+                        RequestParams params = new RequestParams();
+                        params.addBodyParameter("action","auth_by_sina");
+                        params.addBodyParameter("user",GsonUtils.getInstance().bean2Json(wbUser));
+                        DXLHttpUtils.getHttpUtils().send(HttpRequest.HttpMethod.POST, DXLApi.getAuthApi(), params, new RequestCallBack<String>() {
+                            @Override
+                            public void onSuccess(ResponseInfo<String> responseInfo) {
+                                if ("action is null".equals(responseInfo.result)) {
+                                    ToastUtils.showToast(getApplicationContext(), responseInfo.result);
+                                    return;
+                                }
+                                User user = GsonUtils.getInstance().json2Bean(responseInfo.result, User.class);
+                                //数据存储到 本地
+                                SpUtil.setStringSharedPerference(SpUtil.getSharePerference(getApplicationContext()), "user", GsonUtils.getInstance().bean2Json(user));
+
+                                getTokenByUserId(user);
+
+
+                            }
+
+                            @Override
+                            public void onFailure(HttpException error, String msg) {
+
+                            }
+                        });
+//                        wbUser.
+                    }
+                }
+
+                @Override
+                public void onWeiboException(WeiboException e) {
+                }
+            };
+            long uid = Long.parseLong(mAccessToken.getUid());
+            mUsersAPI.show(uid, mListener);
         }
 
         @Override
@@ -624,6 +650,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     "Auth exception : " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
+
 
     private interface ProfileQuery {
         String[] PROJECTION = {
@@ -702,8 +729,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Tencent.onActivityResultData(requestCode, resultCode, data, listener);
+        if (tencent != null)
+            Tencent.onActivityResultData(requestCode, resultCode, data, listener);
         super.onActivityResult(requestCode, resultCode, data);
+        if (mSsoHandler != null) {
+            mSsoHandler.authorizeCallBack(requestCode, resultCode, data);
+        }
+
     }
 
     public void hideSystemKeyBoard(View v) {
@@ -876,22 +908,22 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
                 String result = responseInfo.result;
-                if("action is null".equals(result)){
-                    LogUtils.i(LoginActivity.this,result);
+                if ("action is null".equals(result)) {
+                    LogUtils.i(LoginActivity.this, result);
                     return;
                 }
-                if("userinfo is null".equals(result)){
-                    LogUtils.i(LoginActivity.this,result);
+                if ("userinfo is null".equals(result)) {
+                    LogUtils.i(LoginActivity.this, result);
                     return;
                 }
-                if("1".equals(result)){
-                    ToastUtils.showToast(getApplicationContext(),"更新用户资料成功");
+                if ("1".equals(result)) {
+                    ToastUtils.showToast(getApplicationContext(), "更新用户资料成功");
                 }
             }
 
             @Override
             public void onFailure(HttpException error, String msg) {
-                ToastUtils.showToast(getApplicationContext(),"服务器链接失败");
+                ToastUtils.showToast(getApplicationContext(), "服务器链接失败");
             }
         });
     }

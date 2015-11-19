@@ -5,6 +5,8 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.design.widget.Snackbar;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -20,6 +22,12 @@ import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
 import com.lidroid.xutils.view.annotation.ContentView;
 import com.lidroid.xutils.view.annotation.ViewInject;
+import com.sina.weibo.sdk.api.WebpageObject;
+import com.sina.weibo.sdk.api.WeiboMultiMessage;
+import com.sina.weibo.sdk.api.share.IWeiboShareAPI;
+import com.sina.weibo.sdk.api.share.SendMultiMessageToWeiboRequest;
+import com.sina.weibo.sdk.api.share.WeiboShareSDK;
+import com.sina.weibo.sdk.utils.Utility;
 import com.tencent.connect.share.QQShare;
 import com.tencent.tauth.IUiListener;
 import com.tencent.tauth.Tencent;
@@ -29,10 +37,14 @@ import com.zhm.duxiangle.api.ShareApi;
 import com.zhm.duxiangle.bean.Book;
 import com.zhm.duxiangle.bean.Constant;
 import com.zhm.duxiangle.bean.User;
+import com.zhm.duxiangle.utils.BitmapUtils;
 import com.zhm.duxiangle.utils.DXLHttpUtils;
 import com.zhm.duxiangle.utils.GsonUtils;
 import com.zhm.duxiangle.utils.SpUtil;
 import com.zhm.duxiangle.utils.ToastUtils;
+
+import java.io.IOException;
+import java.net.URL;
 
 import io.rong.message.RichContentMessage;
 
@@ -53,6 +65,7 @@ public class BookOperatorActivity extends Activity implements View.OnClickListen
     private User user;
     private boolean isMy = false;
     private Tencent mTencent;
+    private IWeiboShareAPI mWeiboShareAPI;
 
     public void getUser() {
         //获取用户信息
@@ -74,6 +87,8 @@ public class BookOperatorActivity extends Activity implements View.OnClickListen
         super.onCreate(savedInstanceState);
         overridePendingTransition(R.anim.activity_enter_from_bottom, 0);
         ViewUtils.inject(this);
+        mWeiboShareAPI = WeiboShareSDK.createWeiboAPI(this, Constant.SINA_APP_KEY);
+        mWeiboShareAPI.registerApp();    // 将应用注册到微博客户端
         getUser();
 
         book = (Book) getIntent().getSerializableExtra("book");
@@ -113,7 +128,7 @@ public class BookOperatorActivity extends Activity implements View.OnClickListen
         switch (v.getId()) {
             case R.id.btnShare://分享
 
-               dialog();
+                dialog();
                 break;
             case R.id.btnAdd://增加
                 saveBookToNet(btnAdd);
@@ -198,9 +213,10 @@ public class BookOperatorActivity extends Activity implements View.OnClickListen
             }
         });
     }
+
     private void dialog() {
         String[] str;
-            str = new String[]{"分享到微信", "分享到qq"};
+        str = new String[]{"分享到微信朋友圈", "分享给微信朋友", "分享到qq", "分享到新浪微博"};
         new android.app.AlertDialog.Builder(this).setTitle("分享").setIcon(
                 R.drawable.ic_launcher).setSingleChoiceItems(
                 str, 0,
@@ -216,7 +232,20 @@ public class BookOperatorActivity extends Activity implements View.OnClickListen
                                 }).start();
                                 break;
                             case 1:
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        //1：朋友圈
+                                        ShareApi.getInstance(getApplicationContext()).wechatShareToBook(0, book.getAlt(), book.getTitle(), book.getImage(), book.getSummary());
+                                    }
+
+                                }).start();
+                                break;
+                            case 2:
                                 qqShare();
+                                break;
+                            case 3:
+                                sendMultiMessage(true);
                                 break;
                         }
                         dialog.dismiss();
@@ -251,7 +280,7 @@ public class BookOperatorActivity extends Activity implements View.OnClickListen
         mTencent.shareToQQ(this, bundle, new IUiListener() {
             @Override
             public void onComplete(Object o) {
-                ToastUtils.showToast(getApplicationContext(),"QQ分享完成");
+                ToastUtils.showToast(getApplicationContext(), "QQ分享完成");
             }
 
             @Override
@@ -269,5 +298,38 @@ public class BookOperatorActivity extends Activity implements View.OnClickListen
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (null != mTencent)
             mTencent.onActivityResult(requestCode, resultCode, data);
+    }
+
+
+    private void sendMultiMessage(boolean hasWebpage) {
+        WeiboMultiMessage weiboMessage = new WeiboMultiMessage();//初始化微博的分享消息
+        if (hasWebpage) {
+            weiboMessage.mediaObject = getWebpageObj();
+        }
+        SendMultiMessageToWeiboRequest request = new SendMultiMessageToWeiboRequest();
+        request.transaction = String.valueOf(System.currentTimeMillis());
+        request.multiMessage = weiboMessage;
+        // 2. 初始化从第三方到微博的消息请求
+        boolean b = mWeiboShareAPI.sendRequest(BookOperatorActivity.this, request);//发送请求消息到微博，唤起微博分享界面
+    }
+
+
+    /**
+     * 创建多媒体（网页）消息对象。
+     *
+     * @return 多媒体（网页）消息对象。
+     */
+    private WebpageObject getWebpageObj() {
+        WebpageObject mediaObject = new WebpageObject();
+        mediaObject.identify = Utility.generateGUID();
+        mediaObject.title = book.getTitle();
+        mediaObject.description = book.getStrAuthor();
+        Bitmap bitmap = null;
+        bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
+        // 设置 Bitmap 类型的图片到视频对象里         设置缩略图。 注意：最终压缩过的缩略图大小不得超过 32kb。
+        mediaObject.setThumbImage(bitmap);
+        mediaObject.actionUrl = book.getAlt();
+        mediaObject.defaultText = "读享乐";
+        return mediaObject;
     }
 }

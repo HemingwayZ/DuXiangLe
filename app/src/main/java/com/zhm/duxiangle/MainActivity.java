@@ -37,6 +37,14 @@ import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
 import com.lidroid.xutils.view.annotation.ContentView;
 import com.lidroid.xutils.view.annotation.ViewInject;
+import com.sina.weibo.sdk.api.TextObject;
+import com.sina.weibo.sdk.api.WebpageObject;
+import com.sina.weibo.sdk.api.WeiboMultiMessage;
+import com.sina.weibo.sdk.api.share.BaseRequest;
+import com.sina.weibo.sdk.api.share.IWeiboShareAPI;
+import com.sina.weibo.sdk.api.share.SendMultiMessageToWeiboRequest;
+import com.sina.weibo.sdk.api.share.WeiboShareSDK;
+import com.sina.weibo.sdk.utils.Utility;
 import com.tencent.connect.share.QQShare;
 import com.tencent.mm.sdk.modelmsg.SendMessageToWX;
 import com.tencent.mm.sdk.modelmsg.WXMediaMessage;
@@ -90,10 +98,14 @@ public class MainActivity extends AppCompatActivity
     private UserInfo userinfo;
     private User user;
     private Tencent mTencent;
+    private IWeiboShareAPI mWeiboShareAPI;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mWeiboShareAPI = WeiboShareSDK.createWeiboAPI(this, Constant.SINA_APP_KEY);
+        mWeiboShareAPI.registerApp();    // 将应用注册到微博客户端
+
 //        overridePendingTransition(R.anim.hm_base_slide_right_in, 0);
         ShareApi.getInstance(getApplicationContext()).regToWx();
         ViewUtils.inject(this);
@@ -208,7 +220,7 @@ public class MainActivity extends AppCompatActivity
                     @Override
                     public void onTokenIncorrect() {
                         //Connect Token 失效的状态处理，需要重新获取 Token
-                        ToastUtils.showToast(getApplicationContext(), "onTokenIncorrect");
+                        ToastUtils.showToast(getApplicationContext(), "融云服务器异常");
                         Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                         startActivity(intent);
                         finish();
@@ -229,6 +241,7 @@ public class MainActivity extends AppCompatActivity
                         //{"code":200,"userId":"2462","token":"4Cp7WFQq92h1xjdmdaL5AXM//2Y39LDCnuxr2xdDagUSew9ILDZp6tvcV6rRhvbxbTnqk7cS56XBpjxS+NU4Ng=="}
                         //{"code":200,"userId":"1","token":"8FQcKXFvWDqN2j3qZWDA5nM//2Y39LDCnuxr2xdDagUSew9ILDZp6n9+OUnzkJ/4/W8bX6Y2cB4VGTWNrvchrA=="}
                         if (RongIM.getInstance() != null) {
+
                             /**
                              * 刷新用户缓存数据。
                              *
@@ -348,7 +361,6 @@ public class MainActivity extends AppCompatActivity
             getUser();
         }
         super.onResume();
-
     }
 
     @Override
@@ -401,7 +413,10 @@ public class MainActivity extends AppCompatActivity
             dialogShare();
 
         } else if (id == R.id.nav_clean) {
-            BitmapUtils.getInstance(getApplication()).cleanCache();
+//            BitmapUtils.getInstance(getApplication()).cleanCache();
+            getUser();
+
+            return true;
         } else if (id == R.id.nav_login) {
             //消除本地缓存
             SpUtil.cleanUser(SpUtil.getSharePerference(getApplicationContext()));
@@ -442,8 +457,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (null != mTencent)
-            mTencent.onActivityResult(requestCode, resultCode, data);
+
         if (resultCode != RESULT_OK || null == data) {
             return;
         }
@@ -454,9 +468,8 @@ public class MainActivity extends AppCompatActivity
                 startActivity(data);
                 break;
         }
-
-
-        super.onActivityResult(requestCode, resultCode, data);
+        if (null != mTencent)
+            mTencent.onActivityResult(requestCode, resultCode, data);
     }
 
     /**
@@ -503,7 +516,7 @@ public class MainActivity extends AppCompatActivity
 
     private void dialogShare() {
         String[] str;
-        str = new String[]{"分享到微信", "分享到qq"};
+        str = new String[]{"分享到微信朋友圈", "分享给微信朋友", "分享到qq", "分享到新浪微博"};
         new android.app.AlertDialog.Builder(this).setTitle("分享").setIcon(
                 R.drawable.ic_launcher).setSingleChoiceItems(
                 str, 0,
@@ -521,7 +534,25 @@ public class MainActivity extends AppCompatActivity
                                 }).start();
                                 break;
                             case 1:
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        //1：朋友圈
+                                        ShareApi.getInstance(getApplicationContext()).wechatShare(0, DXLApi.getIndexApi());
+                                    }
+
+                                }).start();
+                                break;
+                            case 2:
                                 qqShare();
+                                break;
+                            case 3:
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        sendMultiMessage(true);
+                                    }
+                                }).start();
                                 break;
                         }
                         dialog.dismiss();
@@ -544,8 +575,13 @@ public class MainActivity extends AppCompatActivity
         //分享的标题。注：PARAM_TITLE、PARAM_IMAGE_URL、PARAM_	SUMMARY不能全为空，最少必须有一个是有值的。
         bundle.putString(QQShare.SHARE_TO_QQ_TITLE, "读享乐");
         //分享的图片URL
-        bundle.putString(QQShare.SHARE_TO_QQ_IMAGE_URL,
-                userinfo.getAvatar());
+        if (userinfo.getAvatar().startsWith("http")) {
+            bundle.putString(QQShare.SHARE_TO_QQ_IMAGE_URL,
+                    userinfo.getAvatar());
+        } else {
+            bundle.putString(QQShare.SHARE_TO_QQ_IMAGE_URL,
+                    DXLApi.BASE_URL + userinfo.getAvatar());
+        }
         //分享的消息摘要，最长50个字
         bundle.putString(QQShare.SHARE_TO_QQ_SUMMARY, "zhuanghm");
         //手Q客户端顶部，替换“返回”按钮文字，如果为空，用返回代替
@@ -569,5 +605,49 @@ public class MainActivity extends AppCompatActivity
 
             }
         });
+    }
+
+    //微博分享--创建要分享的内容
+    private TextObject getTextObj() {
+        TextObject textObject = new TextObject();
+        textObject.text = getSharedText();
+        return textObject;
+    }
+
+    private String getSharedText() {
+        return null;
+    }
+
+    private void sendMultiMessage(boolean hasWebpage) {
+        WeiboMultiMessage weiboMessage = new WeiboMultiMessage();//初始化微博的分享消息
+        if (hasWebpage) {
+            weiboMessage.mediaObject = getWebpageObj();
+        }
+        SendMultiMessageToWeiboRequest request = new SendMultiMessageToWeiboRequest();
+        request.transaction = String.valueOf(System.currentTimeMillis());
+        request.multiMessage = weiboMessage;
+        // 2. 初始化从第三方到微博的消息请求
+        boolean b = mWeiboShareAPI.sendRequest(MainActivity.this, request);//发送请求消息到微博，唤起微博分享界面
+    }
+
+
+    /**
+     * 创建多媒体（网页）消息对象。
+     *
+     * @return 多媒体（网页）消息对象。
+     */
+    private WebpageObject getWebpageObj() {
+        WebpageObject mediaObject = new WebpageObject();
+        mediaObject.identify = Utility.generateGUID();
+        mediaObject.title = "读享乐";
+        mediaObject.description = "读书 分享 快乐";
+
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
+        bitmap = BitmapUtils.compressImage(bitmap);
+        // 设置 Bitmap 类型的图片到视频对象里         设置缩略图。 注意：最终压缩过的缩略图大小不得超过 32kb。
+        mediaObject.setThumbImage(bitmap);
+        mediaObject.actionUrl = DXLApi.getIndexApi();
+        mediaObject.defaultText = "读享乐";
+        return mediaObject;
     }
 }
