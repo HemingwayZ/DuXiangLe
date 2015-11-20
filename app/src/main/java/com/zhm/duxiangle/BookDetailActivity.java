@@ -10,6 +10,8 @@ import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -17,6 +19,7 @@ import android.view.DragEvent;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -36,12 +39,15 @@ import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
 import com.lidroid.xutils.view.annotation.ContentView;
 import com.lidroid.xutils.view.annotation.ViewInject;
+import com.zhm.duxiangle.adapter.HorizontalScrollViewAdapter;
 import com.zhm.duxiangle.api.DXLApi;
 import com.zhm.duxiangle.api.DouBanApi;
 import com.zhm.duxiangle.api.ShareApi;
 import com.zhm.duxiangle.bean.Book;
 import com.zhm.duxiangle.bean.Images;
+import com.zhm.duxiangle.bean.Page;
 import com.zhm.duxiangle.bean.User;
+import com.zhm.duxiangle.bean.UserInfo;
 import com.zhm.duxiangle.utils.BitmapUtils;
 import com.zhm.duxiangle.utils.DXLDbUtils;
 import com.zhm.duxiangle.utils.DXLHttpUtils;
@@ -49,10 +55,28 @@ import com.zhm.duxiangle.utils.GsonUtils;
 import com.zhm.duxiangle.utils.LogUtils;
 import com.zhm.duxiangle.utils.SpUtil;
 import com.zhm.duxiangle.utils.ToastUtils;
+import com.zhm.duxiangle.view.MyHorizontalScrollView;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import io.rong.imkit.RongIM;
+import io.rong.imlib.RongIMClient;
+import io.rong.imlib.model.Conversation;
+import io.rong.imlib.model.MessageContent;
+import io.rong.message.RichContentMessage;
 
 @ContentView(R.layout.activity_book_detail)
 public class BookDetailActivity extends SlidingBackActivity {
 
+    //分页处理
+    int thispage = 0;
+    int rowpaerpage = 5;
+    //收藏了该书的人的信息
+    @ViewInject(R.id.tvUserInfo)
+    private TextView tvUserInfo;
+    //    @ViewInject(R.id.vpAvatar)
+//    private ViewPager vpAvatar;
     private String isbn;
     @ViewInject(R.id.collapsingToolbarLayout)
     private CollapsingToolbarLayout collapsingToolbarLayout;
@@ -91,6 +115,19 @@ public class BookDetailActivity extends SlidingBackActivity {
     //后退
     @ViewInject(R.id.ibBack)
     private ImageButton ibBack;
+    //头像
+    @ViewInject(R.id.iv1)
+    private ImageView iv1;
+    @ViewInject(R.id.iv2)
+    private ImageView iv2;
+    @ViewInject(R.id.iv3)
+    private ImageView iv3;
+    @ViewInject(R.id.iv4)
+    private ImageView iv4;
+    @ViewInject(R.id.iv5)
+    private ImageView iv5;
+    @ViewInject(R.id.tvCount)
+    private TextView tvCount;
     //CreditsRollView
 //    @ViewInject(R.id.creditsroll)
 //    private CreditsRollView creditsRollView;
@@ -98,13 +135,14 @@ public class BookDetailActivity extends SlidingBackActivity {
     private User user;
     private Book book;
     private boolean isMy;
+    private Page<UserInfo> userInfos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().setBackgroundDrawable(new ColorDrawable(0));
         ViewUtils.inject(this);
-        isMy = getIntent().getBooleanExtra("isMy",false);
+        isMy = getIntent().getBooleanExtra("isMy", false);
         //获取用户信息
         getUser();
         bookCover.setOnDragListener(new View.OnDragListener() {
@@ -165,6 +203,7 @@ public class BookDetailActivity extends SlidingBackActivity {
             for (int i = 0; book.getAuthor() != null && i < book.getAuthor().size(); i++) {
                 buffer.append(book.getAuthor().get(i));
             }
+            getUserInfoByIsbn(book.getIsbn13(), 0);
             tvAuthor.setText(buffer.toString());
             tvIsbn.setText(book.getIsbn13());
             tvSummary.setText(book.getSummary());
@@ -184,7 +223,23 @@ public class BookDetailActivity extends SlidingBackActivity {
             }
             progressBar.setVisibility(View.GONE);
         }
+//        initViewPager();
     }
+
+//    private void initViewPager() {
+//
+//        vpAvatar.setAdapter(new PagerAdapter() {
+//            @Override
+//            public int getCount() {
+//                return 0;
+//            }
+//
+//            @Override
+//            public boolean isViewFromObject(View view, Object object) {
+//                return false;
+//            }
+//        });
+//    }
 
     /**
      * 将数据存储到本地数据库
@@ -273,6 +328,7 @@ public class BookDetailActivity extends SlidingBackActivity {
         http.send(HttpRequest.HttpMethod.POST, DouBanApi.getBookByIsbn(isbn), new RequestCallBack<String>() {
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
+
                 String json = responseInfo.result;
                 book = GsonUtils.getInstance().json2Bean(json, Book.class);
                 tvTitle.setText(book.getTitle());
@@ -301,6 +357,7 @@ public class BookDetailActivity extends SlidingBackActivity {
 
                 book.setUserId(user.getUserId());
 //                saveBookToNet(book);
+                getUserInfoByIsbn(book.getIsbn13(), 0);
             }
 
             @Override
@@ -331,5 +388,103 @@ public class BookDetailActivity extends SlidingBackActivity {
                 finish();
             }
         }
+    }
+
+    public void getUserInfoByIsbn(String isbn, int _thispage) {
+        //http://localhost:8080/DuXiangLeServer/UserInfoServlet?action=find_userinfo_by_isbn&isbn=9781453562680&rowperpage=2
+        RequestParams params = new RequestParams();
+        params.addBodyParameter("action", "find_userinfo_by_isbn");
+        params.addBodyParameter("isbn", isbn);
+        params.addBodyParameter("thispage", String.valueOf(_thispage));
+        params.addBodyParameter("rowperpage", String.valueOf(rowpaerpage));
+
+        DXLHttpUtils.getHttpUtils().send(HttpRequest.HttpMethod.POST, DXLApi.getUserInfoApi(), params, new RequestCallBack<String>() {
+            @Override
+            public void onSuccess(ResponseInfo<String> responseInfo) {
+                String result = responseInfo.result;
+//                LogUtils.i(BookDetailActivity.this,"zhm--result:"+result);
+                if ("action is null".equals(result)) {
+                    return;
+                }
+                if ("isbn_is_null".equals(result)) {
+                    return;
+                }
+                userInfos = GsonUtils.getInstance().getUserInfos(result);
+                UserInfo userinfo = null;
+                if (userInfos.getList() != null&&userInfos.getList().size()>0) {
+                    tvCount.setText("共有" + userInfos.getCountrow() + "位用户收藏了该书");
+                    if (userInfos.getList().size() > 4) {
+                        iv5.setVisibility(View.VISIBLE);
+                        iv5.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Intent intent = new Intent(BookDetailActivity.this, BookWithUserInfosActivity.class);
+                                intent.putExtra("book", book);
+                                startActivity(intent);
+                            }
+                        });
+                    }
+                    for (int i = 0; i < userInfos.getList().size(); i++) {
+                        userinfo = userInfos.getList().get(i);
+                        if (userinfo.getAvatar() != null) {
+                            switch (i) {
+                                case 0:
+                                    iv1.setVisibility(View.VISIBLE);
+                                    if (userinfo.getAvatar().startsWith("http"))
+                                        BitmapUtils.getInstance(BookDetailActivity.this).setAvatarWithoutReflect(iv1, userinfo.getAvatar());
+                                    else
+                                        BitmapUtils.getInstance(BookDetailActivity.this).setAvatarWithoutReflect(iv1, DXLApi.BASE_URL + userinfo.getAvatar());
+                                    openUserInfoActivity(iv1, userinfo);
+                                    break;
+                                case 1:
+                                    iv2.setVisibility(View.VISIBLE);
+                                    if (userinfo.getAvatar().startsWith("http"))
+                                        BitmapUtils.getInstance(BookDetailActivity.this).setAvatarWithoutReflect(iv2, userinfo.getAvatar());
+                                    else
+                                        BitmapUtils.getInstance(BookDetailActivity.this).setAvatarWithoutReflect(iv2, DXLApi.BASE_URL + userinfo.getAvatar());
+                                    openUserInfoActivity(iv2, userinfo);
+                                    break;
+                                case 2:
+                                    iv3.setVisibility(View.VISIBLE);
+                                    if (userinfo.getAvatar().startsWith("http"))
+                                        BitmapUtils.getInstance(BookDetailActivity.this).setAvatarWithoutReflect(iv3, userinfo.getAvatar());
+                                    else
+                                        BitmapUtils.getInstance(BookDetailActivity.this).setAvatarWithoutReflect(iv3, DXLApi.BASE_URL + userinfo.getAvatar());
+                                    openUserInfoActivity(iv3, userinfo);
+                                    break;
+                                case 3:
+                                    iv4.setVisibility(View.VISIBLE);
+                                    if (userinfo.getAvatar().startsWith("http"))
+                                        BitmapUtils.getInstance(BookDetailActivity.this).setAvatarWithoutReflect(iv4, userinfo.getAvatar());
+                                    else
+                                        BitmapUtils.getInstance(BookDetailActivity.this).setAvatarWithoutReflect(iv4, DXLApi.BASE_URL + userinfo.getAvatar());
+                                    openUserInfoActivity(iv4, userinfo);
+                                    break;
+                            }
+                        }
+                    }
+                }else {//无用户收藏该书
+                    tvCount.setText("还没有用户收藏该书，赶紧收藏吧");
+                    return;
+                }
+            }
+
+            private void openUserInfoActivity(ImageView iv1, final UserInfo userinfo) {
+                iv1.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent();
+                        intent.setClass(BookDetailActivity.this, UserInfoDetailActivity.class);
+                        intent.putExtra("userinfo", userinfo);
+                        startActivity(intent);
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(HttpException error, String msg) {
+
+            }
+        });
     }
 }

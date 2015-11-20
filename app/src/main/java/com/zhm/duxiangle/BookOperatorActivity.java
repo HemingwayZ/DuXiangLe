@@ -7,8 +7,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.support.design.widget.Snackbar;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
@@ -37,14 +37,10 @@ import com.zhm.duxiangle.api.ShareApi;
 import com.zhm.duxiangle.bean.Book;
 import com.zhm.duxiangle.bean.Constant;
 import com.zhm.duxiangle.bean.User;
-import com.zhm.duxiangle.utils.BitmapUtils;
 import com.zhm.duxiangle.utils.DXLHttpUtils;
 import com.zhm.duxiangle.utils.GsonUtils;
 import com.zhm.duxiangle.utils.SpUtil;
 import com.zhm.duxiangle.utils.ToastUtils;
-
-import java.io.IOException;
-import java.net.URL;
 
 import io.rong.message.RichContentMessage;
 
@@ -310,9 +306,13 @@ public class BookOperatorActivity extends Activity implements View.OnClickListen
         request.transaction = String.valueOf(System.currentTimeMillis());
         request.multiMessage = weiboMessage;
         // 2. 初始化从第三方到微博的消息请求
-        boolean b = mWeiboShareAPI.sendRequest(BookOperatorActivity.this, request);//发送请求消息到微博，唤起微博分享界面
+        if (mWeiboShareAPI.isWeiboAppInstalled()) {
+            boolean b = mWeiboShareAPI.sendRequest(BookOperatorActivity.this, request);//发送请求消息到微博，唤起微博分享界面
+        } else {
+            ToastUtils.showToast(BookOperatorActivity.this, "请安装微博客户端");
+//            statusesAPI = new StatusesAPI(mWeiboShareAPI.); //创建微博分享接口实例
+        }
     }
-
 
     /**
      * 创建多媒体（网页）消息对象。

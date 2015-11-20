@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal">
+
+
+    <com.zhm.duxiangle.view.CircleImageView
+        android:id="@+id/iv1"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginLeft="10dp"
+        android:layout_weight="0.2"
+        android:src="@drawable/icon_province"
+
+        android:visibility="gone" />
+
+    <com.zhm.duxiangle.view.CircleImageView
+        android:id="@+id/iv2"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginLeft="10dp"
+
+        android:layout_weight="0.2"
+        android:src="@drawable/icon_city"
+        android:visibility="gone" />
+
+    <com.zhm.duxiangle.view.CircleImageView
+        android:id="@+id/iv3"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginLeft="10dp"
+
+        android:layout_weight="0.2"
+        android:src="@drawable/icon_province"
+        android:visibility="gone" />
+
+    <com.zhm.duxiangle.view.CircleImageView
+        android:id="@+id/iv4"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginLeft="10dp"
+        android:layout_weight="0.2"
+        android:src="@drawable/icon_city"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/iv5"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+
+        android:layout_marginLeft="10dp"
+        android:layout_weight="0.2"
+        android:src="@drawable/rc_bar_more"
+        android:visibility="gone" />
+</LinearLayout>

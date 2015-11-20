@@ -23,6 +23,7 @@
             android:id="@+id/tvTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:singleLine="true"
             android:text="back"
             android:textColor="@color/cardview_light_background"
             android:textSize="17sp" />

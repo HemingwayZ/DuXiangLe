@@ -166,8 +166,11 @@ public class BitmapUtils {
             bitmapUtils = new com.lidroid.xutils.BitmapUtils(mContext);
         }
 
-        bitmapUtils.configDefaultBitmapMaxSize(BitmapSize.ZERO);
-        bitmapUtils.display(container, url, new BitmapLoadCallBack<ImageView>() {
+        bitmapUtils.display(container, url);
+        return null;
+    }
+
+    /*, new BitmapLoadCallBack<ImageView>() {
             @Override
             public void onLoadStarted(ImageView container, String uri, BitmapDisplayConfig config) {
 //                Log.i("BitmapUtils current","zhm-start : " + uri+"--start/");
@@ -190,9 +193,7 @@ public class BitmapUtils {
             public void onLoadFailed(ImageView container, String uri, Drawable drawable) {
                 container.setImageResource(R.drawable.ic_launcher);
             }
-        });
-        return null;
-    }
+        }*/
     public Bitmap setAvatarWithoutReflect2(ImageView container, String url) {
         if (TextUtils.isEmpty(url)) {
             return null;

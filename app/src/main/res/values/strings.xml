@@ -161,7 +161,7 @@
 
     <!-- Strings related to login -->
     <string name="prompt_email">请输入邮箱</string>
-    <string name="prompt_password">请输入密码 (optional)</string>
+    <string name="prompt_password">请输入密码</string>
     <string name="action_sign_in">登录</string>
     <string name="action_sign_in_short">登录</string>
     <string name="error_invalid_email">邮箱格式错误</string>

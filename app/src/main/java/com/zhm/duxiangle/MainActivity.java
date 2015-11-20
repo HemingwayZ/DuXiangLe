@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
@@ -44,6 +45,7 @@ import com.sina.weibo.sdk.api.share.BaseRequest;
 import com.sina.weibo.sdk.api.share.IWeiboShareAPI;
 import com.sina.weibo.sdk.api.share.SendMultiMessageToWeiboRequest;
 import com.sina.weibo.sdk.api.share.WeiboShareSDK;
+import com.sina.weibo.sdk.openapi.StatusesAPI;
 import com.sina.weibo.sdk.utils.Utility;
 import com.tencent.connect.share.QQShare;
 import com.tencent.mm.sdk.modelmsg.SendMessageToWX;
@@ -70,6 +72,7 @@ import java.util.ArrayList;
 
 import io.rong.imkit.RongIM;
 import io.rong.imlib.RongIMClient;
+import io.rong.imlib.model.Message;
 
 @ContentView(R.layout.activity_main)
 public class MainActivity extends AppCompatActivity
@@ -94,6 +97,12 @@ public class MainActivity extends AppCompatActivity
     @ViewInject(R.id.tvDesc)
     private TextView tvDesc;
 
+    //
+    @ViewInject(R.id.nav_view)
+    private NavigationView navigationView;
+    //新消息提示
+    @ViewInject(R.id.tvNewMessage)
+    private TextView tvNewMessage;
     //用户信息
     private UserInfo userinfo;
     private User user;
@@ -120,17 +129,17 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
-
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         ivUser.setOnClickListener(this);
         //初始化recycleView和相应标题
         initTab();
+        tvNewMessage.setOnClickListener(this);
     }
 
     String[] mData;
@@ -191,7 +200,7 @@ public class MainActivity extends AppCompatActivity
                 tvUsername.setText(userinfo.getNickname());
                 tvDesc.setText(userinfo.getDescrib());
                 if (userinfo.getAvatar() != null)
-                    if (user != null && user.getOpenid() != null) {
+                    if (user != null && userinfo.getAvatar().startsWith("http")) {
                         BitmapUtils.getInstance(getApplicationContext()).setAvatarWithoutReflect(ivUser, userinfo.getAvatar());
                     } else {
                         BitmapUtils.getInstance(getApplicationContext()).setAvatarWithoutReflect(ivUser, DXLApi.BASE_URL + userinfo.getAvatar());
@@ -204,6 +213,19 @@ public class MainActivity extends AppCompatActivity
             }
         });
     }
+
+    Handler handler = new Handler() {
+        @Override
+        public void handleMessage(android.os.Message msg) {
+            switch (msg.what) {
+                case 100:
+                    Message message = (Message) msg.obj;
+                    tvNewMessage.setVisibility(View.VISIBLE);
+                    break;
+            }
+            super.handleMessage(msg);
+        }
+    };
 
     private void initRong(final String token) {
         //访问融云服务器
@@ -241,7 +263,16 @@ public class MainActivity extends AppCompatActivity
                         //{"code":200,"userId":"2462","token":"4Cp7WFQq92h1xjdmdaL5AXM//2Y39LDCnuxr2xdDagUSew9ILDZp6tvcV6rRhvbxbTnqk7cS56XBpjxS+NU4Ng=="}
                         //{"code":200,"userId":"1","token":"8FQcKXFvWDqN2j3qZWDA5nM//2Y39LDCnuxr2xdDagUSew9ILDZp6n9+OUnzkJ/4/W8bX6Y2cB4VGTWNrvchrA=="}
                         if (RongIM.getInstance() != null) {
-
+                            RongIM.setOnReceiveMessageListener(new RongIMClient.OnReceiveMessageListener() {
+                                @Override
+                                public boolean onReceived(Message message, int i) {
+                                    android.os.Message msg = new android.os.Message();//接受新消息
+                                    msg.what = 100;
+                                    msg.obj = message;
+                                    handler.sendMessage(msg);
+                                    return false;
+                                }
+                            });
                             /**
                              * 刷新用户缓存数据。
                              *
@@ -405,8 +436,7 @@ public class MainActivity extends AppCompatActivity
                     0);
             return true;
         } else if (id == R.id.nav_slideshow) {//消息
-            //融云即时通讯
-            startActivity(new Intent(MainActivity.this, ConversationListActivity.class));
+            toConversationList();
             return true;
         } else if (id == R.id.nav_share) {
 //                startActivity(new Intent(MainActivity.this,MessageActivity.class));
@@ -436,6 +466,14 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void toConversationList() {
+        if (tvNewMessage.getVisibility() == View.VISIBLE) {
+            tvNewMessage.setVisibility(View.GONE);
+        }
+        //融云即时通讯
+        startActivity(new Intent(MainActivity.this, ConversationListActivity.class));
     }
 
     private void wechatShare(int flag) {
@@ -510,6 +548,9 @@ public class MainActivity extends AppCompatActivity
                 startActivity(intent);
 
                 break;
+            case R.id.tvNewMessage:
+                toConversationList();
+                break;
             default:
         }
     }
@@ -547,12 +588,7 @@ public class MainActivity extends AppCompatActivity
                                 qqShare();
                                 break;
                             case 3:
-                                new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        sendMultiMessage(true);
-                                    }
-                                }).start();
+                                sendMultiMessage(true);
                                 break;
                         }
                         dialog.dismiss();
@@ -627,7 +663,12 @@ public class MainActivity extends AppCompatActivity
         request.transaction = String.valueOf(System.currentTimeMillis());
         request.multiMessage = weiboMessage;
         // 2. 初始化从第三方到微博的消息请求
-        boolean b = mWeiboShareAPI.sendRequest(MainActivity.this, request);//发送请求消息到微博，唤起微博分享界面
+        if (mWeiboShareAPI.isWeiboAppInstalled()) {
+            boolean b = mWeiboShareAPI.sendRequest(MainActivity.this, request);//发送请求消息到微博，唤起微博分享界面
+        } else {
+            ToastUtils.showToast(MainActivity.this, "请安装微博客户端");
+//            statusesAPI = new StatusesAPI(mWeiboShareAPI.); //创建微博分享接口实例
+        }
     }
 
 

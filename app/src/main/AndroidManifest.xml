@@ -48,7 +48,7 @@
     <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
     <!-- <uses-permission android:name="android.permission.VIBRATE" /> -->
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
-    <uses-permission android:name="android.permission.WRITE_APN_SETTINGS."></uses-permission>
+    <uses-permission android:name="android.permission.WRITE_APN_SETTINGS." />
     <!-- 融云权限 -->
     <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL" />
 
@@ -72,18 +72,17 @@
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <!--新浪微博-->
+                <!-- 新浪微博 -->
                 <action android:name="com.sina.weibo.sdk.action.ACTION_SDK_REQ_ACTIVITY" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <!--新浪微博-->
+        <!-- 新浪微博 -->
         <activity
             android:name="com.sina.weibo.sdk.component.WeiboSdkBrowser"
             android:configChanges="keyboardHidden|orientation"
             android:exported="false"
-            android:windowSoftInputMode="adjustResize"></activity>
-
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".BookDetailActivity"
             android:label="@string/title_activity_book_detail"
@@ -169,18 +168,13 @@
         <activity
             android:name=".CitySelectActivity"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".AboutUsActivity"></activity>
+        <activity android:name=".AboutUsActivity" />
         <activity
             android:name=".SearchUserActivity"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
-        <!--新浪微博设置-->
+            android:theme="@style/AppTheme.NoActionBar" />
+        <!-- 新浪微博设置 -->
         <!-- 必须注册在微博授权，分享微博时候用到 -->
-        <activity
-            android:name="com.sina.weibo.sdk.component.WeiboSdkBrowser"
-            android:configChanges="keyboardHidden|orientation"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize"></activity>
-        <!--qq配置-->
+        <!-- qq配置 -->
         <activity
             android:name="com.tencent.tauth.AuthActivity"
             android:launchMode="singleTask"
@@ -190,8 +184,10 @@
 
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <!--其中，如果你已经添加了”android.permission.INTERNET”和”android.permission.ACCESS_NETWORK_STATE”权限，则无需重复添加。
-                而”你的AppId”则要替换成具体应用的AppId，例如你的AppId是”222222″，则<data>标签应该是这样的：-->
+                <!--
+                其中，如果你已经添加了”android.permission.INTERNET”和”android.permission.ACCESS_NETWORK_STATE”权限，则无需重复添加。
+                而”你的AppId”则要替换成具体应用的AppId，例如你的AppId是”222222″，则<data>标签应该是这样的：
+                -->
                 <data android:scheme="tencent1104835827" />
             </intent-filter>
         </activity>
@@ -199,7 +195,10 @@
             android:name="com.tencent.connect.common.AssistActivity"
             android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="behind"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"></activity>
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+        <activity
+            android:name=".BookWithUserInfosActivity"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

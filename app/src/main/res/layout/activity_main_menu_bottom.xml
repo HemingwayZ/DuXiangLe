@@ -5,7 +5,15 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-
+    <TextView
+        android:id="@+id/tvNewMessage"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:background="#50000000"
+        android:gravity="center"
+        android:textSize="17sp"
+        android:visibility="gone"
+        android:text="有新消息"/>
     <android.support.design.widget.TabLayout
         android:id="@+id/tabLayout"
         android:layout_width="match_parent"
