@@ -4,15 +4,15 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_camara"
-            android:icon="@android:drawable/ic_menu_camera"
+            android:icon="@drawable/icon_menu_location"
             android:title="我在哪儿" />
         <item
             android:id="@+id/nav_gallery"
-            android:icon="@android:drawable/ic_menu_gallery"
+            android:icon="@drawable/icon_menu_friends"
             android:title="好友列表" />
         <item
             android:id="@+id/nav_slideshow"
-            android:icon="@android:drawable/ic_menu_slideshow"
+            android:icon="@drawable/icon_menu_chat_list"
             android:title="消息列表" />
         <!-- <item
              android:id="@+id/nav_manage"
@@ -20,24 +20,24 @@
              android:title="Tools" />-->
     </group>
 
-    <item android:title="Communicate">
+    <item android:title="读书 分享 快乐 ">
         <menu>
             <item
                 android:id="@+id/nav_share"
-                android:icon="@android:drawable/ic_menu_share"
+                android:icon="@drawable/icon_menu_share"
                 android:title="分享" />
             <item
                 android:id="@+id/nav_clean"
-                android:icon="@android:drawable/ic_menu_send"
+                android:icon="@drawable/icon_menu_fresh"
                 android:title="刷新" />
             <item
                 android:id="@+id/nav_login"
-                android:icon="@android:drawable/ic_menu_send"
+                android:icon="@drawable/icon_menu_relogin"
                 android:title="注销" />
             <item
                 android:id="@+id/nav_aboutus"
-                android:icon="@android:drawable/ic_menu_send"
-                android:title="关于我们" />
+                android:icon="@drawable/icon_menu_aoutus"
+                android:title="关于" />
         </menu>
     </item>
 

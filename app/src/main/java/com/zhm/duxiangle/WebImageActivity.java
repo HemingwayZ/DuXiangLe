@@ -17,6 +17,7 @@ public class WebImageActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_web_image);
+        initToorBar();
 //        String url = "http://120.25.201.60/DuXiangLeServer/index/index.html";
         String url = getIntent().getStringExtra("url");
         final WebView webView = (WebView) findViewById(R.id.webView);
@@ -50,6 +51,15 @@ public class WebImageActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 webView.getSettings().setLayoutAlgorithm(WebSettings.LayoutAlgorithm.NARROW_COLUMNS);
+            }
+        });
+    }
+
+    private void initToorBar() {
+        findViewById(R.id.ibBack).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
             }
         });
     }

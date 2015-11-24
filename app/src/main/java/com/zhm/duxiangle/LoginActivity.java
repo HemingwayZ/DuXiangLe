@@ -485,7 +485,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             JSONObject jsonObject = (JSONObject) o;
             //
             QQAuthBean qqAuthBean = GsonUtils.getInstance().json2Bean(jsonObject.toString(), QQAuthBean.class);
-            ToastUtils.showToast(getApplicationContext(), qqAuthBean.getOpenid());
+            ToastUtils.showToast(getApplicationContext(), "qq认证成功");
             LogUtils.i(LoginActivity.this, "zhm--openid" + qqAuthBean.getOpenid());
             LogUtils.i(LoginActivity.this, "zhm--token" + qqAuthBean.getAccess_token());
             initOpenidAndToken(jsonObject);
@@ -524,6 +524,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
                 @Override
                 public void onFailure(HttpException error, String msg) {
+                    showProgress(false);
                     ToastUtils.showToast(getApplicationContext(), "服务器链接失败");
                 }
             });
@@ -608,6 +609,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         DXLHttpUtils.getHttpUtils().send(HttpRequest.HttpMethod.POST, DXLApi.getAuthApi(), params, new RequestCallBack<String>() {
                             @Override
                             public void onSuccess(ResponseInfo<String> responseInfo) {
+
                                 if ("action is null".equals(responseInfo.result)) {
                                     ToastUtils.showToast(getApplicationContext(), responseInfo.result);
                                     return;
@@ -623,7 +625,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
                             @Override
                             public void onFailure(HttpException error, String msg) {
-
+                                showProgress(false);
                             }
                         });
 //                        wbUser.
@@ -923,6 +925,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
             @Override
             public void onFailure(HttpException error, String msg) {
+                showProgress(false);
                 ToastUtils.showToast(getApplicationContext(), "服务器链接失败");
             }
         });

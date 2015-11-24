@@ -69,7 +69,7 @@ public class UserListFragment extends Fragment implements SwipeRefreshLayout.OnR
     @ViewInject(R.id.recycler_userlist)
     private RecyclerView recyclerView;
     private OnFragmentInteractionListener mListener;
-    private int rowperpage = 4;//每页的条数
+    private int rowperpage = 6;//每页的条数
     private int thispage = 0;//起始页
     private int countRow = 0;
     private String action = "userinfopage";

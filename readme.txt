@@ -142,3 +142,5 @@ API Key	51e0b4e64e96496e525588a9b6ea5495
 API Secret	E6IP10rG7tBm9wAz_26Go64xUAD6mT7i
 
 5.fragmen遇到的问题--基础不扎实--fragmen需要一个id才能通过，否则xml布局文件无法通过
+
+6.融云环境配置是在IMkit

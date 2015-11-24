@@ -16,7 +16,6 @@
             <option value="$PROJECT_DIR$/libs/kenburnsview_lib" />
             <option value="$PROJECT_DIR$/libs/xutils_lib" />
             <option value="$PROJECT_DIR$/libs/zxing_lib" />
-            <option value="$PROJECT_DIR$/shareSDK" />
             <option value="$PROJECT_DIR$/weiboSDK" />
           </set>
         </option>

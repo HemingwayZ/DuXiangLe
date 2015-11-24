@@ -113,7 +113,9 @@
 
         <meta-data
             android:name="RONG_CLOUD_APP_KEY"
-            android:value="82hegw5uh0bpx" />
+            android:value="e0x9wycfxl83q" />
+        <!-- 生成环境 e0x9wycfxl83q -->
+        <!-- 开发环境 82hegw5uh0bpx -->
         <!-- end -->
     </application>
 

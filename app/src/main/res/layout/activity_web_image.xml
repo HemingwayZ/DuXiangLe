@@ -5,28 +5,35 @@
     android:layout_height="match_parent"
     tools:context="com.zhm.duxiangle.WebImageActivity">
 
+    <include
+        android:id="@+id/include"
+        android:layout_width="match_parent"
+        layout="@layout/include_toorbar_layout"
+        android:layout_height="wrap_content"></include>
+
     <WebView
         android:id="@+id/webView"
         android:layout_width="match_parent"
+        android:layout_below="@id/include"
         android:layout_height="match_parent"></WebView>
 
     <Button
+        android:id="@+id/btnSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="查看小图"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:id="@+id/btnSmall" />
+        android:text="查看小图" />
 
     <Button
         android:id="@+id/btnBig"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="查看大图"
         android:layout_alignParentBottom="true"
+        android:layout_toEndOf="@+id/btnSmall"
         android:layout_toRightOf="@+id/btnSmall"
-        android:layout_toEndOf="@+id/btnSmall" />
+        android:text="查看大图" />
 
     <ProgressBar
         android:id="@+id/progressBar"
