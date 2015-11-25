@@ -55,11 +55,17 @@ public class WebImageActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void onBackPressed() {
+        finish();
+        overridePendingTransition(0, R.anim.hm_base_slide_right_out);
+    }
+
     private void initToorBar() {
         findViewById(R.id.ibBack).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish();
+                onBackPressed();
             }
         });
     }

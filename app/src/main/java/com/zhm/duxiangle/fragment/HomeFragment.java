@@ -173,7 +173,7 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                     return;
                 }
                 bookPage = GsonUtils.getInstance().getPageBooks(result);
-                if (bookPage != null) {
+                if (bookPage != null && bookPage.getList() != null) {
                     //分页控制
                     thispage += bookPage.getList().size();
                 }

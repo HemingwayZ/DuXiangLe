@@ -155,7 +155,9 @@
             android:name=".wxapi.WXEntryActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustPan|adjustUnspecified|stateHidden" />
-        <activity android:name=".WebImageActivity" />
+        <activity
+            android:name=".WebImageActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity
             android:name=".BookOperatorActivity"
             android:theme="@style/Transparent" />
