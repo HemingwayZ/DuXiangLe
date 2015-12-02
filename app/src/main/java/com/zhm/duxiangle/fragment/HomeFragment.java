@@ -151,7 +151,7 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
 
     private void getDataFromNet(User user, int _thispage, int _rowperpage) {
 
-        if (user == null) {
+        if (user == null || user.getUserId() <= 0) {
             return;
         }
         mSwipeLayout.setRefreshing(true);

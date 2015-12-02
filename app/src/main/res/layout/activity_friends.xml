@@ -11,6 +11,8 @@
 
     <TextView
         android:id="@+id/tvContent"
+        android:visibility="gone"
+        android:layout_gravity="center"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
     <android.support.v4.widget.SwipeRefreshLayout

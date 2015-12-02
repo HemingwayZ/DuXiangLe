@@ -4,13 +4,13 @@ android {
     compileSdkVersion 23
     buildToolsVersion "23.0.1"
 // Apache Http    android6.0sdk已经将httpClient给过时了，使用6.0编译的时候会报错
-    useLibrary 'org.apache.http.legacy'
-    defaultConfig {
-        applicationId "com.zhm.duxiangle"
-        minSdkVersion 15
-        targetSdkVersion 23
-        versionCode 3
-        versionName "1.2"
+        useLibrary 'org.apache.http.legacy'
+        defaultConfig {
+            applicationId "com.zhm.duxiangle"
+            minSdkVersion 15
+            targetSdkVersion 23
+            versionCode 4
+        versionName "1.3"
     }
     buildTypes {
         release {
@@ -33,7 +33,7 @@ dependencies {
     compile files('D:/AsWorkSpace/DuXiangLe/libs/faceppofflinesdk.jar')
     compile files('D:/AsWorkSpace/DuXiangLe/libs/faceppsdk.jar')
     compile files('D:/AsWorkSpace/DuXiangLe/libs/wximg.jar')
-    compile project(':IMKit')
+    compile project(':IMKitWithVoIP')
     compile project(':weiboSDK')
     compile files('D:/AsWorkSpace/DuXiangLe/libs/libammsdk.jar')
     compile 'me.drakeet.materialdialog:library:1.2.3'

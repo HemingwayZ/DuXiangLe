@@ -459,18 +459,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private void qqLogin() {
         listener = new BaseUiListener();
         tencent.login(LoginActivity.this, "all", listener);
-
-//        getQQUserInfo();
-//        UserInfo info = new UserInfo(getApplicationContext(), tencent.getQQToken());
-//        info.getUserInfo(listener);
-//        LogUtils.i(LoginActivity.this, "zhm-- " + info.toString());
     }
-
-//    private void getQQUserInfo() {
-//        UserInfo mInfo = new UserInfo(getApplicationContext(), tencent.getQQToken());
-//        mInfo.getUserInfo(new BaseUIListener(getApplicationContext(), "get_simple_userinfo"));
-//        LogUtils.i(LoginActivity.this, "zhm--  " + mInfo.toString());
-//    }
 
     private class BaseUiListener implements IUiListener {
 
@@ -832,29 +821,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         }
                         LogUtils.i(LoginActivity.this, "zhm--  1" + userInfo.toString());
                     }
-//                    Message msg = new Message();
-//                    msg.obj = response;
-//                    msg.what = 0;
-//                    mHandler.sendMessage(msg);
-//                    new Thread() {
-//                        @Override
-//                        public void run() {
-//                            JSONObject json = (JSONObject) response;
-//                            if (json.has("figureurl")) {
-//                                Bitmap bitmap = null;
-//                                try {
-//                                    bitmap = Util.getbitmap(json.getString("figureurl_qq_2"));
-//                                } catch (JSONException e) {
-//
-//                                }
-//                                Message msg = new Message();
-//                                msg.obj = bitmap;
-//                                msg.what = 1;
-//                                mHandler.sendMessage(msg);
-//                            }
-//                        }
-//
-//                    }.start();
                 }
 
                 @Override

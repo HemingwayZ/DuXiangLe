@@ -107,6 +107,7 @@ public class FriendsActivity extends SlidingBackActivity implements SwipeRefresh
                 }
                 friendsInfo = GsonUtils.getInstance().getFriendsInfo(result);
                 if (friendsInfo == null) {
+                    tvContent.setVisibility(View.VISIBLE);
                     tvContent.setText("还木有好友");
                 }
                 if (adapter != null && friendsInfo != null) {
@@ -115,7 +116,14 @@ public class FriendsActivity extends SlidingBackActivity implements SwipeRefresh
                             if (TextUtils.isEmpty(userinfo.getAvatar())) {
                                 userinfo.setAvatar("");
                             }
-                            RongIM.getInstance().refreshUserInfoCache(new io.rong.imlib.model.UserInfo(String.valueOf(userinfo.getUserId()), userinfo.getNickname(), Uri.parse(DXLApi.BASE_URL + userinfo.getAvatar())));
+                            if (userinfo.getAvatar() != null) {
+                                //防止第三方认证的时候出现头像以http开头导致闪退显现
+                                if (userinfo.getAvatar().startsWith("http")) {
+                                    RongIM.getInstance().refreshUserInfoCache(new io.rong.imlib.model.UserInfo(String.valueOf(userinfo.getUserId()), userinfo.getNickname(), Uri.parse(userinfo.getAvatar())));
+                                } else {
+                                    RongIM.getInstance().refreshUserInfoCache(new io.rong.imlib.model.UserInfo(String.valueOf(userinfo.getUserId()), userinfo.getNickname(), Uri.parse(DXLApi.BASE_URL + userinfo.getAvatar())));
+                                }
+                            }
                         }
                     }
                     adapter.setUserInfoList(friendsInfo);
