@@ -66,7 +66,7 @@ public class HomeRecycleViewAdapter extends RecyclerView.Adapter<HomeRecycleView
         holder.tvTitle.setText("书名:" + mData.get(position).getTitle());
         holder.tvAuthor.setText("作者:" + (mData.get(position).getStrAuthor() == null ? "佚名" : mData.get(position).getStrAuthor()));
         holder.tvIsbn.setText("ISBN:" + mData.get(position).getIsbn13());
-        holder.ivBookCover.setOnClickListener(new View.OnClickListener() {
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent();

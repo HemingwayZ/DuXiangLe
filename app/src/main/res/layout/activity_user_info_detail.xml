@@ -62,6 +62,8 @@
         app:layout_anchorGravity="bottom|end" />
 
     <LinearLayout
+        android:id="@+id/llButton"
+
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
@@ -71,6 +73,7 @@
             android:id="@+id/btnSend"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:visibility="gone"
             android:layout_weight="1"
             android:text="发送消息" />
 
@@ -78,6 +81,7 @@
             android:id="@+id/btnEdit"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:visibility="gone"
             android:layout_weight="1"
             android:text="编辑资料" />
 
@@ -85,12 +89,14 @@
         android:id="@+id/btnAddFriend"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+            android:visibility="gone"
         android:layout_weight="1"
         android:text="加为好友" />
         <Button
             android:id="@+id/btnRemoveFriend"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:visibility="gone"
             android:layout_weight="1"
             android:text="删除好友" />
 
@@ -98,6 +104,7 @@
             android:id="@+id/btnBookRoom"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+
             android:layout_weight="1"
             android:text="进入书房" />
     </LinearLayout>

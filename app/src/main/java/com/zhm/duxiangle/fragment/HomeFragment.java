@@ -17,8 +17,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import com.lidroid.xutils.DbUtils;
 import com.lidroid.xutils.ViewUtils;
@@ -135,8 +137,13 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     @ViewInject(R.id.book_cover)
     private ImageView ivBookCover;
 
-    @ViewInject(R.id.ibSearch)
-    private ImageButton ibSearch;
+    //搜索框
+    @ViewInject(R.id.llSearch)
+    private LinearLayout llSearch;
+    @ViewInject(R.id.etSearch)
+    private EditText etSearch;
+    @ViewInject(R.id.btnSearch)
+    private ImageButton btnSearch;
     //未登录状态
     @ViewInject(R.id.isLogin)
     private ImageView isLogin;
@@ -173,11 +180,14 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                     return;
                 }
                 bookPage = GsonUtils.getInstance().getPageBooks(result);
+                if (bookPage == null) {
+                    return;
+                }
                 if (bookPage != null && bookPage.getList() != null) {
                     //分页控制
                     thispage += bookPage.getList().size();
                 }
-                if (bookPage.getList().size() > 0) {
+                if (bookPage.getList() != null && bookPage.getList().size() > 0) {
                     countRows += bookPage.getList().size();
                     bookList.addAll(bookPage.getList());
                     if (homeAdapter != null) {
@@ -255,6 +265,7 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+
         bookList = new ArrayList<Book>();
         getUser();
         //初始化数据
@@ -295,7 +306,7 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                     case RecyclerView.SCROLL_STATE_IDLE:
                         if (layoutManager.findLastCompletelyVisibleItemPosition() == bookList.size() - 1) {
 
-                            if (thispage >= bookPage.getCountrow()) {
+                            if (bookPage != null && thispage >= bookPage.getCountrow()) {
                                 Snackbar.make(mSwipeLayout, "已到尾页", Snackbar.LENGTH_SHORT).show();
                                 return;
                             }
@@ -320,7 +331,7 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                 super.onScrolled(recyclerView, dx, dy);
             }
         });
-        ibSearch.setOnClickListener(new View.OnClickListener() {
+        llSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), SearchBookActivity.class);
@@ -330,8 +341,23 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         });
         //初始化数据
         getDataFromNet(user, thispage, rowperpage);
-
+        initSearch();
         return view;
+    }
+
+    private void initSearch() {
+        etSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), SearchBookActivity.class);
+                intent.putExtra("userid", user.getUserId());
+                startActivity(intent);
+            }
+        });
+        etSearch.setFocusable(false);
+        etSearch.setClickable(false);
+        btnSearch.setFocusable(false);
+        btnSearch.setClickable(false);
     }
 
 

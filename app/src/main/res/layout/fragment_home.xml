@@ -13,7 +13,7 @@
         android:src="@drawable/login_out"
         android:visibility="gone" />
 
-    <LinearLayout
+    <!--<LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <ImageButton
@@ -23,8 +23,8 @@
             android:layout_height="wrap_content"
             android:src="@drawable/icon_search" />
 
-    </LinearLayout>
-
+    </LinearLayout>-->
+    <include layout="@layout/include_search"></include>
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"

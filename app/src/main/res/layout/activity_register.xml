@@ -71,7 +71,7 @@
                     android:id="@+id/confirmPassword"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="confirm your password"
+                    android:hint="请确认密码"
                     android:imeActionId="@+id/login"
                     android:imeActionLabel="@string/action_sign_in_short"
                     android:imeOptions="actionUnspecified"
@@ -126,8 +126,6 @@
                 android:text="已有账号，请登录"
                 android:textColor="@android:color/tertiary_text_light"
                 android:textCursorDrawable="@android:color/holo_red_light" />
-
-
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

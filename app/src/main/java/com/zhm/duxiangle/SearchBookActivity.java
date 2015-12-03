@@ -47,7 +47,7 @@ public class SearchBookActivity extends SlidingBackActivity implements View.OnCl
     @ViewInject(R.id.etSearch)
     private EditText etSearch;
     @ViewInject(R.id.btnSearch)
-    private Button btnSearch;
+    private ImageButton btnSearch;
 
     @ViewInject(R.id.recycler)
     private RecyclerView recyclerView;

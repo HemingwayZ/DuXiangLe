@@ -36,7 +36,7 @@ public class SearchUserActivity extends SlidingBackActivity implements View.OnCl
 
     //搜索
     @ViewInject(R.id.btnSearch)
-    private Button btnSearch;
+    private ImageButton btnSearch;
     @ViewInject(R.id.etSearch)
     private EditText etSearch;
     //工具栏
@@ -103,7 +103,7 @@ public class SearchUserActivity extends SlidingBackActivity implements View.OnCl
                     return;
                 }
                 infoList = GsonUtils.getInstance().getFriendsInfo(result);
-                if (adapter != null) {
+                if (adapter != null && infoList != null) {
                     adapter.setUserInfoList(infoList);
                     adapter.notifyDataSetChanged();
                 }
@@ -113,7 +113,7 @@ public class SearchUserActivity extends SlidingBackActivity implements View.OnCl
             @Override
             public void onFailure(HttpException error, String msg) {
                 mSwipeLayout.setRefreshing(false);
-                ToastUtils.showToast(SearchUserActivity.this,"服务器连接失败");
+                ToastUtils.showToast(SearchUserActivity.this, "服务器连接失败");
             }
         });
     }

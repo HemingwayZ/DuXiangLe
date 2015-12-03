@@ -23,8 +23,13 @@ import com.zhm.duxiangle.utils.ToastUtils;
 
 import java.util.Locale;
 
+import io.rong.imkit.RongContext;
 import io.rong.imkit.RongIM;
 import io.rong.imkit.fragment.ConversationFragment;
+import io.rong.imkit.widget.provider.CameraInputProvider;
+import io.rong.imkit.widget.provider.ImageInputProvider;
+import io.rong.imkit.widget.provider.InputProvider;
+import io.rong.imkit.widget.provider.LocationInputProvider;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.UserInfo;
@@ -129,6 +134,10 @@ public class ConversationActivity extends SlidingBackActivity {
     private void enterFragment(Conversation.ConversationType mConversationType, String mTargetId) {
 
         ConversationFragment fragment = (ConversationFragment) getSupportFragmentManager().findFragmentById(R.id.conversation);
+        //我需要让他显示的内容的数组  此处示例 语音 位置 ,相册
+        InputProvider.ExtendProvider[] ep = {new LocationInputProvider(RongContext.getInstance()),new CameraInputProvider(RongContext.getInstance()),new ImageInputProvider(RongContext.getInstance())};
+        //我需要让他在什么会话类型中的 bar 展示
+        RongIM.resetInputExtensionProvider(Conversation.ConversationType.PRIVATE, ep);
 
         //rong://com.zhm.duxiangle/conversation/private?targetId=1
         Uri uri = Uri.parse("rong://" + getApplicationInfo().packageName).buildUpon()

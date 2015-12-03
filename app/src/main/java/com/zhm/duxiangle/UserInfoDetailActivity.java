@@ -17,6 +17,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -52,6 +53,8 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
     UserInfo userinfo;
 
     //发送消息和编辑资料
+    @ViewInject(R.id.llButton)
+    private LinearLayout llButton;
     @ViewInject(R.id.btnSend)
     private Button btnSend;
     @ViewInject(R.id.btnEdit)
@@ -124,6 +127,7 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
         DXLHttpUtils.getHttpUtils().send(HttpRequest.HttpMethod.POST, DXLApi.getUserInfoApi(), params, new RequestCallBack<String>() {
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
+
                 String result = responseInfo.result;
                 Log.i(MainActivity.class.getSimpleName(), result);
                 if ("no found".equals(result)) {
@@ -136,6 +140,7 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
                 if (userinfo == null) {
                     return;
                 }
+                llButton.setVisibility(View.VISIBLE);
                 etNickname.setText(userinfo.getNickname());
                 etCreated.setText(userinfo.getCreated());
                 etDesc.setText(userinfo.getDescrib());
@@ -164,7 +169,8 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
 
         getUser();
         initData(getIntent());
-        isMyFriend();
+        if (userinfo != null)
+            isMyFriend();
         setSupportActionBar(toolbar);
         fab.setOnClickListener(this);
 
@@ -246,10 +252,13 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
     private void initData(Intent intent) {
         userinfo = (UserInfo) intent.getSerializableExtra("userinfo");
         isMy = getIntent().getBooleanExtra("isMy", false);
-        if (userinfo.getUserId() == user.getUserId()) {
-            isMy = true;
+        if (userinfo == null) {
+            return;
         }
         if (userinfo != null) {
+            if (userinfo.getUserId() == user.getUserId()) {
+                isMy = true;
+            }
             etCreated.setText(userinfo.getCreated());
             etNickname.setText(userinfo.getNickname());
             etDesc.setText(userinfo.getDescrib());
@@ -272,11 +281,16 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
             btnRemoveFriend.setOnClickListener(this);
             btnBookRoom.setOnClickListener(this);
             ivWall.setOnClickListener(this);
-            if (isMy) {
-                btnSend.setVisibility(View.GONE);
-            } else {
-                btnEdit.setVisibility(View.GONE);
-            }
+            isMyInfo(isMy);
+        }
+    }
+
+    private void isMyInfo(boolean _isMy) {
+        if (_isMy) {
+            btnEdit.setVisibility(View.VISIBLE);
+        } else {
+            btnSend.setVisibility(View.VISIBLE);
+            btnAddFriend.setVisibility(View.VISIBLE);
         }
     }
 
@@ -337,6 +351,9 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
     }
 
     private void openBigAvatar() {
+        if(userinfo==null){
+            return;
+        }
         Intent intent = new Intent();
         intent.setClass(UserInfoDetailActivity.this, WebImageActivity.class);
         if (userinfo.getAvatar() != null) {
@@ -533,7 +550,7 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
      */
     private void uploadPicWall() {
 //        String path = BitmapUtils.getImageAbsolutePath(this, uri);
-        final File file = new File( Constant.compressPath);
+        final File file = new File(Constant.compressPath);
         if (file.exists()) {
             RequestParams params = new RequestParams();
             params.addBodyParameter("file", file);
@@ -541,7 +558,7 @@ public class UserInfoDetailActivity extends SlidingBackActivity implements View.
             DXLHttpUtils.getHttpUtils().send(HttpRequest.HttpMethod.POST, DXLApi.getUpdatePicWallApi(), params, new RequestCallBack<String>() {
                 @Override
                 public void onSuccess(ResponseInfo<String> responseInfo) {
-                    if(file.exists()){
+                    if (file.exists()) {
                         file.delete();
                     }
                     Log.i(UserInfoDetailActivity.class.getSimpleName() + "responseInfo:", responseInfo.result);

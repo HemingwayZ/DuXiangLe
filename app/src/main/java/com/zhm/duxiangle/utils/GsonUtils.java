@@ -28,7 +28,7 @@ public class GsonUtils {
     }
 
     public <T> T json2Bean(String json, Class<T> tClass) {
-        if(json==null){
+        if(json==null||!json.startsWith("{")){
             return null;
         }
         //gson源码已经对json空值进行判断
@@ -41,6 +41,7 @@ public class GsonUtils {
     }
 
     public String bean2Json(Object object) {
+
         //gson源码已经对json空值进行判断
         if (null == gson) {
             gson = new Gson();
@@ -49,6 +50,9 @@ public class GsonUtils {
     }
 
     public List<Book> getBooks(String json) {
+        if(json==null||!json.startsWith("{")){
+            return null;
+        }
         //gson源码已经对json空值进行判断
         if (null == gson) {
             gson = new Gson();
@@ -57,6 +61,9 @@ public class GsonUtils {
         }.getType());
     }
     public Page<UserInfo> getUserInfos(String json) {
+        if(json==null||!json.startsWith("{")){
+            return null;
+        }
         //gson源码已经对json空值进行判断
         if (null == gson) {
             gson = new Gson();
@@ -66,6 +73,9 @@ public class GsonUtils {
     }
 
     public Page<Book> getPageBooks(String json) {
+        if(json==null||!json.startsWith("{")){
+            return null;
+        }
         //gson源码已经对json空值进行判断
         if (null == gson) {
             gson = new Gson();
@@ -75,6 +85,9 @@ public class GsonUtils {
     }
 
     public List<Friends> getFriends(String json) {
+        if(json==null||!json.startsWith("{")){
+            return null;
+        }
         //gson源码已经对json空值进行判断
         if (null == gson) {
             gson = new Gson();
@@ -84,6 +97,9 @@ public class GsonUtils {
     }
 
     public List<UserInfo> getFriendsInfo(String json) {
+        if(json==null){
+            return null;
+        }
         //gson源码已经对json空值进行判断
         if (null == gson) {
             gson = new Gson();

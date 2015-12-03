@@ -65,10 +65,12 @@ import com.zhm.duxiangle.fragment.UserListFragment;
 import com.zhm.duxiangle.utils.BitmapUtils;
 import com.zhm.duxiangle.utils.DXLHttpUtils;
 import com.zhm.duxiangle.utils.GsonUtils;
+import com.zhm.duxiangle.utils.LogUtils;
 import com.zhm.duxiangle.utils.SpUtil;
 import com.zhm.duxiangle.utils.ToastUtils;
 
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 import io.rong.imkit.RongIM;
 import io.rong.imlib.RongIMClient;
@@ -123,9 +125,15 @@ public class MainActivity extends AppCompatActivity
         fabScan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "扫描二维码", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-                callScanning("UTF-8");
+                if (user != null) {
+                    callScanning("UTF-8");
+                } else {
+                    Intent intent = new Intent();
+                    intent.setClass(MainActivity.this, LoginActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+
             }
         });
 
@@ -166,8 +174,8 @@ public class MainActivity extends AppCompatActivity
                     initRong(user.getToken());
                 }
             } else {
-                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                startActivity(intent);
+//                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+//                startActivity(intent);
             }
         }
     }
@@ -192,6 +200,8 @@ public class MainActivity extends AppCompatActivity
                 if ("action".equals(result)) {
                     return;
                 }
+                LogUtils.i(MainActivity.this, result);
+
                 userinfo = GsonUtils.getInstance().json2Bean(result, UserInfo.class);
                 if (userinfo == null) {
                     return;
@@ -243,9 +253,7 @@ public class MainActivity extends AppCompatActivity
                     public void onTokenIncorrect() {
                         //Connect Token 失效的状态处理，需要重新获取 Token
                         ToastUtils.showToast(getApplicationContext(), "融云服务器异常");
-                        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                        startActivity(intent);
-                        finish();
+                        userIsNull();
                     }
 
                     /**
@@ -394,41 +402,35 @@ public class MainActivity extends AppCompatActivity
         super.onResume();
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
-            startActivity(intent);
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        // Handle action bar item clicks here. The action bar will
+//        // automatically handle clicks on the Home/Up button, so long
+//        // as you specify a parent activity in AndroidManifest.xml.
+//        int id = item.getItemId();
+//
+//        //noinspection SimplifiableIfStatement
+//        if (id == R.id.action_settings) {
+//            Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
+//            startActivity(intent);
+//            return true;
+//        }
+//
+//        return super.onOptionsItemSelected(item);
+//    }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-
+        userIsNull();
         if (id == R.id.nav_camara) {
             //定位操作
             Intent intent = new Intent(MainActivity.this, BaiduMapActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_gallery) {
             Intent intent = new Intent();
-            if (user == null) {
-                intent.setClass(MainActivity.this, LoginActivity.class);
-                startActivity(intent);
-                finish();
-                return true;
-            }
             intent.setClass(MainActivity.this, FriendsActivity.class);
             intent.putExtra("userid", String.valueOf(user.getUserId()));
             startActivity(intent);
@@ -468,6 +470,15 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    private void userIsNull() {
+        if (user == null) {
+            Intent intent = new Intent();
+            intent.setClass(MainActivity.this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+        }
+    }
+
     private void toConversationList() {
         if (tvNewMessage.getVisibility() == View.VISIBLE) {
             tvNewMessage.setVisibility(View.GONE);
@@ -492,7 +503,15 @@ public class MainActivity extends AppCompatActivity
         req.scene = flag == 0 ? SendMessageToWX.Req.WXSceneSession : SendMessageToWX.Req.WXSceneTimeline;
         ShareApi.api.sendReq(req);
     }
-
+    /**
+     * 使用正则表达式判断数字
+     * @param str
+     * @return
+     */
+    public boolean isNumeric(String str){
+        Pattern pattern = Pattern.compile("[0-9]*");
+        return pattern.matcher(str).matches();
+    }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
@@ -502,6 +521,19 @@ public class MainActivity extends AppCompatActivity
         switch (requestCode) {
             case REQUEST_CODE:
                 //扫描结果 data带有扫描结果集
+                String isbn = data.getStringExtra(Intents.Scan.RESULT);
+                if(isbn!=null){
+                    if(isNumeric(isbn)){
+                        //数字
+                        if(isbn.length()<10||isbn.length()>13){
+                           ToastUtils.showToast(MainActivity.this,"非法ISBN号码");
+                            break;
+                        }
+                    }else{
+                        ToastUtils.showToast(MainActivity.this,"非法ISBN号码");
+                        break;
+                    }
+                }
                 data.setClass(MainActivity.this, BookDetailActivity.class);
                 startActivity(data);
                 break;
@@ -604,6 +636,10 @@ public class MainActivity extends AppCompatActivity
 
     //qq分享
     public void qqShare() {
+        if (userinfo == null) {
+            ToastUtils.showToast(MainActivity.this, "请检查网络");
+            return;
+        }
         mTencent = Tencent.createInstance(Constant.QQ_APP_ID, MainActivity.this);
         Bundle bundle = new Bundle();
         //这条分享消息被好友点击后的跳转URL。

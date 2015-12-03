@@ -30,10 +30,12 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * This activity opens the camera and does the actual scanning on a background thread. It draws a
@@ -244,9 +246,28 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         handleDecodeExternally(rawResult);
     }
 
+    /**
+     * 使用正则表达式判断数字
+     * @param str
+     * @return
+     */
+    public boolean isNumeric(String str){
+        Pattern pattern = Pattern.compile("[0-9]*");
+        return pattern.matcher(str).matches();
+    }
     // Briefly show the contents of the barcode, then handle the result outside Barcode Scanner.
     private void handleDecodeExternally(Result rawResult) {
 
+        if(rawResult.toString()!=null){
+            String result = rawResult.toString();
+            if(isNumeric(result)){
+                if(result.length()<10||result.length()>13){
+                    //非isbn判断
+                    Toast.makeText(CaptureActivity.this,"非法ISBN",Toast.LENGTH_SHORT).show();
+
+                }
+            }
+        }
         // Hand back whatever action they requested - this can be changed to Intents.Scan.ACTION when
         // the deprecated intent is retired.
         Intent intent = new Intent(getIntent().getAction());
@@ -259,6 +280,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         }
         Map<ResultMetadataType,?> metadata = rawResult.getResultMetadata();
         if (metadata != null) {
+
             if (metadata.containsKey(ResultMetadataType.UPC_EAN_EXTENSION)) {
                 intent.putExtra(Intents.Scan.RESULT_UPC_EAN_EXTENSION,
                         metadata.get(ResultMetadataType.UPC_EAN_EXTENSION).toString());

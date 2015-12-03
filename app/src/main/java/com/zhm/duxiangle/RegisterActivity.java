@@ -236,7 +236,7 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
             cancel = true;
         }
         if (!strChechCode.toLowerCase().equals(identifyingCode.toLowerCase())) {
-            etCheckCode.setError(getString(R.string.error_invalid_password));
+            etCheckCode.setError("请输入验证码");
             Log.i("code", identifyingCode);
             Log.i("strChechCode",strChechCode);
             focusView=etCheckCode;
@@ -263,7 +263,7 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
             cancel = true;
         }
         if (!password.equals(strConfirmPassowrd)) {
-            confirmPassword.setError("password mismatch");
+            confirmPassword.setError("密码不匹配");
             focusView = confirmPassword;
             cancel = true;
         }
@@ -418,6 +418,10 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
     }
 
     private void getTokenByUserId(final User user) {
+        if(user==null){
+            ToastUtils.showToast(RegisterActivity.this,"请检查网络");
+            return;
+        }
         RequestParams params = new RequestParams();
         params.addBodyParameter("userid", String.valueOf(user.getUserId()));
         DXLHttpUtils.getHttpUtils().send(HttpRequest.HttpMethod.POST, DXLApi.getIoRongTokenApi(), params, new RequestCallBack<String>() {

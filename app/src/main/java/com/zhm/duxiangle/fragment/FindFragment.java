@@ -23,6 +23,7 @@ import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.TextView;
@@ -128,7 +129,7 @@ public class FindFragment extends Fragment implements AbsListView.OnItemClickLis
     @ViewInject(R.id.etSearch)
     private EditText etSearch;
     @ViewInject(R.id.btnSearch)
-    private Button btnSearch;
+    private ImageButton btnSearch;
     private boolean isRefresh = false;//判断是否正在刷新
     List<Book> books;
     SearchAdapter adapter;

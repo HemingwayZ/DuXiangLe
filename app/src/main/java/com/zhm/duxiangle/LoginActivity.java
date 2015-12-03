@@ -528,7 +528,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         @Override
         public void onCancel() {
-            ToastUtils.showToast(getApplicationContext(), "onCancel" + "");
+            ToastUtils.showToast(getApplicationContext(), "取消授权");
         }
     }
 
@@ -631,8 +631,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         @Override
         public void onCancel() {
-            Toast.makeText(LoginActivity.this,
-                    "取消", Toast.LENGTH_LONG).show();
+            ToastUtils.showToast(getApplicationContext(), "取消授权");
         }
 
         @Override
@@ -662,6 +661,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     }
 
     private void getTokenByUserId(final User user) {
+        if(user==null){
+            ToastUtils.showToast(LoginActivity.this,"请检查网络");
+            showProgress(false
+            );
+            return;
+        }
         RequestParams params = new RequestParams();
         params.addBodyParameter("userid", String.valueOf(user.getUserId()));
         DXLHttpUtils.getHttpUtils().send(HttpRequest.HttpMethod.POST, DXLApi.getIoRongTokenApi(), params, new RequestCallBack<String>() {

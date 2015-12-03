@@ -15,8 +15,10 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import com.lidroid.xutils.ViewUtils;
 import com.lidroid.xutils.exception.HttpException;
@@ -27,6 +29,7 @@ import com.lidroid.xutils.http.client.HttpRequest;
 import com.lidroid.xutils.view.annotation.ViewInject;
 import com.zhm.duxiangle.LoginActivity;
 import com.zhm.duxiangle.R;
+import com.zhm.duxiangle.SearchBookActivity;
 import com.zhm.duxiangle.SearchUserActivity;
 import com.zhm.duxiangle.adapter.UserListAdapter;
 import com.zhm.duxiangle.api.DXLApi;
@@ -60,9 +63,13 @@ public class UserListFragment extends Fragment implements SwipeRefreshLayout.OnR
     private String mParam1;
     private String mParam2;
     View view;
-    //搜索
-    @ViewInject(R.id.ibSearch)
-    private ImageButton ibSearch;
+    //搜索框
+    @ViewInject(R.id.llSearch)
+    private LinearLayout llSearch;
+    @ViewInject(R.id.etSearch)
+    private EditText etSearch;
+    @ViewInject(R.id.btnSearch)
+    private ImageButton btnSearch;
 
     @ViewInject(R.id.swipeRefreshLayout_userlist)
     SwipeRefreshLayout mSwipeLayout;
@@ -137,7 +144,20 @@ public class UserListFragment extends Fragment implements SwipeRefreshLayout.OnR
     public UserListFragment() {
         // Required empty public constructor
     }
-
+    private void initSearch() {
+        etSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.setClass(getActivity(), SearchUserActivity.class);
+                startActivity(intent);
+            }
+        });
+        etSearch.setFocusable(false);
+        etSearch.setClickable(false);
+        btnSearch.setFocusable(false);
+        btnSearch.setClickable(false);
+    }
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -162,6 +182,9 @@ public class UserListFragment extends Fragment implements SwipeRefreshLayout.OnR
                 String result = responseInfo.result;
 
                 page = GsonUtils.getInstance().getUserInfos(result);
+                if(page==null){
+                    return;
+                }
 //                tvContent.setText(page.toString());
                 if (page.getList() != null && page.getList().size() > 0) {
                     //分页逻辑
@@ -207,7 +230,7 @@ public class UserListFragment extends Fragment implements SwipeRefreshLayout.OnR
         view = inflater.inflate(R.layout.fragment_user_list, container, false);
         ViewUtils.inject(this, view);
 
-        ibSearch.setOnClickListener(new View.OnClickListener() {
+        llSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent();
@@ -274,6 +297,7 @@ public class UserListFragment extends Fragment implements SwipeRefreshLayout.OnR
                 }
             }
         });
+        initSearch();
         return view;
     }
 

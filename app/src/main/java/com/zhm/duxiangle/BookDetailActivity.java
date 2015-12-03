@@ -59,6 +59,7 @@ import com.zhm.duxiangle.view.MyHorizontalScrollView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import io.rong.imkit.RongIM;
 import io.rong.imlib.RongIMClient;
@@ -318,7 +319,15 @@ public class BookDetailActivity extends SlidingBackActivity {
             isbn = isbn == null ? "9787512401136" : isbn;
         }
     }
-
+    /**
+     * 使用正则表达式判断数字
+     * @param str
+     * @return
+     */
+    public boolean isNumeric(String str){
+        Pattern pattern = Pattern.compile("[0-9]*");
+        return pattern.matcher(str).matches();
+    }
     /**
      * 获取书籍基本信息
      */
